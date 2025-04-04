@@ -1,0 +1,80 @@
+/* === style.css === */
+
+/* Basis-Reset und Schrift */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #e9ecef; /* Hintergrund für Kontrast */
+    color: #333d49;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container */
+.container { max-width: 1200px; margin: 25px auto; padding: 0 20px; }
+
+/* Überschriften */
+h1 { font-size: 1.9rem; text-align: center; margin-bottom: 2rem; color: #2a2f45; font-weight: 700; }
+h2 { font-size: 1.3rem; border-bottom: 1px solid #e1e5eb; padding-bottom: 0.6rem; margin-bottom: 1.2rem; color: #1c4b82; font-weight: 600; }
+@media (max-width: 991.98px) { h1{font-size:1.7rem;} h2{font-size:1.2rem;} }
+
+hr { display: none; }
+
+/* CSS Grid Layout */
+.main-grid { display: grid; grid-template-columns: 1fr 2.5fr 1.5fr; gap: 30px; }
+@media (max-width: 991.98px) { .main-grid { grid-template-columns: 1fr; gap: 25px; } }
+.grid-column-left, .grid-column-middle, .grid-column-right { min-width: 0; }
+
+/* Content Box Basis */
+.content-box { background-color: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07); height: fit-content; }
+
+/* Linke Spalte */
+.grid-column-left .action-buttons { margin-bottom: 25px; }
+.grid-column-left .action-buttons button { display: block; width: 100%; margin-bottom: 12px; }
+.grid-column-left .action-buttons button:last-child { margin-bottom: 0; }
+#backup-restore p { margin-bottom: 0; color: #5a6a7d; font-size: 0.9rem; }
+
+/* Formular Styling (Container einklappbar) */
+#fahrt-formular { max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0; margin-bottom: 0; box-shadow: none; border: none; transition: max-height 0.5s ease-out, padding 0.5s ease-out, margin-bottom 0.5s ease-out, border 0.3s ease-out, box-shadow 0.3s ease-out; }
+#fahrt-formular.form-visible { max-height: 1000px; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07); border: 1px solid #e1e5eb; border-radius: 10px; }
+#trip-entry-form div:not(:last-child) { margin-bottom: 20px; }
+#trip-entry-form div:last-child { margin-bottom: 0; }
+label { display: block; margin-bottom: 8px; font-weight: 500; color: #4e5c6e; font-size: 0.95rem; }
+input[type="text"], input[type="date"], input[type="number"], select { width: 100%; padding: 12px 15px; border: 1px solid #d3dbe3; border-radius: 8px; font-size: 1rem; font-family: inherit; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; background-color: #fdfdff; }
+input:focus, select:focus { border-color: #0d6efd; outline: 0; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); background-color: #fff; }
+
+/* Button Styling */
+button { padding: 12px 18px; border: 1px solid transparent; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; line-height: 1.5; text-align: center; text-decoration: none; vertical-align: middle; user-select: none; transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, transform 0.1s ease; }
+button:active { transform: scale(0.97); }
+button:focus-visible { outline: 2px solid #0d6efd; outline-offset: 2px; }
+button i.fa-solid { margin-right: 8px; }
+.button-primary, #speichern-btn { background-color: #0d6efd; background-image: linear-gradient(180deg, #2e89ff 0%, #0d6efd 100%); border-color: #0d6efd; color: white; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075); }
+.button-primary:hover, #speichern-btn:hover { background-color: #0b5ed7; background-image: none; border-color: #0a58ca; }
+#cancel-edit-btn { background-color: #6c757d; border-color: #6c757d; color: white; margin-left: 10px; }
+#cancel-edit-btn:hover { background-color: #5a6268; border-color: #545b62; }
+#export-csv-btn, #export-json-btn, #import-json-btn { color: #17a2b8; background-color: transparent; border-color: #17a2b8; }
+#export-csv-btn:hover, #export-json-btn:hover, #import-json-btn:hover { color: #fff; background-color: #17a2b8; border-color: #17a2b8; }
+
+/* Styling für Listeneinträge */
+.fahrt-item { padding: 15px 0; border-bottom: 1px solid #e9ecef; transition: background-color 0.2s ease; }
+#fahrten-liste-container > .content-box > #fahrten-liste > .fahrt-item:first-child { border-top: 1px solid #e9ecef; }
+#fahrten-liste-container > .content-box > #fahrten-liste > .fahrt-item:last-child { border-bottom: none; padding-bottom: 5px; }
+.fahrt-item:hover { background-color: #f8f9fa; }
+.list-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.list-item-date { flex-grow: 1; }
+.list-item-details div { margin-bottom: 8px; line-height: 1.5; }
+.list-item-details div:last-child { margin-bottom: 0; }
+span.list-label { display: inline-block; width: 110px; font-weight: 600; color: #495057; margin-right: 10px; vertical-align: baseline; }
+#fahrten-liste .buttons-container { display: flex; gap: 8px; flex-shrink: 0; margin-left: 15px; }
+#fahrten-liste .edit-btn, #fahrten-liste .delete-btn { padding: 3px 6px; font-size: 0.8rem; border-radius: 6px; line-height: 1; }
+#fahrten-liste .edit-btn { background-color: #ffca2c; color: #333; border: 1px solid #ffc107; }
+#fahrten-liste .delete-btn { background-color: #e63946; color: white; border: 1px solid #dc3545; }
+#fahrten-liste .edit-btn:hover { background-color: #ffc107; border-color: #e0a800; }
+#fahrten-liste .delete-btn:hover { background-color: #dc3545; border-color: #c82333; }
+#fahrten-liste button i.fa-solid { margin-right: 0; }
+
+/* Zusammenfassung */
+ #zusammenfassung ul { list-style: none; padding-left: 0; margin-top: 0.5rem; }
+ #zusammenfassung li { margin-bottom: 0.4rem; color: #4e5c6e; }
+ #zusammenfassung li strong { font-weight: 600; color: #1c4b82; }

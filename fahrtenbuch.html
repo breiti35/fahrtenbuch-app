@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mein Fahrtenbuch</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Fahrtenbuch</h1>
+
+        <div class="main-grid">
+
+            <div class="grid-column-left">
+                 <h2>Aktionen</h2>
+                 <div class="action-buttons content-box">
+                     <button type="button" id="add-new-btn" class="button-primary"><i class="fa-solid fa-plus"></i> Neue Fahrt hinzufügen</button>
+                     <hr style="margin: 15px 0; border-color: #e9ecef;">
+                     <button type="button" id="export-csv-btn"><i class="fa-solid fa-file-csv"></i>CSV Export</button>
+                     <button type="button" id="export-json-btn"><i class="fa-solid fa-floppy-disk"></i>Backup (JSON)</button>
+                     <button type="button" id="import-json-btn"><i class="fa-solid fa-upload"></i>Restore (JSON)</button>
+                     <input type="file" id="import-json-file" accept=".json" style="display: none;">
+                 </div>
+
+                 <div id="backup-restore" class="content-box">
+                    <h2>Datensicherung</h2>
+                    <p>Sichere deine Fahrten oder stelle sie wieder her.</p>
+                 </div>
+            </div>
+
+            <div class="grid-column-middle">
+                <div id="fahrt-formular" class="content-box">
+                     <h2>Neuen Eintrag hinzufügen / Bearbeiten</h2>
+
+                     <form id="trip-entry-form">
+                         <div>
+                             <label for="datum">Datum:</label>
+                             <input type="date" id="datum" name="datum" required>
+                         </div>
+                         <div>
+                             <label for="start-ort">Start-Ort:</label>
+                             <input type="text" id="start-ort" name="start-ort" required>
+                         </div>
+                         <div>
+                             <label for="ziel-ort">Ziel-Ort:</label>
+                             <input type="text" id="ziel-ort" name="ziel-ort" required>
+                         </div>
+                         <div>
+                             <label for="km-start">Kilometerstand Start:</label>
+                             <input type="number" id="km-start" name="km-start" required step="any">
+                         </div>
+                         <div>
+                             <label for="km-ende">Kilometerstand Ende:</label>
+                             <input type="number" id="km-ende" name="km-ende" required step="any">
+                         </div>
+                          <div>
+                             <label for="distanz">Distanz (km):</label>
+                             <input type="number" id="distanz" name="distanz" step="0.1">
+                         </div>
+                         <div>
+                             <label for="zweck">Zweck der Fahrt:</label>
+                             <select id="zweck" name="zweck">
+                                 <option value="geschaeftlich">Geschäftlich</option>
+                                 <option value="privat">Privat</option>
+                                 <option value="arbeitsweg">Arbeitsweg</option>
+                             </select>
+                         </div>
+                         <div>
+                             <button type="button" id="speichern-btn">Fahrt speichern</button>
+                             <button type="button" id="cancel-edit-btn" style="display: none; margin-left: 10px; background-color: #6c757d; color: white;">Abbrechen</button>
+                         </div>
+                     </form> </div> <div id="fahrten-liste-container" class="content-box">
+                     <h2>Gespeicherte Fahrten</h2>
+                     <div id="fahrten-liste">
+                         <p>Noch keine Fahrten gespeichert.</p>
+                     </div>
+                </div>
+            </div>
+
+            <div class="grid-column-right">
+                <div id="zusammenfassung" class="content-box">
+                    <h2>Zusammenfassung</h2>
+                    <p>Wird berechnet...</p>
+                </div>
+            </div>
+
+        </div> </div>
+</body>
+</html>
