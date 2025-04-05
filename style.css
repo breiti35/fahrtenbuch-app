@@ -1,34 +1,18 @@
 /* === style.css === */
-/* Stand: 2025-04-04, Mit Header Bar */
+/* Stand: 2025-04-05, Flexbox Header in Liste (wie #57), Badge-Header, Karten-Items */
 
 /* Basis-Reset und Schrift */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; background-color: #e9ecef; color: #333d49; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 .container { max-width: 1200px; margin: 25px auto; padding: 0 20px; }
 
-/* --- NEU: Header Bar Styling --- */
-.app-header {
-    background-color: #ffffff; /* Dunkelblau (wie H2-Farbe) */
-    color: #1c4b82;           /* Weiße Schrift im Header */
-    padding: 15px 25px;       /* Innenabstand */
-    margin-bottom: 30px;      /* Abstand nach unten zum Grid */
-    border-radius: 8px;       /* Leicht abgerundete Ecken */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Leichter Schatten */
-}
+/* Header Bar Styling */
+.app-header { background-color: #1c4b82; color: #ffffff; padding: 15px 25px; margin-bottom: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+h1 { font-size: 1.6rem; color: inherit; font-weight: 600; margin: 0; line-height: 1.3; }
 
-h1 {
-    /* ALT: text-align: center; margin-bottom: 2rem; color: #2a2f45; */
-    font-size: 1.6rem; /* Etwas kleiner im Header */
-    color: inherit; /* Erbt Farbe vom Header (weiß) */
-    font-weight: 600; /* Semi-Bold */
-    margin: 0;        /* Kein Margin mehr nötig, Padding vom Header nutzen */
-    line-height: 1.3; /* Angepasste Zeilenhöhe */
-}
-/* --- Ende Header Bar Styling --- */
-
-
-h2 { /* Standard H2 für Boxen */ font-size: 1.3rem; border-bottom: 1px solid #e1e5eb; padding-bottom: 0.6rem; margin-bottom: 1.2rem; color: #1c4b82; font-weight: 600; }
-@media (max-width: 991.98px) { h1{font-size:1.5rem;} h2{font-size:1.2rem;} } /* H1 auf Mobile angepasst */
+/* Allgemeine H2 für Boxen */
+h2 { font-size: 1.3rem; border-bottom: 1px solid #e1e5eb; padding-bottom: 0.6rem; margin-bottom: 1.2rem; color: #1c4b82; font-weight: 600; }
+@media (max-width: 991.98px) { h1{font-size:1.5rem;} h2{font-size:1.2rem;} }
 hr { display: none; }
 
 /* Grid Layout */
@@ -36,10 +20,10 @@ hr { display: none; }
 @media (max-width: 991.98px) { .main-grid { grid-template-columns: 1fr; gap: 25px; } }
 .grid-column-left, .grid-column-middle, .grid-column-right { min-width: 0; }
 
-/* Content Box Basis */
+/* Content Box Basis (Für linke/rechte Spalte und Formular) */
 .content-box { background-color: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07); height: fit-content; }
 
-/* Linke Spalte */
+/* Linke Spalte - Menü-Stil */
 .grid-column-left .content-box > h2 { margin-top: 0; }
 .action-menu { margin-top: 0.5rem; margin-bottom: 1.5rem; }
 .action-menu button { background: none; border: none; padding: 10px 5px; margin: 0; width: 100%; display: flex; align-items: center; text-align: left; color: #333d49; font-weight: 500; font-size: 0.95rem; border-radius: 6px; cursor: pointer; transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out; box-shadow: none; background-image: none; }
@@ -52,7 +36,7 @@ hr { display: none; }
 
 /* Formular Styling */
 #fahrt-formular { max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0; margin-bottom: 0; box-shadow: none; border: none; transition: max-height 0.5s ease-out, padding 0.5s ease-out, margin-bottom 0.5s ease-out, border 0.3s ease-out, box-shadow 0.3s ease-out; }
-#fahrt-formular.form-visible { max-height: 1500px; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07); border: 1px solid #e1e5eb; border-radius: 10px; }
+#fahrt-formular.form-visible { max-height: 1500px; overflow-y: auto; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07); border: 1px solid #e1e5eb; border-radius: 10px; }
 #fahrt-formular > h2 { margin-top: 0; }
 #trip-entry-form div:not(:last-child) { margin-bottom: 20px; }
 #trip-entry-form div:last-child { margin-bottom: 0; }
@@ -64,39 +48,87 @@ input:focus, select:focus { border-color: #0d6efd; outline: 0; box-shadow: 0 0 0
 button { padding: 12px 18px; border: 1px solid transparent; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; line-height: 1.5; text-align: center; text-decoration: none; vertical-align: middle; user-select: none; transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, transform 0.1s ease; }
 button:active { transform: scale(0.97); }
 button:focus-visible { outline: 2px solid #0d6efd; outline-offset: 2px; }
-button i.fa-solid { margin-right: 8px; }
+/* Allgemeiner Icon Abstand für Buttons mit Text */
+button:not(.action-menu button):not(#fahrten-liste button) i.fa-solid { margin-right: 8px; }
+
+/* Spezifische Button Farben/Typen */
 .button-primary, #speichern-btn { background-color: #0d6efd; background-image: linear-gradient(180deg, #2e89ff 0%, #0d6efd 100%); border-color: #0d6efd; color: white; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075); }
 .button-primary:hover, #speichern-btn:hover { background-color: #0b5ed7; background-image: none; border-color: #0a58ca; }
 #cancel-edit-btn { background-color: #6c757d; border-color: #6c757d; color: white; margin-left: 10px; }
 #cancel-edit-btn:hover { background-color: #5a6268; border-color: #545b62; }
-/* Export etc. Buttons werden durch .action-menu button oben gestyled */
 
-
-/* Styling für Listeneinträge (Karten-Look) */
-#fahrten-liste-container { /* Dieser Container hat KEINE .content-box Klasse mehr im HTML! */ }
+/* Styling für Listeneinträge (WIEDER ALS KARTEN, mit FLEXBOX HEADER) */
+#fahrten-liste-container { /* Dieser Container hat KEINE .content-box Klasse im HTML! */ }
 /* Spezielles Styling für die H2 "Fahrten" als Badge */
-#fahrten-liste-container > h2 { display: inline-block; background-color: #ffffff; color: #1c4b82; padding: 8px 15px; border-radius: 6px; border-bottom: none; margin-bottom: 1.5rem; font-size: 1.2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); text-align: left; /* Sicherstellen, dass Text im Badge links ist */ }
+#fahrten-liste-container > h2 { display: inline-block; background-color: #1c4b82; color: #ffffff; padding: 8px 15px; border-radius: 6px; border-bottom: none; margin-bottom: 1.5rem; font-size: 1.2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); text-align: left; }
 #fahrten-liste { margin-top: 0; }
-.fahrt-item { background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.07); margin-bottom: 15px; transition: box-shadow 0.2s ease-in-out; }
+
+.fahrt-item { /* Jede Fahrt ist eine Karte */
+    background-color: #ffffff; padding: 20px; border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.07); margin-bottom: 15px;
+    transition: box-shadow 0.2s ease-in-out;
+    /* position: relative; Entfernt, nicht mehr benötigt */
+    text-align: left; /* WICHTIG: Überschreibt vererbtes text-align falls vorhanden */
+}
 .fahrt-item:last-child { margin-bottom: 0; }
 .fahrt-item:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-.list-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f1f3f5; }
-.list-item-date { flex-grow: 1; font-size: 0.9rem; color: #6c757d; }
-.list-item-date span.list-label { width: auto; font-weight: 600; color: #495057; margin-right: 8px; }
+
+/* Kopfzeile innerhalb der Karte (Datum/Zeit + Buttons) mit Flexbox */
+.list-item-header {
+    display: flex;
+    justify-content: space-between; /* Schiebt Datum/Zeit nach links, Buttons nach rechts */
+    align-items: center; /* Zentriert vertikal auf der Zeile */
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f1f3f5; /* Leichte Linie */
+}
+/* Container für Datum & Zeit im Header */
+.list-item-date-time {
+    display: flex; align-items: baseline; flex-wrap: wrap; /* Datum/Zeit nebeneinander, umbrechbar */
+    gap: 5px 15px; flex-grow: 1; /* Nimmt Platz ein */
+}
+.list-item-info { display: inline-flex; align-items: baseline; font-size: 0.9rem; color: #6c757d; }
+.list-icon { margin-right: 6px; width: 1em; text-align: center; }
+
+/* Details unter dem Header */
+.list-item-details { margin-top: 10px; /* Kleiner Abstand zum Header-Trenner */ }
 .list-item-details div { margin-bottom: 8px; line-height: 1.5; }
 .list-item-details div:last-child { margin-bottom: 0; }
 span.list-label { display: inline-block; width: 110px; font-weight: 500; color: #5a6a7d; margin-right: 10px; vertical-align: baseline; font-size: 0.9rem; }
-#fahrten-liste .buttons-container { display: flex; gap: 8px; flex-shrink: 0; margin-left: 15px; }
+
+/* Button Container im Header (Positionierung durch Flexbox) */
+#fahrten-liste .buttons-container {
+    display: flex; gap: 8px; flex-shrink: 0;
+    margin-left: 15px; /* Abstand zum Datum/Zeit Block */
+    /* Keine absolute Positionierung mehr */
+}
+/* Edit/Delete Button Aussehen */
 #fahrten-liste .edit-btn, #fahrten-liste .delete-btn { padding: 3px 6px; font-size: 0.8rem; border-radius: 6px; line-height: 1; background: none; border: 1px solid transparent; }
 #fahrten-liste .edit-btn { color: #ffca2c; }
 #fahrten-liste .delete-btn { color: #e63946; }
 #fahrten-liste .edit-btn:hover { background-color: #ffc1071a; }
 #fahrten-liste .delete-btn:hover { background-color: #e639461a; }
 #fahrten-liste button i.fa-solid { margin-right: 0; }
+/* --- Ende Styling für Listeneinträge --- */
+/* --- NEU: Styling für Fahrzeugverwaltung --- */
+#car-list li {
+    padding: 5px 0;
+    border-bottom: 1px dashed #e9ecef; /* Leichte Trennlinie */
+    font-size: 0.95rem;
+}
+#car-list li:last-child {
+    border-bottom: none;
+}
+#car-list strong { /* Kennzeichen hervorheben */
+    font-weight: 600;
+    margin-left: 10px;
+    display: inline-block; /* Für Margin */
+}
+/* --- Ende NEU --- */
+
 
 /* Zusammenfassung */
  #zusammenfassung { /* Nutzt .content-box */ }
- #zusammenfassung i.fa-solid fa-car { margin-right: 12px; color: #5a6a7d; width: 1.2em; text-align: center; font-size: 1.1em; }
  #zusammenfassung > h2 { margin-top: 0; }
  #zusammenfassung ul { list-style: none; padding-left: 0; margin-top: 0.5rem; }
  #zusammenfassung li { margin-bottom: 0.4rem; color: #4e5c6e; }
