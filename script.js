@@ -112,7 +112,51 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log("Event Listeners gesetzt.");
     }
     function handleAddNewClick() { console.log("Add New geklickt"); if (formularDiv.classList.contains('form-visible') && editId === null) { formularDiv.classList.remove('form-visible'); console.log("Form geschlossen."); } else { abbrechenEditModus(false); formularDiv.classList.add('form-visible'); felderFuerNeueFahrtVorbereiten(); console.log("Form geöffnet."); datumInput.focus(); formularDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } }
-    function handleListClick(event) { const editBtn = event.target.closest('.edit-btn'); const delBtn = event.target.closest('.delete-btn'); const item = event.target.closest('[data-fahrt-id]'); if (!item) return; const id = item.getAttribute('data-fahrt-id'); if (editBtn) { starteEditModus(id); } else if (delBtn) { if (confirm('Eintrag löschen?')) { fahrtLoeschen(id); } } }
+     // Ersetze handleListClick komplett
+     function handleListClick(event) {
+        // Finde das Elternelement des geklickten Ziels, das eine ID hat
+        const fahrtElement = event.target.closest('[data-fahrt-id]');
+        if (!fahrtElement) return; // Klick war nicht innerhalb eines Items
+
+        const fahrtId = fahrtElement.getAttribute('data-fahrt-id');
+
+        // Prüfe, ob auf Edit geklickt wurde
+        if (event.target.closest('.edit-btn')) {
+            starteEditModus(fahrtId);
+            return; // Verhindert, dass andere Aktionen ausgelöst werden
+        }
+
+        // Prüfe, ob auf Delete geklickt wurde
+        if (event.target.closest('.delete-btn')) {
+            if (confirm('Soll dieser Eintrag wirklich gelöscht werden?')) {
+                fahrtLoeschen(fahrtId);
+            }
+            return; // Verhindert, dass andere Aktionen ausgelöst werden
+        }
+
+        // NEU: Prüfe, ob auf Toggle Details geklickt wurde
+        const toggleButton = event.target.closest('.toggle-details-btn');
+        if (toggleButton) {
+            // Toggle die Klasse auf dem Elternelement .fahrt-item
+            fahrtElement.classList.toggle('details-collapsed');
+            // Finde das Icon im Button und ändere seine Klasse
+            const icon = toggleButton.querySelector('i.fa-solid');
+            if (icon) {
+                if (fahrtElement.classList.contains('details-collapsed')) {
+                    // Wenn eingeklappt, zeige Pfeil nach unten
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                    toggleButton.setAttribute('title', 'Details anzeigen'); // Tooltip ändern
+                } else {
+                    // Wenn ausgeklappt, zeige Pfeil nach oben
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                    toggleButton.setAttribute('title', 'Details ausblenden'); // Tooltip ändern
+                }
+            }
+            return;
+        }
+    } // Ende handleListClick
 
     // === 7. Kernfunktionen ===
     function handleFormularSpeichern() { console.log("Speichern/Update. Edit ID:", editId); let success = false; if (editId !== null) { success = fahrtAktualisieren(editId); } else { success = fahrtSpeichern(); } if (success && formularDiv) { formularDiv.classList.remove('form-visible'); console.log("Form nach Erfolg geschlossen."); } else { console.log("Speichern/Update nicht erfolgreich."); } }
@@ -135,44 +179,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // === 11. Anzeige-Funktionen ===
     function ladeGespeicherteFahrten() { const f=ladeFahrtenAusLocalStorage(); console.log(`${f.length} Fahrten für Anzeige.`); if(!fahrtenListeDiv){return;} fahrtenListeDiv.innerHTML=''; if(f.length===0){fahrtenListeDiv.innerHTML='<p>Noch keine Fahrten gespeichert.</p>';}else{f.forEach(x=>{fahrtZurListeHinzufuegen(x, true);});} }
 
-    // Erzeugt HTML für Listeneintrag (mit Auto-Anzeige)
-    // DIESE FUNKTION IST JETZT NUR EINMAL DEFINIERT!
-    function fahrtZurListeHinzufuegen(fahrt, append = false) {
-         if(!fahrtenListeDiv) { console.error("FEHLER: fahrtenListeDiv nicht gefunden!"); return; }
-         const p=fahrtenListeDiv.querySelector('p'); if(p) p.remove();
+   // Ersetze fahrtZurListeHinzufuegen komplett
+   function fahrtZurListeHinzufuegen(fahrt, append = false) {
+    if(!fahrtenListeDiv) { console.error("FEHLER: fahrtenListeDiv nicht gefunden!"); return; }
+    const p=fahrtenListeDiv.querySelector('p'); if(p) p.remove();
 
-         const el = document.createElement('div'); el.classList.add('fahrt-item'); el.setAttribute('data-fahrt-id', fahrt.id);
-         const s=fahrt.kmStart||'0'; const e=fahrt.kmEnde||'0'; const d=fahrt.distanz||'0.0'; const dat=formatDateDE(fahrt.datum);
-         const startTime = fahrt.startTime || '--:--'; const endTime = fahrt.endTime || '--:--';
-         const startOrt = fahrt.startOrt || '-'; const zielOrt = fahrt.zielOrt || '-'; const zweck = fahrt.zweck || '-';
-         // Fahrzeugnamen ermitteln
-         const car = cars.find(c => c.id.toString() === (fahrt.carId || '').toString());
-         const carDisplay = car ? car.name : 'Unbekanntes Fzg.'; // Zeigt NUR den Namen an
-         // Buttons HTML
-         const btnsHTML = `<div class="buttons-container"><button class="edit-btn" title="Bearbeiten"><i class="fa-solid fa-pencil"></i></button><button class="delete-btn" title="Löschen"><i class="fa-solid fa-trash-can"></i></button></div>`;
-         // HTML Struktur
-         el.innerHTML=`
-            <div class="list-item-header">
-                <div class="list-item-date-time">
-                    <span class="list-item-info date-info"><i class="fa-solid fa-calendar-days fa-fw list-icon"></i> ${dat}</span>
-                    <span class="list-item-info time-info"><i class="fa-solid fa-clock fa-fw list-icon"></i> (${startTime} - ${endTime} Uhr)</span>
-                    <span class="list-item-info car-info" title="${carDisplay}" style="margin-left: 15px; color: #5a6a7d;">
-                         <i class="fa-solid fa-car fa-fw list-icon"></i>
-                         <span style="max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom;">${carDisplay}</span>
-                    </span>
-                </div>
-                ${btnsHTML}
-            </div>
-            <div class="list-item-details">
-                <div><span class="list-label">Von:</span>${startOrt}</div>
-                <div><span class="list-label">Nach:</span>${zielOrt}</div>
-                <div><span class="list-label">KM-Start:</span>${s}</div>
-                <div><span class="list-label">KM-Ende:</span>${e}</div>
-                <div><span class="list-label">Distanz:</span>${d} km</div>
-                <div><span class="list-label">Zweck:</span>${zweck}</div>
-            </div>`;
-        if(append){ fahrtenListeDiv.appendChild(el); } else { fahrtenListeDiv.insertBefore(el, fahrtenListeDiv.firstChild); }
-    } // Ende fahrtZurListeHinzufuegen
+    const el = document.createElement('div');
+    el.classList.add('fahrt-item'); // Standardmäßig nicht eingeklappt
+    el.setAttribute('data-fahrt-id', fahrt.id);
+
+    const s=fahrt.kmStart||'0'; const e=fahrt.kmEnde||'0'; const d=fahrt.distanz||'0.0'; const dat=formatDateDE(fahrt.datum);
+    const startTime = fahrt.startTime || '--:--'; const endTime = fahrt.endTime || '--:--';
+    const startOrt = fahrt.startOrt || '-'; const zielOrt = fahrt.zielOrt || '-'; const zweck = fahrt.zweck || '-';
+    const car = cars.find(c => c.id.toString() === (fahrt.carId || '').toString());
+    const carDisplay = car ? car.name : 'Unbekannt';
+
+    // Edit/Delete Buttons
+    const btnsHTML = `<div class="buttons-container"><button class="edit-btn" title="Bearbeiten"><i class="fa-solid fa-pencil"></i></button><button class="delete-btn" title="Löschen"><i class="fa-solid fa-trash-can"></i></button></div>`;
+
+    // NEU: Toggle Button für Details (Standard: Pfeil nach oben, da Details sichtbar)
+    const toggleBtnHTML = `<button class="toggle-details-btn" title="Details ausblenden"><i class="fa-solid fa-chevron-up"></i></button>`;
+
+    el.innerHTML=`
+       <div class="list-item-header">
+           <div class="list-item-date-time">
+               <span class="list-item-info date-info"><i class="fa-solid fa-calendar-days fa-fw list-icon"></i> ${dat}</span>
+               <span class="list-item-info time-info"><i class="fa-solid fa-clock fa-fw list-icon"></i> (${startTime} - ${endTime} Uhr)</span>
+               <span class="list-item-info car-info" title="${car ? `${car.name} (${car.plate})` : 'Unbekannt'}" style="margin-left: 15px; color: #5a6a7d;">
+                    <i class="fa-solid fa-car fa-fw list-icon"></i>
+                    <span style="max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom;">${carDisplay}</span>
+               </span>
+           </div>
+           ${btnsHTML}
+       </div>
+       <div class="list-item-details"> <div><span class="list-label">Von:</span>${startOrt}</div>
+           <div><span class="list-label">Nach:</span>${zielOrt}</div>
+           <div><span class="list-label">KM-Start:</span>${s}</div>
+           <div><span class="list-label">KM-Ende:</span>${e}</div>
+           <div><span class="list-label">Distanz:</span>${d} km</div>
+           <div><span class="list-label">Zweck:</span>${zweck}</div>
+       </div>
+       ${toggleBtnHTML} `;
+
+   if(append){ fahrtenListeDiv.appendChild(el); }
+   else { fahrtenListeDiv.insertBefore(el, fahrtenListeDiv.firstChild); }
+} // Ende fahrtZurListeHinzufuegen
 
     function updateZusammenfassung() { if(!zusammenfassungDiv){return;} const f=ladeFahrtenAusLocalStorage(); let t=0,g=0,p=0,a=0; f.forEach(x=>{const d=parseFloat(x.distanz); if(!isNaN(d)){t+=d; switch(x.zweck){case 'geschaeftlich':g+=d; break; case 'privat':p+=d; break; case 'arbeitsweg':a+=d; break;}}}); zusammenfassungDiv.innerHTML=`<h2>Zusammenfassung</h2><p><strong>Gesamt:</strong> ${t.toFixed(1)} km</p><ul><li>Geschäftlich: ${g.toFixed(1)} km</li><li>Privat: ${p.toFixed(1)} km</li><li>Arbeitsweg: ${a.toFixed(1)} km</li></ul>`; }
 

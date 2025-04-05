@@ -1,5 +1,5 @@
 /* === style.css === */
-/* Stand: 2025-04-05, Backup/Restore Buttons verschoben, .menu-button Klasse */
+/* Stand: 2025-04-05, Einklappbare Karten-Details */
 
 /* Basis-Reset und Schrift */
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,138 +23,126 @@ hr { display: none; }
 /* Content Box Basis */
 .content-box { background-color: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07); height: fit-content; }
 
-/* Linke Spalte - Inhalt der EINEN content-box */
-.grid-column-left .content-box > h2 { margin-top: 0; } /* H2 "Menü" */
-.action-menu { margin-top: 0.5rem; margin-bottom: 1.5rem; } /* Container für obere Menüpunkte */
-
-/* --- NEU: Gemeinsame Klasse für Menü-Buttons --- */
-.menu-button {
-    background: none !important; /* Wichtig zum Überschreiben von .button-primary etc. */
-    border: none !important;
-    padding: 10px 5px !important;
-    margin: 0;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    text-align: left;
-    color: #333d49;
-    font-weight: 500;
-    font-size: 0.95rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-    box-shadow: none !important;
-    background-image: none !important;
-    /* Evtl. inline-Styles entfernen für diese Buttons im HTML */
-}
-.menu-button i.fa-solid {
-    margin-right: 12px;
-    color: #5a6a7d;
-    width: 1.2em; /* Feste Breite für Icon-Ausrichtung */
-    text-align: center;
-    font-size: 1.1em;
-    transition: color 0.15s ease-in-out;
-}
-.menu-button:hover {
-    background-color: #f1f3f5;
-    color: #1c4b82;
-}
-.menu-button:hover i.fa-solid {
-    color: #1c4b82;
-}
-/* Spezifischer Style für den Add-Button (überschreibt .menu-button teilweise) */
-button#add-new-btn.menu-button {
-     color: #0d6efd;
-     font-weight: 600;
- }
-button#add-new-btn.menu-button i.fa-solid {
-     color: #0d6efd;
- }
- button#add-new-btn.menu-button:hover {
-     background-color: #e7f1ff;
-     color: #0b5ed7;
- }
- button#add-new-btn.menu-button:hover i.fa-solid {
-     color: #0b5ed7;
- }
-/* --- Ende .menu-button Klasse --- */
-
+/* Linke Spalte - Menü-Stil */
+.grid-column-left .content-box > h2 { margin-top: 0; }
+.action-menu { margin-top: 0.5rem; margin-bottom: 1.5rem; }
+.menu-button { background: none !important; border: none !important; padding: 10px 5px !important; margin: 0; width: 100%; display: flex; align-items: center; text-align: left; color: #333d49; font-weight: 500; font-size: 0.95rem; border-radius: 6px; cursor: pointer; transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out; box-shadow: none !important; background-image: none !important; }
+.menu-button i.fa-solid { margin-right: 12px; color: #5a6a7d; width: 1.2em; text-align: center; font-size: 1.1em; transition: color 0.15s ease-in-out; }
+.menu-button:hover { background-color: #f1f3f5; color: #1c4b82; }
+.menu-button:hover i.fa-solid { color: #1c4b82; }
+button#add-new-btn.menu-button { color: #0d6efd; font-weight: 600; }
+button#add-new-btn.menu-button i.fa-solid { color: #0d6efd; }
+button#add-new-btn.menu-button:hover { background-color: #e7f1ff; color: #0b5ed7; }
+button#add-new-btn.menu-button:hover i.fa-solid { color: #0b5ed7; }
 .action-menu hr { display: block; margin: 10px 0; border: none; border-top: 1px solid #e9ecef; }
-
-/* Fahrzeugverwaltung Styling */
-#add-car-form { margin-top: 0.5rem; } /* Abstand zur H3 */
+#add-car-form { margin-top: 0.5rem; }
 #add-car-form label { font-weight: 500; font-size: 0.9rem; color: #4e5c6e; margin-bottom: 5px; }
 #add-car-form input { padding: 8px 10px; font-size: 0.95rem; margin-bottom: 10px; width: 100%; border: 1px solid #d3dbe3; border-radius: 6px; background-color: #fdfdff; }
 #add-car-form div:last-of-type { margin-bottom: 0; }
-#add-car-btn { /* Wird jetzt durch .menu-button gestyled */ margin-top: 10px; }
-
-/* Fahrzeugliste */
+#add-car-btn { margin-top: 10px; } /* Wird durch .menu-button gestyled */
 #car-list-container h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: #1c4b82; font-weight: 600; border-top: 1px solid #e1e5eb; padding-top: 1rem; margin-top: 1.5rem; }
 #car-list { list-style: none; padding-left: 0; margin-top: 0; }
 #car-list li { padding: 5px 0; border-bottom: 1px dashed #e9ecef; font-size: 0.95rem; }
 #car-list li:last-child { border-bottom: none; }
 #car-list strong { font-weight: 600; margin-left: 10px; display: inline-block; color: #5a6a7d; }
-
-/* Datensicherung Bereich */
 #backup-restore-section { margin-top: 1.5rem; border-top: 1px solid #e1e5eb; padding-top: 1rem; }
 #backup-restore-section h3 { font-size: 1.1rem; margin-bottom: 0.8rem; color: #1c4b82; font-weight: 600; border-top: none; padding-top: 0; margin-top: 0; }
 #backup-restore-section .backup-restore-buttons { margin-bottom: 10px; }
-#backup-restore-section .backup-restore-buttons .menu-button { /* Stellt sicher, dass sie untereinander stehen */
-     display: block; /* Block statt Flex hier? Oder Flex lassen? Flex ist ok. */
-     margin-bottom: 8px;
- }
+#backup-restore-section .backup-restore-buttons .menu-button { margin-bottom: 8px; }
 #backup-restore-section p { margin-bottom: 0; color: #5a6a7d; font-size: 0.9rem; }
-
-/* === Ende Linke Spalte === */
-
 
 /* Formular Styling */
 #fahrt-formular { max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0; margin-bottom: 0; box-shadow: none; border: none; transition: max-height 0.5s ease-out, padding 0.5s ease-out, margin-bottom 0.5s ease-out, border 0.3s ease-out, box-shadow 0.3s ease-out; }
 #fahrt-formular.form-visible { max-height: 1500px; overflow-y: auto; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07); border: 1px solid #e1e5eb; border-radius: 10px; }
 #fahrt-formular > h2 { margin-top: 0; }
 #trip-entry-form div:not(:last-child) { margin-bottom: 20px; }
-#trip-entry-form div:last-child { margin-bottom: 0; } /* Gilt jetzt für Button-Div */
+#trip-entry-form div:last-child { margin-bottom: 0; }
 label { display: block; margin-bottom: 8px; font-weight: 500; color: #4e5c6e; font-size: 0.95rem; }
 input[type="text"], input[type="date"], input[type="number"], select { width: 100%; padding: 12px 15px; border: 1px solid #d3dbe3; border-radius: 8px; font-size: 1rem; font-family: inherit; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; background-color: #fdfdff; }
 input:focus, select:focus { border-color: #0d6efd; outline: 0; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); background-color: #fff; }
 
-/* Button Styling (Allgemein, NICHT .menu-button oder Liste) */
+/* Button Styling (Allgemein) */
 button { padding: 12px 18px; border: 1px solid transparent; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; line-height: 1.5; text-align: center; text-decoration: none; vertical-align: middle; user-select: none; transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, transform 0.1s ease; }
 button:active { transform: scale(0.97); }
 button:focus-visible { outline: 2px solid #0d6efd; outline-offset: 2px; }
-button:not(.menu-button):not(#fahrten-liste button) i.fa-solid { margin-right: 8px; } /* Icon Abstand NUR für normale Buttons mit Text */
-
-/* Spezifische Button Farben/Typen (NICHT .menu-button) */
+button:not(.menu-button):not(#fahrten-liste button) i.fa-solid { margin-right: 8px; }
 #speichern-btn { background-color: #0d6efd; background-image: linear-gradient(180deg, #2e89ff 0%, #0d6efd 100%); border-color: #0d6efd; color: white; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075); }
 #speichern-btn:hover { background-color: #0b5ed7; background-image: none; border-color: #0a58ca; }
 #cancel-edit-btn { background-color: #6c757d; border-color: #6c757d; color: white; margin-left: 10px; }
 #cancel-edit-btn:hover { background-color: #5a6268; border-color: #545b62; }
 
-/* Styling für Listeneinträge (Zeilen IN einer Box) */
-#fahrten-liste-container { /* Hat .content-box Klasse aus HTML */ }
-#fahrten-liste-container > h2 { /* Standard H2 wird überschrieben */ }
-/* Spezielles Styling für die H2 "Fahrten" als Badge */
-#fahrten-liste-container > h2 { display: inline-block; background-color: #1c4b82; color: #ffffff; padding: 8px 15px; border-radius: 6px; border-bottom: none; margin-bottom: 1.5rem; font-size: 1.2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); text-align: left; }
-#fahrten-liste { margin-top: 0; padding-top: 10px; }
-#fahrten-liste > .fahrt-item:first-child { border-top: 1px solid #e9ecef; padding-top: 15px; }
-#fahrten-liste > .fahrt-item:last-child { border-bottom: none; }
-.fahrt-item { background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.07); margin-bottom: 15px; transition: box-shadow 0.2s ease-in-out; position: relative; text-align: left; } .fahrt-item:last-child { margin-bottom: 0; } .fahrt-item:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-.list-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+/* --- Styling für Listeneinträge (Karten mit einklappbaren Details) --- */
+#fahrten-liste-container h2 { /* Badge Styling bleibt */ display: inline-block; background-color: #1c4b82; color: #ffffff; padding: 8px 15px; border-radius: 6px; border-bottom: none; margin-bottom: 1.5rem; font-size: 1.2rem; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); text-align: left; }
+#fahrten-liste { margin-top: 0; }
+
+.fahrt-item { /* Karte */
+    background-color: #ffffff; padding: 20px; border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.07); margin-bottom: 15px;
+    transition: box-shadow 0.2s ease-in-out;
+    position: relative; /* NEU: Für absoluten Toggle Button */
+    text-align: left;
+}
+.fahrt-item:last-child { margin-bottom: 0; }
+.fahrt-item:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+/* Kopfzeile in Karte */
+.list-item-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #f1f3f5; /* Trennlinie bleibt vorerst */ }
 .list-item-date-time { display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px 15px; flex-grow: 1; }
 .list-item-info { display: inline-flex; align-items: baseline; font-size: 0.9rem; color: #6c757d; }
 .list-icon { margin-right: 6px; width: 1em; text-align: center; }
-.list-item-details { margin-top: 10px; }
+
+/* NEU: Details (einklappbar) */
+.list-item-details {
+    margin-top: 15px; /* Abstand zum Header */
+    overflow: hidden;
+    opacity: 1;
+    max-height: 500px; /* Genug Höhe im ausgeklappten Zustand */
+    transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, margin-top 0.4s ease-in-out;
+}
+.fahrt-item.details-collapsed .list-item-details {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0; /* Kein Abstand wenn eingeklappt */
+    /* Wichtig: padding-top/bottom hier auch auf 0 setzen, falls vorhanden */
+}
 .list-item-details div { margin-bottom: 8px; line-height: 1.5; }
 .list-item-details div:last-child { margin-bottom: 0; }
 span.list-label { display: inline-block; width: 110px; font-weight: 500; color: #5a6a7d; margin-right: 10px; vertical-align: baseline; font-size: 0.9rem; }
+
+/* Buttons in Liste */
 #fahrten-liste .buttons-container { display: flex; gap: 8px; flex-shrink: 0; margin-left: 15px; }
-#fahrten-liste .edit-btn, #fahrten-liste .delete-btn { padding: 3px 6px; font-size: 0.8rem; border-radius: 6px; line-height: 1; background: none; border: 1px solid transparent; }
-#fahrten-liste .edit-btn { color: #ffca2c; }
-#fahrten-liste .delete-btn { color: #e63946; }
-#fahrten-liste .edit-btn:hover { background-color: #ffc1071a; }
-#fahrten-liste .delete-btn:hover { background-color: #e639461a; }
+#fahrten-liste .edit-btn, #fahrten-liste .delete-btn { padding: 3px 6px; font-size: 0.8rem; border-radius: 6px; line-height: 1; background: none; border: 1px solid transparent; color: #adb5bd; /* Grau im Normalzustand */ transition: color .2s, background-color .2s; } /* Übergang hinzufügen */
+#fahrten-liste .edit-btn:hover { background-color: #ffc1071a; color: #e0a800; /* Kräftiger bei Hover */ }
+#fahrten-liste .delete-btn:hover { background-color: #e639461a; color: #dc3545; /* Kräftiger bei Hover */ }
 #fahrten-liste button i.fa-solid { margin-right: 0; }
+
+/* NEU: Toggle Button unten links */
+.toggle-details-btn {
+    position: absolute;
+    bottom: 5px; /* Abstand von unten */
+    left: auto;  /* Sicherstellen, dass left nicht stört */
+    right: 20px;  /* Abstand von links */
+    padding: 2px 5px; /* Kleiner Button */
+    font-size: 0.8rem;
+    line-height: 1;
+    background-color: #f8f9fa; /* Heller Hintergrund */
+    border: 1px solid #dee2e6; /* Heller Rand */
+    color: #6c757d; /* Graues Icon */
+    border-radius: 4px;
+}
+.toggle-details-btn:hover {
+    /* ALT: background-color: #e9ecef; color: #495057; */
+    background-color: #0d6efd; /* NEU: Primärblau als Hintergrund */
+    color: #ffffff;           /* NEU: Weiße Farbe für das Icon */
+    border-color: #0d6efd;   /* Optional: Randfarbe auch anpassen */
+}
+}
+.toggle-details-btn i.fa-solid {
+    margin-right: 0; /* Kein Text daneben */
+}
+/* --- Ende Styling für Listeneinträge --- */
+
 
 /* Zusammenfassung */
  #zusammenfassung { /* Nutzt .content-box */ }
