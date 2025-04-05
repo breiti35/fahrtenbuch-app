@@ -120,7 +120,7 @@ span.list-label { display: inline-block; width: 110px; font-weight: 500; color: 
     border-bottom: none;
 }
 #car-list strong { /* Kennzeichen hervorheben */
-    font-weight: 600;
+    font-weight: 500;
     margin-left: 10px;
     display: inline-block; /* Für Margin */
 }

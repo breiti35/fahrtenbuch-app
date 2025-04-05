@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
          const startOrt = fahrt.startOrt || '-'; const zielOrt = fahrt.zielOrt || '-'; const zweck = fahrt.zweck || '-';
          // Fahrzeugnamen ermitteln
          const car = cars.find(c => c.id.toString() === (fahrt.carId || '').toString());
-         const carDisplay = car ? `${car.name}${car.plate ? ` (${car.plate})` : ''}` : 'Unbekannt'; // Kurzer Fallback
+         const carDisplay = car ? car.name : 'Unbekanntes Fzg.'; // Zeigt NUR den Namen an
          // Buttons HTML
          const btnsHTML = `<div class="buttons-container"><button class="edit-btn" title="Bearbeiten"><i class="fa-solid fa-pencil"></i></button><button class="delete-btn" title="Löschen"><i class="fa-solid fa-trash-can"></i></button></div>`;
          // HTML Struktur
