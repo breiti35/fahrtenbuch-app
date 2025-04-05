@@ -1,410 +1,292 @@
 // === script.js ===
-// Haupt-Skript für die Fahrtenbuch-Anwendung
+// Stand: 2025-04-05, inkl. Start-/Endzeit
 
-// Wartet, bis das gesamte HTML-Dokument vollständig geladen und verarbeitet wurde.
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ========================================================================
     // === 1. Konstanten & Referenzen auf HTML-Elemente ===
-    // ========================================================================
-    // Diese Konstanten speichern Referenzen auf die HTML-Elemente, mit denen
-    // das Skript interagieren muss. IDs müssen im HTML korrekt gesetzt sein.
-    const formularDiv = document.getElementById('fahrt-formular');      // Der Container Div für das (einklappbare) Formular
-    const tripEntryForm = document.getElementById('trip-entry-form'); // Das eigentliche <form>-Element für Reset
-    const speichernButton = document.getElementById('speichern-btn');   // Button zum Speichern / Aktualisieren
-    const cancelEditButton = document.getElementById('cancel-edit-btn');// Button zum Abbrechen des Editierens
-    const fahrtenListeDiv = document.getElementById('fahrten-liste');   // Div, in dem die Liste der Fahrten angezeigt wird
-    // Eingabefelder im Formular
+    const formularDiv = document.getElementById('fahrt-formular');
+    const tripEntryForm = document.getElementById('trip-entry-form');
+    const speichernButton = document.getElementById('speichern-btn');
+    const cancelEditButton = document.getElementById('cancel-edit-btn');
+    const fahrtenListeDiv = document.getElementById('fahrten-liste');
+    // Eingabefelder
     const datumInput = document.getElementById('datum');
+    const startTimeInput = document.getElementById('start-zeit'); // NEU
+    const endTimeInput = document.getElementById('end-zeit');   // NEU
     const startOrtInput = document.getElementById('start-ort');
     const zielOrtInput = document.getElementById('ziel-ort');
     const kmStartInput = document.getElementById('km-start');
     const kmEndeInput = document.getElementById('km-ende');
     const distanzInput = document.getElementById('distanz');
     const zweckSelect = document.getElementById('zweck');
-    // Weitere Elemente für Aktionen/Anzeige
-    const exportButton = document.getElementById('export-csv-btn');     // CSV Export Button
-    const zusammenfassungDiv = document.getElementById('zusammenfassung'); // Div für die Kilometer-Zusammenfassung
-    const exportJsonButton = document.getElementById('export-json-btn');  // JSON Backup Button
-    const importJsonButton = document.getElementById('import-json-btn');  // JSON Restore Button
-    const importJsonFileInput = document.getElementById('import-json-file');// Verstecktes File Input für Restore
-    const addNewButton = document.getElementById('add-new-btn');         // Button zum Öffnen des Formulars für neue Fahrt
+    // Weitere Elemente
+    const exportButton = document.getElementById('export-csv-btn');
+    const zusammenfassungDiv = document.getElementById('zusammenfassung');
+    const exportJsonButton = document.getElementById('export-json-btn');
+    const importJsonButton = document.getElementById('import-json-btn');
+    const importJsonFileInput = document.getElementById('import-json-file');
+    const addNewButton = document.getElementById('add-new-btn');
 
-    // ========================================================================
     // === 2. Statusvariable ===
-    // ========================================================================
-    // Diese Variable speichert den Zustand, ob gerade ein Eintrag bearbeitet wird.
-    let editId = null; // null = "Neue Fahrt"-Modus, eine ID = "Bearbeiten"-Modus für diese Fahrt-ID
+    let editId = null;
 
-    // ========================================================================
     // === 3. Hilfsfunktionen ===
-    // ========================================================================
+    function formatDateDE(isoDate) { /* ... unverändert ... */ if (!isoDate) return ''; const p = isoDate.split('-'); if (p.length === 3) return `${p[2]}.${p[1]}.${p[0]}`; return isoDate; }
+    function getDatumString() { /* ... unverändert ... */ return "2025-04-05"; } // Datum aktualisiert
 
-    /**
-     * Formatiert ein ISO-Datum (JJJJ-MM-TT) in das deutsche Format (TT.MM.JJJJ).
-     * @param {string} isoDate - Das Datum im ISO-Format.
-     * @returns {string} Das formatierte Datum oder der Originalstring bei Fehlern.
-     */
-    function formatDateDE(isoDate) {
-        if (!isoDate) return ''; // Leeren String zurückgeben, wenn kein Datum da ist
-        const p = isoDate.split('-'); // Trennt bei Bindestrichen -> ['JJJJ', 'MM', 'TT']
-        if (p.length === 3) return `${p[2]}.${p[1]}.${p[0]}`; // Zusammensetzen
-        return isoDate; // Fallback, falls das Format unerwartet ist
-    }
-
-    /**
-     * Gibt das aktuelle Datum als String im JJJJ-MM-TT Format zurück.
-     * @returns {string} Datumsstring.
-     */
-    function getDatumString() {
-         // return new Date().toISOString().slice(0, 10); // Dynamisch: Nimmt das heutige Datum des Browsers
-         return "2025-04-04"; // Statisch: Nimmt das feste Datum aus dem User-Kontext
-    }
-
-    // ========================================================================
     // === 4. Initialisierung der App ===
-    // ========================================================================
-
-    /**
-     * Wird einmal aufgerufen, wenn die Seite geladen ist.
-     * Setzt initiale Werte, lädt Daten und hängt Event Listener an.
-     */
     function initialisiereApp() {
         console.log("Initialisiere App...");
-        // Sicherheitscheck: Sind alle wichtigen HTML-Elemente vorhanden?
-        if (!formularDiv || !tripEntryForm || !speichernButton || !cancelEditButton || !fahrtenListeDiv || !datumInput || !startOrtInput || !zielOrtInput || !kmStartInput || !kmEndeInput || !distanzInput || !zweckSelect || !exportButton || !zusammenfassungDiv || !exportJsonButton || !importJsonButton || !importJsonFileInput || !addNewButton) {
-             console.error("FEHLER: Ein oder mehrere HTML-Elemente wurden nicht gefunden! Überprüfe die IDs im HTML und JS.");
-             alert("Initialisierungsfehler! Einige Elemente der Seite fehlen.");
-             return; // Abbruch der Initialisierung
+        // Sicherheitscheck erweitert um Zeit-Inputs
+        if (!formularDiv || !tripEntryForm || !speichernButton || !cancelEditButton || !fahrtenListeDiv || !datumInput || !startTimeInput || !endTimeInput || !startOrtInput || !zielOrtInput || !kmStartInput || !kmEndeInput || !distanzInput || !zweckSelect || !exportButton || !zusammenfassungDiv || !exportJsonButton || !importJsonButton || !importJsonFileInput || !addNewButton) {
+             console.error("FEHLER: Ein oder mehrere HTML-Elemente wurden nicht gefunden!"); alert("Initialisierungsfehler!"); return;
         }
-
-        try { datumInput.value = getDatumString(); } // Heutiges Datum ins Datumsfeld eintragen
-        catch (e) { console.error("Fehler beim Setzen des Anfangsdatums:", e); }
-
-        ladeGespeicherteFahrten();      // Gespeicherte Fahrten aus localStorage laden und anzeigen
-        updateZusammenfassung();       // Zusammenfassung berechnen und anzeigen
-        felderFuerNeueFahrtVorbereiten(); // Felder für die *erste* neue Fahrt vorbelegen (z.B. Start-KM)
-        setupEventListeners();          // Alle Event Listener für Buttons etc. aktivieren
-        console.log("App initialisiert und bereit.");
+        try { datumInput.value = getDatumString(); } catch (e) {} // Datum vorbelegen
+        ladeGespeicherteFahrten(); updateZusammenfassung(); felderFuerNeueFahrtVorbereiten(); setupEventListeners();
+        console.log("App initialisiert.");
     }
-
-    /**
-     * Bereitet die Formularfelder für die Eingabe einer *neuen* Fahrt vor.
-     * Wird bei Initialisierung und nach dem Speichern/Abbrechen aufgerufen.
-     * Setzt z.B. den Start-Ort und Start-KM basierend auf der letzten Fahrt.
-     */
     function felderFuerNeueFahrtVorbereiten() {
-        // Diese Funktion nur ausführen, wenn wir *nicht* im Bearbeitungsmodus sind.
-        if (editId !== null) return;
-
+        if (editId !== null) return; // Nicht im Edit-Modus ausführen
         console.log("Bereite Felder für neue Fahrt vor...");
         try {
-            const alleFahrten = ladeFahrtenAusLocalStorage(); // Hole gespeicherte Fahrten
+            const alleFahrten = ladeFahrtenAusLocalStorage();
+            let letzteEndZeit = null; // NEU: Letzte Endzeit merken
             if (alleFahrten.length > 0) {
-                // Finde die Fahrt mit dem höchsten End-KM (normalerweise die chronologisch letzte)
-                let letzteFahrt = null; let maxKmEnde = -1;
-                // (Annahme: ladeFahrten... gibt sortiert nach Datum/KM zurück)
-                letzteFahrt = alleFahrten[alleFahrten.length - 1]; // Die letzte im sortierten Array
-
+                const letzteFahrt = alleFahrten[alleFahrten.length - 1]; // Letzte im sortierten Array
                 if (letzteFahrt) {
-                    startOrtInput.value = letzteFahrt.zielOrt || ''; // Nimm Zielort als neuen Startort
-                    kmStartInput.value = letzteFahrt.kmEnde || ''; // Nimm End-KM als neuen Start-KM
-                } else { // Sollte nicht vorkommen, wenn Fahrten > 0
-                    startOrtInput.value = ''; kmStartInput.value = '';
-                }
-            } else { // Wenn noch gar keine Fahrten gespeichert sind
-                startOrtInput.value = ''; kmStartInput.value = '';
-            }
-            // Setze immer das Datum auf "heute" und leere Ziel/Distanz für neue Fahrten
+                    startOrtInput.value = letzteFahrt.zielOrt || '';
+                    kmStartInput.value = letzteFahrt.kmEnde || '';
+                    letzteEndZeit = letzteFahrt.endTime; // NEU
+                } else { startOrtInput.value = ''; kmStartInput.value = ''; }
+            } else { startOrtInput.value = ''; kmStartInput.value = ''; }
+            // Datum, Ziel, Distanz leeren
             datumInput.value = getDatumString(); zielOrtInput.value = ''; distanzInput.value = '';
-        } catch (e) { console.error("Fehler beim Vorbelegen der Felder:", e); }
+            // NEU: Zeitfelder vorbelegen oder leeren
+            // Option 1: Startzeit = Letzte Endzeit (falls vorhanden)
+            // startTimeInput.value = letzteEndZeit || '';
+            // Option 2: Startzeit = Aktuelle Uhrzeit
+            // const now = new Date();
+            // const hours = String(now.getHours()).padStart(2, '0');
+            // const minutes = String(now.getMinutes()).padStart(2, '0');
+            // startTimeInput.value = `${hours}:${minutes}`;
+            // Option 3: Zeitfelder einfach leeren (aktuell)
+            startTimeInput.value = '';
+            endTimeInput.value = '';
+
+        } catch (e) { console.error("Fehler beim Vorbelegen:", e); }
     }
 
-    // ========================================================================
     // === 5. Event Listener Setup ===
-    // ========================================================================
+    function setupEventListeners() { /* ... unverändert ... */ console.log("Setze Event Listeners..."); if (addNewButton) { addNewButton.addEventListener('click', handleAddNewClick); } else { console.error("Listener Fehler: addNewButton fehlt!"); } if (speichernButton) { speichernButton.addEventListener('click', handleFormularSpeichern); } else { console.error("Listener Fehler: speichernButton fehlt!"); } if (cancelEditButton) { cancelEditButton.addEventListener('click', () => abbrechenEditModus(true)); } else { console.error("Listener Fehler: cancelEditButton fehlt!"); } if (fahrtenListeDiv) { fahrtenListeDiv.addEventListener('click', handleListClick); } else { console.error("Listener Fehler: fahrtenListeDiv fehlt!"); } if (exportButton) { exportButton.addEventListener('click', exportiereAlsCsv); } else { console.error("Listener Fehler: exportButton fehlt!"); } if (exportJsonButton) { exportJsonButton.addEventListener('click', exportiereAlsJson); } else { console.error("Listener Fehler: exportJsonButton fehlt!"); } if (importJsonButton) { importJsonButton.addEventListener('click', () => { if(importJsonFileInput) {importJsonFileInput.click();} else { console.error("Import File Input fehlt!");} }); } else { console.error("Listener Fehler: importJsonButton fehlt!"); } if (importJsonFileInput) { importJsonFileInput.addEventListener('change', importiereAusJson); } else { console.error("Listener Fehler: importJsonFileInput fehlt!"); } console.log("Event Listeners gesetzt."); }
+    function handleAddNewClick() { /* ... leicht angepasst ... */ console.log("Add New Button geklickt"); if (formularDiv.classList.contains('form-visible') && editId === null) { formularDiv.classList.remove('form-visible'); console.log("Formular geschlossen."); } else { abbrechenEditModus(false); formularDiv.classList.add('form-visible'); felderFuerNeueFahrtVorbereiten(); console.log("Formular für neue Fahrt geöffnet."); datumInput.focus(); formularDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } }
+    function handleListClick(event) { /* ... unverändert ... */ const editButton = event.target.closest('.edit-btn'); const deleteButton = event.target.closest('.delete-btn'); const fahrtElement = event.target.closest('[data-fahrt-id]'); if (!fahrtElement) return; const fahrtId = fahrtElement.getAttribute('data-fahrt-id'); if (editButton) { starteEditModus(fahrtId); } else if (deleteButton) { if (confirm('Soll dieser Eintrag wirklich gelöscht werden?')) { fahrtLoeschen(fahrtId); } } }
 
-    /**
-     * Hängt alle notwendigen Event Listener an die HTML-Elemente.
-     * Wird einmal bei der Initialisierung aufgerufen.
-     */
-    function setupEventListeners() {
-        console.log("Setze Event Listeners...");
-        // Sicherstellen, dass Elemente existieren, bevor Listener hinzugefügt werden
-        if (addNewButton) { addNewButton.addEventListener('click', handleAddNewClick); } else { console.error("Listener Fehler: addNewButton fehlt!"); }
-        if (speichernButton) { speichernButton.addEventListener('click', handleFormularSpeichern); } else { console.error("Listener Fehler: speichernButton fehlt!"); }
-        if (cancelEditButton) { cancelEditButton.addEventListener('click', () => abbrechenEditModus(true)); } else { console.error("Listener Fehler: cancelEditButton fehlt!"); }
-        if (fahrtenListeDiv) { fahrtenListeDiv.addEventListener('click', handleListClick); } else { console.error("Listener Fehler: fahrtenListeDiv fehlt!"); }
-        if (exportButton) { exportButton.addEventListener('click', exportiereAlsCsv); } else { console.error("Listener Fehler: exportButton fehlt!"); }
-        if (exportJsonButton) { exportJsonButton.addEventListener('click', exportiereAlsJson); } else { console.error("Listener Fehler: exportJsonButton fehlt!"); }
-        if (importJsonButton) { importJsonButton.addEventListener('click', () => { if(importJsonFileInput) {importJsonFileInput.click();} else { console.error("Import File Input fehlt!");} }); } else { console.error("Listener Fehler: importJsonButton fehlt!"); }
-        if (importJsonFileInput) { importJsonFileInput.addEventListener('change', importiereAusJson); } else { console.error("Listener Fehler: importJsonFileInput fehlt!"); }
-         console.log("Event Listeners erfolgreich gesetzt.");
-    }
-
-    // --- Einzelne Event Handler ---
-
-    // Wird aufgerufen, wenn der "+ Neue Fahrt hinzufügen" Button geklickt wird
-    function handleAddNewClick() {
-        console.log("Add New Button geklickt");
-        // Wenn Formular sichtbar ist UND wir im "Add"-Modus sind -> Schließen
-        if (formularDiv.classList.contains('form-visible') && editId === null) {
-             formularDiv.classList.remove('form-visible');
-             console.log("Formular geschlossen.");
-        } else {
-             // Ansonsten: Sicherstellen, dass Edit-Modus aus ist, Felder vorbereiten und Formular öffnen
-             abbrechenEditModus(false); // Stellt Add-Modus her, versteckt Formular, scrollt nicht
-             formularDiv.classList.add('form-visible'); // Explizit öffnen
-             felderFuerNeueFahrtVorbereiten(); // Felder korrekt vorbelegen (wird in abbrechenEditModus schon gemacht, aber doppelt schadet nicht)
-             console.log("Formular für neue Fahrt geöffnet.");
-             datumInput.focus(); // Fokus auf erstes Feld
-             formularDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Sanft hinscrollen
-        }
-    }
-
-    // Wird aufgerufen, wenn *irgendwo* in der Fahrtenliste geklickt wird (Event Delegation)
-    function handleListClick(event) {
-        // Finde heraus, ob auf einen Edit- oder Delete-Button geklickt wurde
-        const editButton = event.target.closest('.edit-btn');
-        const deleteButton = event.target.closest('.delete-btn');
-        // Finde das zugehörige Listenelement, um die ID zu bekommen
-        const fahrtElement = event.target.closest('[data-fahrt-id]');
-
-        if (!fahrtElement) return; // Klick war nicht auf einem relevanten Element
-        const fahrtId = fahrtElement.getAttribute('data-fahrt-id');
-
-        if (editButton) { starteEditModus(fahrtId); } // Edit-Modus starten
-        else if (deleteButton) {                      // Löschen-Button
-             if (confirm('Soll dieser Eintrag wirklich gelöscht werden?')) { // Sicherheitsabfrage
-                 fahrtLoeschen(fahrtId);
-             }
-        }
-    }
-
-    // ========================================================================
     // === 6. Kernfunktionen (Speichern, Update, Edit-Modus) ===
-    // ========================================================================
+    function handleFormularSpeichern() { /* ... unverändert ... */ let success = false; if (editId !== null) { success = fahrtAktualisieren(editId); } else { success = fahrtSpeichern(); } if (success && formularDiv) { formularDiv.classList.remove('form-visible'); console.log("Formular nach Erfolg geschlossen."); } else { console.log("Speichern/Update nicht erfolgreich oder Formular nicht gefunden."); } }
 
-    // Entscheidet, ob eine neue Fahrt gespeichert oder eine bestehende aktualisiert wird
-    function handleFormularSpeichern() {
-        console.log("Speichern/Update wird ausgeführt. Edit ID:", editId);
-        let erfolg = false; // Flag für Erfolg
-        if (editId !== null) { erfolg = fahrtAktualisieren(editId); } // Update
-        else { erfolg = fahrtSpeichern(); }                         // Neu speichern
-
-        if (erfolg && formularDiv) { // Nur bei Erfolg das Formular schließen
-             formularDiv.classList.remove('form-visible');
-             console.log("Formular nach Erfolg geschlossen.");
-        } else {
-             console.log("Speichern/Update nicht erfolgreich oder Formular nicht gefunden.");
-        }
-    }
-
-    // Startet den Bearbeitungsmodus für eine Fahrt (füllt Formular, ändert Buttons)
+    // Startet Edit-Modus (ANGEPASST: Zeitfelder füllen)
     function starteEditModus(fahrtId) {
         console.log("Starte Edit ID:", fahrtId);
-        const fahrten = ladeFahrtenAusLocalStorage();
-        const fahrt = fahrten.find(f => f.id.toString() === fahrtId.toString()); // Finde Fahrt im Array
-        if (!fahrt) { alert("Fehler: Eintrag zum Bearbeiten nicht gefunden!"); return; }
-
-        // Fülle Formularfelder
-        datumInput.value = fahrt.datum || ''; startOrtInput.value = fahrt.startOrt || ''; zielOrtInput.value = fahrt.zielOrt || '';
+        const fahrten = ladeFahrtenAusLocalStorage(); const fahrt = fahrten.find(f => f.id.toString() === fahrtId.toString()); if (!fahrt) { alert("Fehler: Eintrag nicht gefunden!"); return; }
+        // Formular füllen inkl. Zeit
+        datumInput.value = fahrt.datum || '';
+        startTimeInput.value = fahrt.startTime || ''; // NEU
+        endTimeInput.value = fahrt.endTime || '';   // NEU
+        startOrtInput.value = fahrt.startOrt || ''; zielOrtInput.value = fahrt.zielOrt || '';
         kmStartInput.value = fahrt.kmStart || ''; kmEndeInput.value = fahrt.kmEnde || ''; distanzInput.value = fahrt.distanz || '';
         zweckSelect.value = fahrt.zweck || 'geschaeftlich';
-
-        // Setze Status: Edit-ID merken, Button-Text ändern, Cancel-Button zeigen
+        // Status setzen
         editId = fahrtId; speichernButton.textContent = 'Änderung speichern'; if(cancelEditButton) cancelEditButton.style.display = 'inline-block';
-
-        // Mache Formular sichtbar und scrolle hin
+        // Sichtbar machen & scrollen
         if (formularDiv) { formularDiv.classList.add('form-visible'); formularDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
         datumInput.focus();
     }
 
-    // Bricht den Edit-Modus ab oder setzt einfach das Formular in den "Add"-Zustand zurück
-    function abbrechenEditModus(doScroll = true) {
-        console.log("Breche Edit ab / Reset Form.");
-        editId = null; // Wichtig: Edit-Modus beenden
-        if(tripEntryForm) { tripEntryForm.reset(); console.log("Formular Reset."); } // Das <form> Element zurücksetzen
-        else { console.error("tripEntryForm nicht gefunden!"); }
-        if (formularDiv) { formularDiv.classList.remove('form-visible'); console.log("Formular versteckt."); } // Container verstecken
-        speichernButton.textContent = 'Fahrt speichern'; // Button Text zurücksetzen
-        if(cancelEditButton) cancelEditButton.style.display = 'none'; // Cancel Button verstecken
-        felderFuerNeueFahrtVorbereiten(); // Felder für nächste NEUE Fahrt vorbereiten (Datum, Start KM/Ort)
-        console.log("Edit abgebrochen.");
-        // Optional: Scrollen, z.B. zur Liste?
-        // if (doScroll) { document.getElementById('fahrten-liste-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    }
+    // Bricht Edit-Modus ab (reset leert auch Zeitfelder)
+    function abbrechenEditModus(doScroll = true) { /* ... unverändert, reset() sollte Zeit leeren ... */ console.log("Breche Edit ab / Reset Form."); editId = null; if(tripEntryForm) { tripEntryForm.reset(); console.log("Formular Reset."); } else { console.error("tripEntryForm nicht gefunden!"); } if (formularDiv) { formularDiv.classList.remove('form-visible'); console.log("Formular versteckt."); } speichernButton.textContent = 'Fahrt speichern'; if(cancelEditButton) cancelEditButton.style.display = 'none'; felderFuerNeueFahrtVorbereiten(); console.log("Edit abgebrochen."); }
 
-    // Aktualisiert eine vorhandene Fahrt. Gibt true bei Erfolg, false bei Fehler zurück.
+    // Aktualisiert Fahrt (ANGEPASST: Zeitfelder berücksichtigen)
     function fahrtAktualisieren(id) {
         console.log("Update ID:", id);
-        const fahrt = { // Aktuelle Formulardaten holen
-            id: id, datum: datumInput.value, startOrt: startOrtInput.value, zielOrt: zielOrtInput.value,
+        const fahrt = { // Aktuelle Formulardaten holen inkl. Zeit
+            id: id, datum: datumInput.value,
+            startTime: startTimeInput.value, // NEU
+            endTime: endTimeInput.value,     // NEU
+            startOrt: startOrtInput.value, zielOrt: zielOrtInput.value,
             kmStart: kmStartInput.value, kmEnde: kmEndeInput.value, distanz: distanzInput.value, zweck: zweckSelect.value
         };
-        // Validieren (false = keine KM-Kontinuitätsprüfung beim Update)
-        if (!validateFahrt(fahrt, false)) return false;
-
-        let fahrten = ladeFahrtenAusLocalStorage();
-        const index = fahrten.findIndex(f => f.id.toString() === id.toString()); // Finde Index im Array
+        if (!validateFahrt(fahrt, false)) return false; // Validieren (ohne Kontinuität)
+        let fahrten = ladeFahrtenAusLocalStorage(); const index = fahrten.findIndex(f => f.id.toString() === id.toString());
         if (index !== -1) {
-            fahrten[index] = fahrt; // Ersetze alten Eintrag im Array
-            speichereAlleFahrten(fahrten); // Speichere das gesamte (sortierte) Array
+            fahrten[index] = fahrt; speichereAlleFahrten(fahrten); // Speichert inkl. neuer Sortierung
             console.log("Fahrt aktualisiert.");
-            ladeGespeicherteFahrten(); // Baue die Liste im HTML neu auf
-            updateZusammenfassung();   // Aktualisiere die Summenanzeige
-            return true; // Erfolg melden
-        } else { alert("Fehler beim Aktualisieren!"); abbrechenEditModus(); return false; } // Fehler melden
+            ladeGespeicherteFahrten(); updateZusammenfassung();
+            return true; // Erfolg
+        } else { alert("Fehler beim Aktualisieren!"); abbrechenEditModus(); return false; } // Fehler
     }
 
-    // Speichert eine komplett neue Fahrt. Gibt true bei Erfolg, false bei Fehler zurück.
+    // Speichert neue Fahrt (ANGEPASST: Zeitfelder berücksichtigen)
     function fahrtSpeichern() {
         console.log("Speichere neue Fahrt...");
-        const neueFahrt = { // Neues Objekt mit neuer ID
-            id: Date.now(), datum: datumInput.value, startOrt: startOrtInput.value, zielOrt: zielOrtInput.value,
+        const neueFahrt = { // Neues Objekt inkl. Zeit
+            id: Date.now(), datum: datumInput.value,
+            startTime: startTimeInput.value, // NEU
+            endTime: endTimeInput.value,     // NEU
+            startOrt: startOrtInput.value, zielOrt: zielOrtInput.value,
             kmStart: kmStartInput.value, kmEnde: kmEndeInput.value, distanz: distanzInput.value, zweck: zweckSelect.value
         };
-        // Validieren (true = KM-Kontinuität prüfen)
-        if (!validateFahrt(neueFahrt, true)) return false;
-
+        if (!validateFahrt(neueFahrt, true)) return false; // Validieren (mit Kontinuität)
         console.log('Neue Fahrt validiert:', neueFahrt);
         speichereNeueFahrtImLocalStorage(neueFahrt); // Fügt hinzu und speichert (sortiert)
-        ladeGespeicherteFahrten(); // Baue Liste neu auf (neue Fahrt erscheint)
-        updateZusammenfassung();   // Aktualisiere Summen
-        felderFuerNeueFahrtVorbereiten(); // Bereite Formular für nächste Eingabe vor
-        zielOrtInput.focus(); // Fokus für schnelle Eingabe
-        return true; // Erfolg melden
+        ladeGespeicherteFahrten(); updateZusammenfassung(); felderFuerNeueFahrtVorbereiten(); zielOrtInput.focus();
+        return true; // Erfolg
     }
 
-    // === 7. Validierungsfunktion ===
-    // Prüft ein Fahrt-Objekt auf Gültigkeit. Passt ggf. die Distanz an.
+    // === 7. Validierungsfunktion (ANGEPASST: Zeitprüfung) ===
     function validateFahrt(fahrt, checkKmContinuity) {
         console.log("Validiere Fahrt:", fahrt, "Kontinuität prüfen:", checkKmContinuity);
-        // Basisprüfung Pflichtfelder
-        if (!fahrt.datum || !fahrt.startOrt || !fahrt.zielOrt || !fahrt.kmStart || !fahrt.kmEnde || !fahrt.zweck) { alert('Bitte füllen Sie alle Pflichtfelder aus!'); return false; }
-        // Prüfung KM-Werte (Zahlen?)
-        const kmStartNum = parseFloat(fahrt.kmStart); const kmEndeNum = parseFloat(fahrt.kmEnde);
-        if (isNaN(kmStartNum) || isNaN(kmEndeNum)) { alert('Bitte geben Sie gültige Zahlen für die Kilometerstände ein.'); return false; }
-        // Prüfung End-KM >= Start-KM
-        if (kmEndeNum < kmStartNum) { alert('Der Kilometerstand am Ende muss größer oder gleich dem Kilometerstand am Start sein.'); return false; }
-        // Distanz berechnen/prüfen (wenn leer oder 0), Wert im Objekt wird angepasst!
-        let distanzNum = parseFloat(fahrt.distanz);
-        const berechneteDistanz = kmEndeNum - kmStartNum;
-        if (isNaN(distanzNum) || distanzNum <= 0) {
-            fahrt.distanz = berechneteDistanz.toFixed(1); // Automatisch berechnen
-            console.log("Distanz automatisch berechnet:", fahrt.distanz);
-        } else {
-            if (Math.abs(distanzNum - berechneteDistanz) > 1) { // Toleranz 1km
-                 console.warn(`Distanz (${distanzNum} km) vs Differenz (${berechneteDistanz.toFixed(1)} km)`);
-                 if (!confirm(`Die eingegebene Distanz (${distanzNum} km) weicht von der KM-Differenz (${berechneteDistanz.toFixed(1)} km) ab.\nTrotzdem speichern?`)) { return false; }
-            }
-            fahrt.distanz = distanzNum.toFixed(1); // Formatieren
+        // Basisprüfung Pflichtfelder (inkl. Zeit)
+        if (!fahrt.datum || !fahrt.startTime || !fahrt.endTime || !fahrt.startOrt || !fahrt.zielOrt || !fahrt.kmStart || !fahrt.kmEnde || !fahrt.zweck) {
+             alert('Bitte füllen Sie alle Pflichtfelder aus (inkl. Start- und Endzeit)!'); return false;
         }
+        // Prüfung KM-Werte
+        const kmStartNum = parseFloat(fahrt.kmStart); const kmEndeNum = parseFloat(fahrt.kmEnde);
+        if (isNaN(kmStartNum) || isNaN(kmEndeNum)) { alert('Bitte gültige KM-Stände eingeben.'); return false; }
+        if (kmEndeNum < kmStartNum) { alert('End-KM muss >= Start-KM sein.'); return false; }
+
+        // NEU: Prüfung Zeit (Endzeit >= Startzeit, nur wenn Datum gleich ist - Vereinfachung!)
+        // Das HTML5 time input gibt Zeit als "HH:MM" String zurück. String-Vergleich funktioniert hier.
+        if (fahrt.endTime < fahrt.startTime) {
+             // Hier könnte man noch prüfen, ob das Datum unterschiedlich ist (Fahrt über Mitternacht).
+             // Für Einfachheit: Fehler, wenn Endzeit < Startzeit.
+             alert('Fehler: Die Endzeit darf nicht vor der Startzeit liegen.');
+             return false;
+        }
+
+        // Distanz berechnen/prüfen
+        let distanzNum = parseFloat(fahrt.distanz); const berechneteDistanz = kmEndeNum - kmStartNum;
+        if (isNaN(distanzNum) || distanzNum <= 0) { fahrt.distanz = berechneteDistanz.toFixed(1); console.log("Distanz auto:", fahrt.distanz); }
+        else { if (Math.abs(distanzNum - berechneteDistanz) > 1) { if (!confirm(`Distanz (${distanzNum} km) vs Differenz (${berechneteDistanz.toFixed(1)} km). Speichern?`)) { return false; } } fahrt.distanz = distanzNum.toFixed(1); }
+
         // KM-Kontinuitätsprüfung (nur bei NEUEN Fahrten)
         if (checkKmContinuity) {
             const alleFahrten = ladeFahrtenAusLocalStorage();
             if (alleFahrten.length > 0) {
-                let maxKmEnde = 0; // Finde höchsten bisherigen End-KM
-                alleFahrten.forEach(f => { const k = parseFloat(f.kmEnde); if (!isNaN(k) && k > maxKmEnde) maxKmEnde = k; });
-                console.log("Prüfe Kontinuität: Neuer Start =", kmStartNum, "Max Ende bisher =", maxKmEnde);
-                if (kmStartNum < maxKmEnde) { alert(`Fehler: Start-KM (${kmStartNum}) ist niedriger als max. bisheriger End-KM (${maxKmEnde}). Lücken im Fahrtenbuch?`); return false; }
+                let maxKmEnde = 0; alleFahrten.forEach(f => { const k = parseFloat(f.kmEnde); if (!isNaN(k) && k > maxKmEnde) maxKmEnde = k; });
+                console.log("Kontinuitätsprüfung: Neuer Start =", kmStartNum, "Max Ende bisher =", maxKmEnde);
+                // Strenge Prüfung (optional): Check gegen Ende der *letzten* Fahrt (nach neuer Sortierung)
+                // const letzteFahrt = alleFahrten[alleFahrten.length - 1];
+                // if (letzteFahrt && kmStartNum < parseFloat(letzteFahrt.kmEnde)) { /* ... Fehler ...*/ }
+                // Einfache Prüfung (wie bisher):
+                 if (kmStartNum < maxKmEnde) { alert(`Fehler: Start-KM (${kmStartNum}) < max. bisheriger End-KM (${maxKmEnde}). Lücken?`); return false; }
             }
         }
-        console.log("Validierung erfolgreich.");
+        console.log("Validierung OK.");
         return true; // Alles OK
     }
 
     // === 8. Speicher / Ladefunktionen (localStorage) ===
-    // Speichert das komplette Fahrten-Array (sortiert!) im localStorage
+    // Speichert Array (ANGEPASST: Sortierung nach Datum UND Startzeit)
     function speichereAlleFahrten(fahrtenArray) {
-         fahrtenArray.sort((a, b) => { // Sortiere nach Datum (aufsteigend), dann nach Start-KM (aufsteigend)
-              const dateDiff = new Date(a.datum) - new Date(b.datum);
-              if (dateDiff !== 0) return dateDiff;
+         fahrtenArray.sort((a, b) => {
+              // Kombiniere Datum und Zeit für Vergleich, falls vorhanden
+              const dateTimeA = a.datum + 'T' + (a.startTime || '00:00');
+              const dateTimeB = b.datum + 'T' + (b.startTime || '00:00');
+              if (dateTimeA < dateTimeB) return -1;
+              if (dateTimeA > dateTimeB) return 1;
+              // Wenn Datum & Zeit gleich sind (unwahrscheinlich, aber möglich), nach KM sortieren
               return parseFloat(a.kmStart) - parseFloat(b.kmStart);
          });
-         try {
-             localStorage.setItem('fahrtenbuchEintraege', JSON.stringify(fahrtenArray));
-             console.log(`${fahrtenArray.length} Fahrten im LS gespeichert (sortiert).`);
-         } catch (e) {
-              console.error("Fehler beim Speichern im LocalStorage:", e);
-              alert("Fehler beim Speichern der Daten! Möglicherweise ist der Speicherplatz voll.");
-         }
+         try { localStorage.setItem('fahrtenbuchEintraege', JSON.stringify(fahrtenArray)); console.log(`${fahrtenArray.length} Fahrten im LS gespeichert (sortiert nach Zeit).`); }
+         catch (e) { console.error("Fehler LS Speichern:", e); alert("Fehler beim Speichern!"); }
     }
-    // Fügt eine neue Fahrt hinzu und speichert das gesamte Array
-    function speichereNeueFahrtImLocalStorage(neueFahrt) {
-        let fahrten = ladeFahrtenAusLocalStorage();
-        if (!fahrten.some(x => x.id === neueFahrt.id)) {
-            fahrten.push(neueFahrt); speichereAlleFahrten(fahrten);
-        } else { console.warn("ID doppelt:", neueFahrt.id); }
-    }
-    // Lädt alle Fahrten aus dem localStorage (gibt sortiertes Array zurück)
-    function ladeFahrtenAusLocalStorage() {
-        const daten = localStorage.getItem('fahrtenbuchEintraege');
-        try { return daten ? JSON.parse(daten) : []; }
-        catch (e) { console.error("Fehler LS Parse:", e); alert("Fehler beim Laden der Daten!"); return []; }
-    }
+    // Fügt neue Fahrt hinzu und speichert (nutzt speichereAlleFahrten für Sortierung)
+    function speichereNeueFahrtImLocalStorage(neueFahrt) { /* ... unverändert ... */ let f=ladeFahrtenAusLocalStorage(); if(!f.some(x=>x.id===neueFahrt.id)){f.push(neueFahrt); speichereAlleFahrten(f);}else{console.warn("ID doppelt:", neueFahrt.id);} }
+    // Lädt Fahrten (gibt sortiertes Array zurück)
+    function ladeFahrtenAusLocalStorage() { /* ... unverändert ... */ const d=localStorage.getItem('fahrtenbuchEintraege'); try{return d?JSON.parse(d):[];}catch(e){console.error("LS Parse Fehler:", e); return [];} }
 
     // === 9. Löschfunktion ===
-    // Löscht eine Fahrt anhand ihrer ID
-    function fahrtLoeschen(fahrtId) {
-        console.log("Lösche ID:", fahrtId);
-        let fahrten = ladeFahrtenAusLocalStorage(); const anzahlVorher = fahrten.length;
-        const aktualisierteFahrten = fahrten.filter(fahrt => fahrt.id.toString() !== fahrtId.toString());
-        if (anzahlVorher !== aktualisierteFahrten.length) {
-             speichereAlleFahrten(aktualisierteFahrten); ladeGespeicherteFahrten(); updateZusammenfassung();
-             console.log(`ID ${fahrtId} gelöscht.`);
-             // Formular schließen, falls der gelöschte Eintrag gerade bearbeitet wurde
-             if (editId === fahrtId) { abbrechenEditModus(false); }
-        } else { console.warn("Zu löschende ID nicht gefunden:", fahrtId); }
-    }
+    function fahrtLoeschen(fahrtId) { /* ... unverändert ... */ console.log("Lösche ID:", fahrtId); let f=ladeFahrtenAusLocalStorage(); const a=f.length; const upd=f.filter(x=>x.id.toString()!==fahrtId.toString()); if(a !== upd.length){ speichereAlleFahrten(upd); ladeGespeicherteFahrten(); updateZusammenfassung(); console.log(`ID ${fahrtId} gelöscht.`); if(editId === fahrtId){ abbrechenEditModus(false); } }else{ console.warn("Zu löschende ID nicht gefunden:", fahrtId);} }
 
     // === 10. Anzeige-Funktionen (Liste, Zusammenfassung) ===
-    // Baut die komplette HTML-Liste der Fahrten neu auf
-    function ladeGespeicherteFahrten() {
-        const fahrten = ladeFahrtenAusLocalStorage(); // Holt sortierte Daten (älteste zuerst)
-        console.log(`${fahrten.length} Fahrten für Anzeige geladen.`);
-        if(!fahrtenListeDiv){console.error("Liste Div fehlt!"); return;}
-        fahrtenListeDiv.innerHTML = ''; // Liste immer leeren
-        if (fahrten.length === 0) { fahrtenListeDiv.innerHTML = '<p>Noch keine Fahrten gespeichert.</p>'; }
-        else { fahrten.forEach(fahrt => { fahrtZurListeHinzufuegen(fahrt, true); }); } // true = Anfügen (append)
-    }
-    // Erzeugt das HTML für einen einzelnen Listeneintrag und fügt ihn hinzu
+    // Baut Liste neu auf
+    function ladeGespeicherteFahrten() { /* ... unverändert (lädt sortierte Daten) ... */ const f=ladeFahrtenAusLocalStorage(); console.log(`${f.length} Fahrten für Anzeige.`); if(!fahrtenListeDiv){console.error("Liste Div fehlt!"); return;} fahrtenListeDiv.innerHTML=''; if(f.length===0){fahrtenListeDiv.innerHTML='<p>Noch keine Fahrten gespeichert.</p>';}else{ f.forEach(x=>{fahrtZurListeHinzufuegen(x, true);}); } } // true=append (älteste unten)
+
+    // Erzeugt HTML für Listeneintrag (ANGEPASST: Zeit anzeigen)
     function fahrtZurListeHinzufuegen(fahrt, append = false) {
          if(!fahrtenListeDiv) return;
-         const platzhalter = fahrtenListeDiv.querySelector('p'); if(platzhalter) platzhalter.remove();
+         const p=fahrtenListeDiv.querySelector('p'); if(p) p.remove();
 
          const el = document.createElement('div'); el.classList.add('fahrt-item'); el.setAttribute('data-fahrt-id', fahrt.id);
          const s=fahrt.kmStart||'0'; const e=fahrt.kmEnde||'0'; const d=fahrt.distanz||'0.0'; const dat=formatDateDE(fahrt.datum);
+         const startTime = fahrt.startTime || '--:--'; // NEU
+         const endTime = fahrt.endTime || '--:--';     // NEU
+         const startOrt = fahrt.startOrt || '-'; const zielOrt = fahrt.zielOrt || '-'; const zweck = fahrt.zweck || '-';
+         // Buttons
          const btns=`<div class="buttons-container"><button class="edit-btn" title="Bearbeiten"><i class="fa-solid fa-pencil"></i></button><button class="delete-btn" title="Löschen"><i class="fa-solid fa-trash-can"></i></button></div>`;
+         // HTML Struktur mit Zeit
          el.innerHTML=`
-            <div class="list-item-header"><div class="list-item-date"><span class="list-label">Datum:</span>${dat}</div>${btns}</div>
+            <div class="list-item-header">
+                <div class="list-item-date">
+                    <span class="list-label">Datum:</span><span class="value-tag">${dat}</span>
+                    <span style="margin-left: 10px;">(<span class="value-tag">${startTime}</span> - <span class="value-tag">${endTime}</span> Uhr)</span> </div>
+                ${btns}
+            </div>
             <div class="list-item-details">
-                <div><span class="list-label">Von:</span>${fahrt.startOrt||'-'}</div>
-                <div><span class="list-label">Nach:</span>${fahrt.zielOrt||'-'}</div>
-                <div><span class="list-label">KM-Start:</span>${s}</div>
-                <div><span class="list-label">KM-Ende:</span>${e}</div>
-                <div><span class="list-label">Distanz:</span>${d} km</div>
-                <div><span class="list-label">Zweck:</span>${fahrt.zweck||'-'}</div>
+                <div><span class="list-label">Von:</span><span class="value-tag">${startOrt}</span></div>
+                <div><span class="list-label">Nach:</span><span class="value-tag">${zielOrt}</span></div>
+                <div><span class="list-label">KM-Start:</span><span class="value-tag">${s}</span></div>
+                <div><span class="list-label">KM-Ende:</span><span class="value-tag">${e}</span></div>
+                <div><span class="list-label">Distanz:</span><span class="value-tag">${d} km</span></div>
+                <div><span class="list-label">Zweck:</span><span class="value-tag">${zweck}</span></div>
             </div>`;
-         if(append){ fahrtenListeDiv.appendChild(el); } // Beim Laden unten anfügen
-         else { fahrtenListeDiv.insertBefore(el, fahrtenListeDiv.firstChild); } // Bei neuem Eintrag oben einfügen
+         if(append){ fahrtenListeDiv.appendChild(el); } // Unten anfügen
+         else { fahrtenListeDiv.insertBefore(el, fahrtenListeDiv.firstChild); } // Oben einfügen
      }
-    // Aktualisiert die Kilometer-Zusammenfassung
-    function updateZusammenfassung() {
-        if (!zusammenfassungDiv) { console.error("Zusammenfassungs-Div fehlt!"); return; }
-        const fahrten = ladeFahrtenAusLocalStorage(); let t=0,g=0,p=0,a=0;
-        fahrten.forEach(f=>{const d=parseFloat(f.distanz); if(!isNaN(d)){t+=d; switch(f.zweck){case 'geschaeftlich':g+=d; break; case 'privat':p+=d; break; case 'arbeitsweg':a+=d; break;}}});
-        zusammenfassungDiv.innerHTML = `<h2>Zusammenfassung</h2><p><strong>Gesamt:</strong> ${t.toFixed(1)} km</p><ul><li>Geschäftlich: ${g.toFixed(1)} km</li><li>Privat: ${p.toFixed(1)} km</li><li>Arbeitsweg: ${a.toFixed(1)} km</li></ul>`;
-    }
+    // Aktualisiert Zusammenfassung (unverändert)
+    function updateZusammenfassung() { /* ... unverändert ... */ if(!zusammenfassungDiv){return;} const f=ladeFahrtenAusLocalStorage(); let t=0,g=0,p=0,a=0; f.forEach(x=>{const d=parseFloat(x.distanz); if(!isNaN(d)){t+=d; switch(x.zweck){case 'geschaeftlich':g+=d; break; case 'privat':p+=d; break; case 'arbeitsweg':a+=d; break;}}}); zusammenfassungDiv.innerHTML=`<h2>Zusammenfassung</h2><p><strong>Gesamt:</strong> ${t.toFixed(1)} km</p><ul><li>Geschäftlich: ${g.toFixed(1)} km</li><li>Privat: ${p.toFixed(1)} km</li><li>Arbeitsweg: ${a.toFixed(1)} km</li></ul>`; }
 
-    // === 11. Export/Import Funktionen ===
-    function exportiereAlsCsv() { /*...*/ console.log('CSV Export...'); const f=ladeFahrtenAusLocalStorage(); if(f.length===0){alert('Keine Fahrten.'); return;} f.sort((a,b)=>{const d=new Date(a.datum)-new Date(b.datum); return d!==0?d:parseFloat(a.kmStart)-parseFloat(b.kmStart);}); const h=["Datum","Start-Ort","Ziel-Ort","KM-Start","KM-Ende","Distanz (km)","Zweck"]; const esc=(fld)=>{const s=String(fld==null?'':fld); if(s.includes(';')||s.includes('"')||s.includes('\n'))return `"${s.replace(/"/g,'""')}"`; return s;}; let csv=h.join(';')+'\n'; f.forEach(x=>{const r=[x.datum,x.startOrt,x.zielOrt,x.kmStart,x.kmEnde,x.distanz,x.zweck]; csv+=r.map(esc).join(';')+'\n';}); triggerDownload(csv,'text/csv;charset=utf-8;',`fahrtenbuch_${getDatumString()}.csv`); }
-    function exportiereAlsJson() { /*...*/ console.log("Exportiere JSON..."); try{const f=ladeFahrtenAusLocalStorage(); if(f.length===0){alert("Keine Fahrten."); return;} const json=JSON.stringify(f,null,2); triggerDownload(json,'application/json;charset=utf-8;',`fahrtenbuch_backup_${getDatumString()}.json`);} catch(e){console.error("Fehler JSON Export:", e); alert("Fehler Backup.");} }
-    function importiereAusJson(event) { /*...*/ console.log("Importiere JSON..."); const file=event.target.files[0]; if(!file){return;} if(!confirm(`ACHTUNG:\nAlle Fahrten werden durch Inhalt der Datei "${file.name}" ersetzt.\n\nFortfahren?`)){event.target.value=null; return;} const reader=new FileReader(); reader.onload=function(e){ try{ const json=e.target.result; const impF=JSON.parse(json); if(!Array.isArray(impF)||(impF.length>0&&(typeof impF[0].id==='undefined'||typeof impF[0].datum==='undefined'))){throw new Error("Datei scheint kein gültiges Backup zu sein.");} speichereAlleFahrten(impF); console.log(`Erfolgreich ${impF.length} Fahrten importiert.`); initialisiereApp(); alert(`Erfolgreich ${impF.length} Fahrten importiert!`);} catch(e){console.error("Fehler JSON Import:", e); alert(`Fehler Import:\n${e.message}`);} finally{event.target.value=null;} }; reader.onerror=function(){console.error("Fehler Lesen:", reader.error); alert("Fehler beim Lesen der Datei."); event.target.value=null;}; reader.readAsText(file); }
-    // Hilfsfunktion für Datei-Downloads
-    function triggerDownload(content, mimeType, filename) { const BOM=mimeType.includes('csv')?'\uFEFF':''; const blob=new Blob([BOM+content],{type:mimeType}); const link=document.createElement("a"); if(link.download!==undefined){const url=URL.createObjectURL(blob); link.setAttribute("href",url); link.setAttribute("download",filename); link.style.visibility='hidden'; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); console.log(`Datei ${filename} angeboten.`);}else{alert("Direkter Download nicht unterstützt.");}}
+    // === 11. Export/Import Funktionen (ANGEPASST: Zeitfelder) ===
+    // Exportiert als CSV (mit Zeit)
+    function exportiereAlsCsv() {
+        console.log('CSV Export...');
+        const fahrten = ladeFahrtenAusLocalStorage(); if(fahrten.length===0){alert('Keine Fahrten.'); return;}
+        // Sortierung nach Datum+Zeit ist schon im Speicher
+        const header = ["Datum", "Startzeit", "Endzeit", "Start-Ort", "Ziel-Ort", "KM-Start", "KM-Ende", "Distanz (km)", "Zweck"]; // NEU: Zeitspalten
+        const esc=(fld)=>{const s=String(fld==null?'':fld); if(s.includes(';')||s.includes('"')||s.includes('\n'))return `"${s.replace(/"/g,'""')}"`; return s;};
+        let csvContent = header.join(';') + '\n';
+        fahrten.forEach(x => { const row=[x.datum, x.startTime || '', x.endTime || '', x.startOrt, x.zielOrt, x.kmStart, x.kmEnde, x.distanz, x.zweck]; csvContent += row.map(esc).join(';') + '\n'; }); // NEU: Zeit in Zeile
+        triggerDownload(csvContent,'text/csv;charset=utf-8;',`fahrtenbuch_${getDatumString()}.csv`);
+    }
+    // Exportiert als JSON (Zeit ist automatisch drin)
+    function exportiereAlsJson() { /* ... unverändert ... */ console.log("Exportiere JSON..."); try{const f=ladeFahrtenAusLocalStorage(); if(f.length===0){alert("Keine Fahrten."); return;} const json=JSON.stringify(f,null,2); triggerDownload(json,'application/json;charset=utf-8;',`fahrtenbuch_backup_${getDatumString()}.json`);} catch(e){console.error("Fehler JSON Export:", e); alert("Fehler Backup.");} }
+    // Importiert aus JSON (ANGEPASST: Validierung prüft auf Zeitfelder)
+    function importiereAusJson(event) {
+        console.log("Importiere JSON...");
+        const file=event.target.files[0]; if(!file){return;}
+        if(!confirm(`ACHTUNG:\nAlle Fahrten werden durch Inhalt der Datei "${file.name}" ersetzt.\n\nFortfahren?`)){event.target.value=null; return;}
+        const reader=new FileReader();
+        reader.onload=function(e){
+            try{
+                const json=e.target.result; const impF=JSON.parse(json);
+                // Einfache Prüfung, ob es ein Array ist und ob erste Fahrt plausible Felder hat (inkl. Zeit)
+                if(!Array.isArray(impF) || (impF.length>0 && (typeof impF[0].id==='undefined' || typeof impF[0].datum==='undefined' || typeof impF[0].startTime==='undefined'))) {
+                    throw new Error("Datei scheint kein gültiges Fahrtenbuch-Backup zu sein (fehlende Felder?).");
+                }
+                speichereAlleFahrten(impF); // Speichert importierte Daten (inkl. Sortierung)
+                console.log(`Erfolgreich ${impF.length} Fahrten importiert.`);
+                initialisiereApp(); // Lädt alles neu
+                alert(`Erfolgreich ${impF.length} Fahrten importiert!`);
+            } catch(e){ console.error("Fehler JSON Import:", e); alert(`Fehler Import:\n${e.message}`); }
+            finally{ event.target.value=null; } // Input zurücksetzen
+        };
+        reader.onerror=function(){console.error("Fehler Lesen:", reader.error); alert("Fehler beim Lesen der Datei."); event.target.value=null;};
+        reader.readAsText(file);
+    }
+    // Hilfsfunktion Download (unverändert)
+    function triggerDownload(content, mimeType, filename) { /* ... unverändert ... */ const BOM=mimeType.includes('csv')?'\uFEFF':''; const blob=new Blob([BOM+content],{type:mimeType}); const link=document.createElement("a"); if(link.download!==undefined){const url=URL.createObjectURL(blob); link.setAttribute("href",url); link.setAttribute("download",filename); link.style.visibility='hidden'; document.body.appendChild(link); link.click(); document.body.removeChild(link); URL.revokeObjectURL(url); console.log(`Datei ${filename} angeboten.`);}else{alert("Direkter Download nicht unterstützt.");}}
 
     // === 12. App starten ===
-    initialisiereApp(); // Führt die Initialisierung aus, wenn das DOM bereit ist
+    initialisiereApp(); // Startet die Anwendung
 
 }); // Ende DOMContentLoaded Listener

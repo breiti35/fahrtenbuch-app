@@ -52,7 +52,7 @@ hr { display: none; }
 
 /* Formular Styling */
 #fahrt-formular { max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0; margin-bottom: 0; box-shadow: none; border: none; transition: max-height 0.5s ease-out, padding 0.5s ease-out, margin-bottom 0.5s ease-out, border 0.3s ease-out, box-shadow 0.3s ease-out; }
-#fahrt-formular.form-visible { max-height: 1000px; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07); border: 1px solid #e1e5eb; border-radius: 10px; }
+#fahrt-formular.form-visible { max-height: 1500px; padding: 25px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07); border: 1px solid #e1e5eb; border-radius: 10px; }
 #fahrt-formular > h2 { margin-top: 0; }
 #trip-entry-form div:not(:last-child) { margin-bottom: 20px; }
 #trip-entry-form div:last-child { margin-bottom: 0; }
@@ -96,6 +96,7 @@ span.list-label { display: inline-block; width: 110px; font-weight: 500; color: 
 
 /* Zusammenfassung */
  #zusammenfassung { /* Nutzt .content-box */ }
+ #zusammenfassung i.fa-solid fa-car { margin-right: 12px; color: #5a6a7d; width: 1.2em; text-align: center; font-size: 1.1em; }
  #zusammenfassung > h2 { margin-top: 0; }
  #zusammenfassung ul { list-style: none; padding-left: 0; margin-top: 0.5rem; }
  #zusammenfassung li { margin-bottom: 0.4rem; color: #4e5c6e; }

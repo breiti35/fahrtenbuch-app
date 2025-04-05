@@ -38,7 +38,7 @@
                 <h2>Menu</h2>
                 <div class="action-menu">
                     <button type="button" id="add-new-btn">
-                        <i class="fa-solid fa-plus fa-fw"></i> <span>Neue Fahrt hinzufügen</span>
+                        <i class="fa-solid fa-plus-minus"></i> <span>Fahrt hinzufügen</span>
                     </button>
                     <hr style="margin: 10px 0; border: none; border-top: 1px solid #e9ecef;">
                     <button type="button" id="export-csv-btn">
@@ -67,7 +67,19 @@
                      <div>
                          <label for="datum">Datum:</label>
                          <input type="date" id="datum" name="datum" required>
-                     </div>
+                        </div>
+                        <div>
+                            <label for="start-zeit">Startzeit:</label>
+                            <input type="time" id="start-zeit" name="start-zeit" required>
+                        </div>
+                        <div>
+                            <label for="end-zeit">Endzeit:</label>
+                            <input type="time" id="end-zeit" name="end-zeit" required>
+                        </div>
+                        <div>
+                            <label for="start-ort">Start-Ort:</label>
+                            <input type="text" id="start-ort" name="start-ort" required>
+                        </div>
                      <div>
                          <label for="start-ort">Start-Ort:</label>
                          <input type="text" id="start-ort" name="start-ort" required>
@@ -108,10 +120,10 @@
             </div>
         </div> <div class="grid-column-right">
             <div id="zusammenfassung" class="content-box">
-                <h2>Zusammenfassung</h2>
+            <h2><i class="fa-solid fa-car"></i>Zusammenfassung</h2>
                 <p>Wird berechnet...</p>
             </div>
-        </div> </div> </divc> <script src="script.js" defer></script>
+        </div> </div> </div> <script src="script.js" defer></script>
 
 </body>
 </html>
