@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Mein Fahrtenbuch</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,91 +16,91 @@
     <link rel="stylesheet" href="style.css">
 
 </head>
+
 <body>
 
-        <div class="container"> <header class="app-header">
-                <h1>Fahrtenbuch App</h1>
-            </header>
-            <div class="main-grid">
+    <div class="container">
 
-                <div class="grid-column-left">
-                     <div class="content-box">
-                        <h2>Menü</h2>
-                        <div class="action-menu">
-                             <button type="button" id="add-new-btn" class="button-primary menu-button">
-                                 <i class="fa-solid fa-plus fa-fw"></i>
-                                 <span>Neue Fahrt hinzufügen</span>
-                             </button>
-                             <hr style="margin: 15px 0; border: none; border-top: 1px solid #e9ecef;">
-                             <button type="button" id="export-csv-btn" class="menu-button">
-                                 <i class="fa-solid fa-file-csv fa-fw"></i>
-                                 <span>CSV Export</span>
-                             </button>
-                         </div>
-                            <div id="backup-restore-section" style="margin-top: 1.5rem; border-top: 1px solid #e1e5eb; padding-top: 1rem;"> <h3 style="font-size: 1.1rem; margin-bottom: 0.8rem; color: #1c4b82; font-weight: 600; border-top: none; padding-top: 0; margin-top: 0;">Datensicherung</h3>
-                            <div class="backup-restore-buttons" style="margin-bottom: 10px;">
-                                <button type="button" id="export-json-btn" class="menu-button">
-                                    <i class="fa-solid fa-floppy-disk fa-fw"></i>
-                                    <span>Backup</span>
-                                </button>
-                                <button type="button" id="import-json-btn" class="menu-button">
-                                    <i class="fa-solid fa-upload fa-fw"></i>
-                                    <span>Restore</span>
-                                </button>
-                                <input type="file" id="import-json-file" accept=".json" style="display: none;">
-                           </div>
-                            <p style="color: #5a6a7d; font-size: 0.9rem; margin-bottom: 0;">Sichere deine Fahrten und Fahrzeuge oder stelle sie wieder her.</p>
+        <header class="app-header">
+            <h1>Fahrtenbuch App</h1>
+        </header>
+        <div class="main-grid">
+
+            <div class="grid-column-left">
+                <div class="content-box">
+                    <h2>Menü</h2>
+                    <div class="action-menu">
+                        <button type="button" id="add-new-btn" class="button-primary menu-button">
+                            <i class="fa-solid fa-plus fa-fw"></i>
+                            <span>Neue Fahrt hinzufügen</span>
+                        </button>
+                        <hr style="margin: 15px 0; border: none; border-top: 1px solid #e9ecef;">
+                        <button type="button" id="export-csv-btn" class="menu-button">
+                            <i class="fa-solid fa-file-csv fa-fw"></i>
+                            <span>CSV Export</span>
+                        </button>
                         </div>
 
-                    </div> </div> <div class="grid-column-middle">
-                    <div id="fahrt-formular" class="content-box">
-                         <h2>Neuen Eintrag hinzufügen / Bearbeiten</h2>
-                         <form id="trip-entry-form">
-                             <div><label for="datum">Datum:</label><input type="date" id="datum" name="datum" required></div>
-                             <div><label for="start-zeit">Startzeit:</label><input type="time" id="start-zeit" name="start-zeit" required></div>
-                             <div><label for="end-zeit">Endzeit:</label><input type="time" id="end-zeit" name="end-zeit" required></div>
-                             <div><label for="start-ort">Start-Ort:</label><input type="text" id="start-ort" name="start-ort" required></div>
-                             <div><label for="ziel-ort">Ziel-Ort:</label><input type="text" id="ziel-ort" name="ziel-ort" required></div>
-                             <div><label for="km-start">Kilometerstand Start:</label><input type="number" id="km-start" name="km-start" required step="any"></div>
-                             <div><label for="km-ende">Kilometerstand Ende:</label><input type="number" id="km-ende" name="km-ende" required step="any"></div>
-                             <div><label for="distanz">Distanz (km):</label><input type="number" id="distanz" name="distanz" step="0.1"></div>
-                             <div><label for="car-select">Fahrzeug:</label><select id="car-select" name="car-select" required><option value="">-- Bitte wählen --</option></select></div>
-                             <div><label for="zweck">Zweck der Fahrt:</label><select id="zweck" name="zweck"><option value="geschaeftlich">Geschäftlich</option><option value="privat">Privat</option><option value="arbeitsweg">Arbeitsweg</option></select></div>
-                             <div><button type="button" id="speichern-btn">Fahrt speichern</button><button type="button" id="cancel-edit-btn" style="display: none; margin-left: 10px;">Abbrechen</button></div>
-                         </form>
-                    </div>
-
-                    <div id="fahrten-liste-container">
-                         <h2>Fahrten</h2>
-                         <div id="fahrten-liste">
-                             <p>Noch keine Fahrten gespeichert.</p>
-                         </div>
-                    </div>
-                </div> <div class="grid-column-right">
-                    <div id="zusammenfassung" class="content-box">
-                        <h2>Zusammenfassung</h2>
-                        <p>Wird berechnet...</p>
-                        </div>
-
-                    <div id="fahrzeug-verwaltung" class="content-box" style="margin-top: 30px;"> <h2 style="margin-top: 0;">Fahrzeuge verwalten</h2> <form id="add-car-form" style="margin-bottom: 15px;">
-                            <div style="margin-bottom: 10px;">
-                                <label for="car-name" style="font-weight: 500; font-size: 0.9rem; color: #4e5c6e;">Name/Modell:</label>
-                                <input type="text" id="car-name" placeholder="z.B. VW Golf VII" required style="padding: 8px 10px; font-size: 0.95rem;">
-                            </div>
-                            <div style="margin-bottom: 15px;">
-                                <label for="car-plate" style="font-weight: 500; font-size: 0.9rem; color: #4e5c6e;">Kennzeichen:</label>
-                                <input type="text" id="car-plate" placeholder="z.B. AB-CD-123" required style="padding: 8px 10px; font-size: 0.95rem;">
-                            </div>
-                            <button type="button" id="add-car-btn" class="menu-button"> <i class="fa-solid fa-car-side fa-fw"></i>
-                                 <span>Fahrzeug hinzufügen</span>
+                    <div id="backup-restore-section" style="margin-top: 1.5rem; border-top: 1px solid #e1e5eb; padding-top: 1rem;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 0.8rem; color: #1c4b82; font-weight: 600; border-top: none; padding-top: 0; margin-top: 0;">Datensicherung</h3>
+                        <div class="backup-restore-buttons" style="margin-bottom: 10px;">
+                            <button type="button" id="export-json-btn" class="menu-button">
+                                <i class="fa-solid fa-floppy-disk fa-fw"></i>
+                                <span>Backup</span>
                             </button>
-                        </form>
-                        <div id="car-list-container">
-                            <ul id="car-list" style="list-style: none; padding-left: 0; margin-top: 1rem;">
-                                <li>Keine Fahrzeuge angelegt.</li>
-                            </ul>
+                            <button type="button" id="import-json-btn" class="menu-button">
+                                <i class="fa-solid fa-upload fa-fw"></i>
+                                <span>Restore</span>
+                            </button>
+                            <input type="file" id="import-json-file" accept=".json" style="display: none;">
                         </div>
+                        <p style="color: #5a6a7d; font-size: 0.9rem; margin-bottom: 0;">Sichere deine Fahrten und Fahrzeuge oder stelle sie wieder her.</p>
                     </div>
-                    </div> </div> </div> <script src="script.js" defer></script>
+                </div> </div> <div class="grid-column-middle">
+                <div id="fahrt-formular" class="content-box">
+                    <h2>Neuen Eintrag hinzufügen / Bearbeiten</h2>
+                    <form id="trip-entry-form">
+                        <div><label for="datum">Datum:</label><input type="date" id="datum" name="datum" required></div>
+                        <div><label for="start-zeit">Startzeit:</label><input type="time" id="start-zeit" name="start-zeit" required></div>
+                        <div><label for="end-zeit">Endzeit:</label><input type="time" id="end-zeit" name="end-zeit" required></div>
+                        <div><label for="start-ort">Start-Ort:</label><input type="text" id="start-ort" name="start-ort" required></div>
+                        <div><label for="ziel-ort">Ziel-Ort:</label><input type="text" id="ziel-ort" name="ziel-ort" required></div>
+                        <div><label for="km-start">Kilometerstand Start:</label><input type="number" id="km-start" name="km-start" required step="any"></div>
+                        <div><label for="km-ende">Kilometerstand Ende:</label><input type="number" id="km-ende" name="km-ende" required step="any"></div>
+                        <div><label for="distanz">Distanz (km):</label><input type="number" id="distanz" name="distanz" step="0.1" readonly></div>
+                        <div><label for="car-select">Fahrzeug:</label><select id="car-select" name="car-select" required><option value="">-- Bitte wählen --</option></select></div>
+                        <div><label for="zweck">Zweck der Fahrt:</label><select id="zweck" name="zweck"><option value="geschaeftlich">Geschäftlich</option><option value="privat">Privat</option><option value="arbeitsweg">Arbeitsweg</option></select></div>
+                        <div><button type="button" id="speichern-btn">Fahrt speichern</button><button type="button" id="cancel-edit-btn" style="display: none; margin-left: 10px;">Abbrechen</button></div>
+                    </form> </div> <div id="fahrten-liste-container">
+                    <h2>Fahrten</h2> <div id="fahrten-liste">
+                        <p>Noch keine Fahrten gespeichert.</p> </div>
+                </div> </div> <div class="grid-column-right">
+                <div id="zusammenfassung" class="content-box">
+                    <h2>Zusammenfassung</h2>
+                    <p>Wird berechnet...</p> </div>
+
+                <div id="fahrzeug-verwaltung" class="content-box" style="margin-top: 30px;">
+                    <h2 style="margin-top: 0;">Fahrzeuge verwalten</h2>
+                    <form id="add-car-form" style="margin-bottom: 15px;">
+                        <div style="margin-bottom: 10px;">
+                            <label for="car-name" style="font-weight: 500; font-size: 0.9rem; color: #4e5c6e;">Name/Modell:</label>
+                            <input type="text" id="car-name" placeholder="z.B. VW Golf VII" required style="padding: 8px 10px; font-size: 0.95rem;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label for="car-plate" style="font-weight: 500; font-size: 0.9rem; color: #4e5c6e;">Kennzeichen:</label>
+                            <input type="text" id="car-plate" placeholder="z.B. AB-CD-123" required style="padding: 8px 10px; font-size: 0.95rem;">
+                        </div>
+                        <button type="button" id="add-car-btn" class="menu-button">
+                            <i class="fa-solid fa-car-side fa-fw"></i>
+                            <span>Fahrzeug hinzufügen</span>
+                        </button>
+                    </form>
+                    <div id="car-list-container">
+                        <ul id="car-list" style="list-style: none; padding-left: 0; margin-top: 1rem;">
+                            <li>Keine Fahrzeuge angelegt.</li>
+                        </ul>
+                    </div>
+                </div> </div> </div> </div> <script src="script.js" defer></script>
+
 </body>
 </html>
