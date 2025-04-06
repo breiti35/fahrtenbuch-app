@@ -399,40 +399,91 @@ document.addEventListener('DOMContentLoaded', function() {
     // === 8. Validierungsfunktion ===
     // ========================================================================
     /**
-     * DE: Prüft ein Fahrt-Objekt auf Gültigkeit.
-     * EN: Validates a trip object for correctness.
+     * DE: Prüft ein Fahrt-Objekt auf Gültigkeit. Passt ggf. die Distanz an.
+     * EN: Validates a trip object for correctness. Adjusts distance if necessary.
      * @param {object} fahrt - Das zu prüfende Fahrt-Objekt.
-     * @param {boolean} checkKmContinuity - Soll die KM-Kontinuität geprüft werden?
+     * @param {boolean} checkKmContinuity - Soll die KM-Kontinuität geprüft werden? (Nur bei neuen Fahrten)
      * @returns {boolean} true, wenn valide, sonst false.
      */
-        function validateFahrt(fahrt, checkKmContinuity) {
-        console.log("Validiere Fahrt:", fahrt, "Kontinuität:", checkKmContinuity);
-     // Pflichtfelder (Distanz ist jetzt auch Pflicht, da readonly und auto-befüllt)
-        if (!fahrt.datum || !fahrt.startTime || !fahrt.endTime || !fahrt.startOrt || !fahrt.zielOrt || !fahrt.kmStart || !fahrt.kmEnde || !fahrt.distanz || !fahrt.carId || !fahrt.zweck) {
-        alert('Bitte füllen Sie alle Pflichtfelder aus (inkl. Fahrzeug)! Distanz wird automatisch berechnet.'); return false;
-    }
-      // KM
-        const s=parseFloat(fahrt.kmStart), e=parseFloat(fahrt.kmEnde);
-        if (isNaN(s)||isNaN(e)){ alert('Ungültige KM!'); return false; }
-        if (e < s) { alert('End-KM < Start-KM!'); return false; }
-     // Zeit
-        if (fahrt.endTime < fahrt.startTime) { alert('Endzeit < Startzeit!'); return false; }
-     // Distanz - Nur noch prüfen, ob eine Zahl da ist (sollte durch Auto-Calc der Fall sein)
-        const d = parseFloat(fahrt.distanz);
-        if (isNaN(d)) { // Sollte nicht passieren, wenn KM-Felder korrekt sind
-        alert('Distanz konnte nicht automatisch berechnet werden. Bitte KM-Stände prüfen.'); return false;
-    }
-     // Optional: Gegenprüfung (ob der Wert im Feld zur Differenz passt) - kann man auch weglassen
-        const berechneteDistanz = e - s;
-        if (Math.abs(d - berechneteDistanz) > 0.01) { // Kleine Toleranz für Rundungsfehler
-         console.warn(`Validierung: Berechnete Distanz (${d}) stimmt nicht exakt mit KM-Differenz (${berechneteDistanz}) überein.`);
-     // Kein Fehler, da das Feld readonly ist und vom Skript befüllt wird.
-    }
+    function validateFahrt(fahrt, checkKmContinuity) {
+        console.log("Validiere Fahrt:", fahrt, "Kontinuität prüfen:", checkKmContinuity);
 
-    // KM Kontinuität (Global - Nur Warnung)
-    if (checkKmContinuity) { const a=ladeFahrtenAusLocalStorage(); if (a.length > 0) { let m=0; a.forEach(f=>{const k=parseFloat(f.kmEnde); if(!isNaN(k)&&k>m)m=k;}); console.warn("Kontinuitätsprüfung global!"); if (s < m) { alert(`Warnung: Start(${s})<MaxEnd(${m})!`);}}}
-    console.log("Validierung OK."); return true;
-}
+        // --- Basisprüfung Pflichtfelder ---
+        if (!fahrt.datum || !fahrt.startTime || !fahrt.endTime || !fahrt.startOrt || !fahrt.zielOrt || !fahrt.kmStart || !fahrt.kmEnde || !fahrt.carId || !fahrt.zweck) {
+            alert('Bitte füllen Sie alle Pflichtfelder aus (inkl. Zeit, Fahrzeug)!');
+            return false;
+        }
+
+        // --- Prüfung KM-Werte ---
+        const kmStartNum = parseFloat(fahrt.kmStart);
+        const kmEndeNum = parseFloat(fahrt.kmEnde);
+        if (isNaN(kmStartNum) || isNaN(kmEndeNum)) {
+            alert('Bitte geben Sie gültige Zahlen für die Kilometerstände ein.');
+            return false;
+        }
+        if (kmEndeNum < kmStartNum) {
+            alert('Der Kilometerstand am Ende muss größer oder gleich dem Kilometerstand am Start sein.');
+            return false;
+        }
+
+        // --- Prüfung Zeiten ---
+        if (fahrt.endTime < fahrt.startTime) {
+            alert('Die Endzeit darf nicht vor der Startzeit liegen.');
+            return false;
+        }
+
+        // --- Prüfung/Berechnung Distanz ---
+        let distanzNum = parseFloat(fahrt.distanz);
+        const berechneteDistanz = kmEndeNum - kmStartNum;
+        // Wenn Distanz fehlt oder 0, berechne sie. Ansonsten prüfe auf große Abweichung.
+        if (isNaN(distanzNum) || distanzNum <= 0) {
+            fahrt.distanz = berechneteDistanz.toFixed(1); // Wert im Objekt direkt korrigieren
+        } else {
+            if (Math.abs(distanzNum - berechneteDistanz) > 1) { // Toleranz 1km
+                 if (!confirm(`Die eingegebene Distanz (${distanzNum} km) weicht von der KM-Differenz (${berechneteDistanz.toFixed(1)} km) ab. Trotzdem speichern?`)) {
+                     return false;
+                 }
+            }
+            fahrt.distanz = distanzNum.toFixed(1); // Formatieren sicherstellen
+        }
+
+        // --- NEU: KM-Kontinuitätsprüfung pro Fahrzeug (nur für NEUE Fahrten) ---
+        if (checkKmContinuity) {
+            const alleFahrten = ladeFahrtenAusLocalStorage(); // Holt ALLE Fahrten (bereits sortiert nach Datum/Zeit/KM)
+
+            // Finde die letzte Fahrt für DAS AUSGEWÄHLTE Fahrzeug
+            let letzteFahrtDiesesAutos = null;
+            for (let i = alleFahrten.length - 1; i >= 0; i--) {
+                if (alleFahrten[i].carId === fahrt.carId) {
+                    letzteFahrtDiesesAutos = alleFahrten[i];
+                    break; // Die letzte gefunden, Schleife abbrechen
+                }
+            }
+
+            // Wenn eine vorherige Fahrt für dieses Auto existiert, vergleiche KM-Stände
+            if (letzteFahrtDiesesAutos) {
+                const letzterKmEndeDiesesAutos = parseFloat(letzteFahrtDiesesAutos.kmEnde);
+                if (!isNaN(letzterKmEndeDiesesAutos)) { // Nur prüfen, wenn alter Wert gültig ist
+                    console.log(`Prüfe Kontinuität für Auto ${fahrt.carId}: Neuer Start = ${kmStartNum}, Letztes Ende = ${letzterKmEndeDiesesAutos}`);
+                    if (kmStartNum < letzterKmEndeDiesesAutos) {
+                        alert(`Fehler: Der Start-KM (${kmStartNum}) ist niedriger als der End-KM (${letzterKmEndeDiesesAutos}) der letzten Fahrt dieses Fahrzeugs! Bitte korrigieren.`);
+                        return false; // Prüfung fehlgeschlagen
+                    }
+                    // Optionale, strengere Prüfung auf exakte Übereinstimmung (ggf. mit Toleranz)
+                    // if (kmStartNum !== letzterKmEndeDiesesAutos) {
+                    //    alert(`Warnung: Start-KM (${kmStartNum}) entspricht nicht exakt dem letzten End-KM (${letzterKmEndeDiesesAutos}). Private Fahrt dazwischen?`);
+                    // }
+                } else {
+                    console.warn("Konnte letzten End-KM für Kontinuitätsprüfung nicht lesen:", letzteFahrtDiesesAutos);
+                }
+            } else {
+                console.log(`Keine vorherige Fahrt für Auto ${fahrt.carId} gefunden, Kontinuitätsprüfung übersprungen.`);
+            }
+        } // Ende checkKmContinuity
+
+        console.log("Validierung erfolgreich.");
+        return true; // Alle Prüfungen bestanden
+    }
 
     // ========================================================================
     // === 9. Speicher / Ladefunktionen (localStorage) ===
