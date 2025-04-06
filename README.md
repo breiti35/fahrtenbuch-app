@@ -1,9 +1,10 @@
 # 🚗 Fahrtenbuch Web App
 
 **EN:** A web application for managing logbooks, saving data locally in the browser via `localStorage`, built with HTML, CSS, and JavaScript.
+
 **DE:** Eine via Browser im `localStorage` speichernde Webanwendung zur Verwaltung von Fahrtenbüchern, erstellt mit HTML, CSS und JavaScript.
 
-**Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)] 
+**Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)]
 
 ---
 
