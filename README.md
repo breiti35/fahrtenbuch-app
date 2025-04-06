@@ -66,8 +66,8 @@
     * **DE:** Einklappbares Formular für neue/zu bearbeitende Einträge.
 
 * **✔️ Validierung / Validation:**
-    * **EN:** Checks for required fields, odometer readings, and times.
-    * **DE:** Überprüfung von Pflichtfeldern, Kilometerständen und Zeiten.
+    * **EN:** Checks for required fields, times, and odometer readings (incl. **per-car continuity check**).
+    * **DE:** Überprüfung von Pflichtfeldern, Zeiten und Kilometerständen (inkl. **Prüfung der Kontinuität pro Fahrzeug**).
 
 *(EN: More features may follow)*
 *(DE: Weitere Features können folgen)*
