@@ -1,0 +1,11 @@
+# Systemdateien
+.DS_Store
+Thumbs.db
+
+# Editor/IDE Konfiguration
+.vscode/
+.idea/
+
+# Name des ungewollten Ordners (ersetzen!)
+.vscode/
+.idea/
