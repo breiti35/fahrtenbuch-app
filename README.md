@@ -61,11 +61,11 @@
     * **EN:** Responsive 3-column layout.
     * **EN:** Clean user interface with icons (Font Awesome) and modern styling.
     * **EN:** Collapsible form for adding/editing entries.
-    **Dark Mode** (automatic detection or manual toggle via header button)
+    * **EN:** Dark Mode (automatic detection or manual toggle via header button)
     * **DE:** Responsives 3-Spalten-Layout.
     * **DE:** Aufgeräumte Oberfläche mit Icons (Font Awesome) und modernem Styling.
     * **DE:** Einklappbares Formular für neue/zu bearbeitende Einträge.
-    **Dark Mode** (automatische Erkennung oder manueller Wechsel über Button in Kopfleiste).
+    * **DE:** Dark Mode (automatische Erkennung oder manueller Wechsel über Button in Kopfleiste).
 
 * **✔️ Validierung / Validation:**
     * **EN:** Checks for required fields, times, and odometer readings (incl. **per-car continuity check**).
