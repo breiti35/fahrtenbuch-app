@@ -9,3 +9,4 @@ Thumbs.db
 # Name des ungewollten Ordners (ersetzen!)
 .vscode/
 .idea/
+.gitignore/

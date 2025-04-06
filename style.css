@@ -1,268 +1,277 @@
 /* === style.css === */
-/* Stand: 2025-04-06, Formatiert & Kommentiert (basiert auf Stand #78) */
+/* Stand: 2025-04-06, Final Formatiert & Bilingual Kommentiert */
 
-/* === GRUNDEINSTELLUNGEN & SCHRIFT === */
-/* ===================================== */
+/* === 1. CSS Variablen Definitionen === */
+/* === 1. CSS Variable Definitions === */
+/* =================================== */
 
-/* DE: Basis-Reset und globale Box-Sizing Einstellung */
-/* EN: Basic reset and global box-sizing */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+/* DE: Standard-Theme (Light Mode) - definiert in :root */
+/* EN: Default theme (Light Mode) - defined in :root */
+:root {
+    /* DE: Hintergrundfarben / EN: Background colors */
+    --bg-main: #e9ecef;         /* DE: Haupt-Hintergrund / EN: Main background */
+    --bg-card: #ffffff;         /* DE: Karten-Hintergrund / EN: Card background */
+    --bg-input: #fdfdff;        /* DE: Input-Hintergrund / EN: Input background */
+    --bg-hover-light: #f8f9fa;  /* DE: Leichter Hover für Zeilen etc. / EN: Light hover for rows etc. */
+    --bg-hover-menu: #f1f3f5;   /* DE: Hover für Menü-Items / EN: Hover for menu items */
+
+    /* DE: Textfarben / EN: Text colors */
+    --text-primary: #333d49;    /* DE: Haupttext / EN: Primary text */
+    --text-secondary: #5a6a7d;  /* DE: Sekundär/Grau (Labels, Icons) / EN: Secondary/Grey (Labels, Icons) */
+    --text-headings: #1c4b82;   /* DE: Überschriften (H2, H3) / EN: Headings (H2, H3) */
+    --text-h1: #2a2f45;         /* DE: Hauptüberschrift H1 / EN: Main heading H1 */
+    --text-on-primary: #ffffff; /* DE: Text auf primärem Hintergrund (Buttons) / EN: Text on primary background (Buttons) */
+    --text-on-dark: #ffffff;    /* DE: Text auf dunklem Hintergrund (Header Bar, Badge) / EN: Text on dark background (Header Bar, Badge) */
+
+    /* DE: Rahmenfarben / EN: Border colors */
+    --border-color-light: #e1e5eb;  /* DE: Helle Linie (z.B. H2) / EN: Light border (e.g., H2) */
+    --border-color-medium: #d3dbe3; /* DE: Mittlere Linie (Inputs) / EN: Medium border (Inputs) */
+    --border-color-subtle: #f1f3f5; /* DE: Sehr leichte Linie (in Karten) / EN: Very subtle border (in cards) */
+
+    /* DE: Schattenfarbe / EN: Shadow color */
+    --shadow-color: rgba(0, 0, 0, 0.07);
+    --shadow-color-hover: rgba(0, 0, 0, 0.1);
+    --shadow-badge: rgba(0, 0, 0, 0.15);
+
+    /* DE: Akzentfarben / EN: Accent colors */
+    --primary-color: #0d6efd;       /* DE: Blau / EN: Blue */
+    --primary-color-dark: #0a58ca;  /* DE: Dunkleres Blau / EN: Darker Blue */
+    --primary-color-hover-bg: #0b5ed7; /* DE: Blau-Hover Hintergrund / EN: Blue hover background */
+    --primary-color-focus-shadow: rgba(13, 110, 253, 0.25); /* DE: Blau Fokus / EN: Blue focus */
+
+    --secondary-color: #6c757d;     /* DE: Grau (Cancel Button) / EN: Grey (Cancel Button) */
+    --secondary-color-dark: #545b62;
+    --secondary-color-hover-bg: #5a6268;
+
+    --info-color: #17a2b8;          /* DE: Türkis (Export/Import Outline) / EN: Teal (Export/Import Outline) */
+    --info-color-dark: #117a8b;
+    --info-color-hover-bg: #17a2b8;
+
+    --warning-color: #ffca2c;       /* DE: Gelb (Edit Button) / EN: Yellow (Edit Button) */
+    --warning-color-dark: #e0a800;
+    --warning-color-hover-bg: #ffc1071a; /* DE: Leichter gelber Hintergrund / EN: Light yellow background */
+    --warning-text-dark: #333;      /* DE: Dunkler Text auf Gelb / EN: Dark text on yellow */
+
+    --danger-color: #e63946;        /* DE: Rot (Delete Button) / EN: Red (Delete Button) */
+    --danger-color-dark: #c82333;
+    --danger-color-hover-bg: #e639461a; /* DE: Leichter roter Hintergrund / EN: Light red background */
+
+    /* DE: Gradienten (Optional) / EN: Gradients (Optional) */
+    --primary-gradient: linear-gradient(180deg, #2e89ff 0%, #0d6efd 100%);
 }
 
-/* DE: Body-Styling: Schriftart, Zeilenhöhe, Hintergrund, Textfarbe, Schriftglättung */
-/* EN: Body styling: Font family, line height, background, text color, font smoothing */
+/* DE: Dark Mode Farb-Überschreibungen */
+/* EN: Dark Mode color overrides */
+body.dark-mode {
+    --bg-main: #1a1d21;
+    --bg-card: #2c303a;
+    --bg-input: #353a45;
+    --bg-hover-light: #353a45;
+    --bg-hover-menu: #3a404d;
+    --text-primary: #e1e5eb;
+    --text-secondary: #adb5bd;
+    --text-headings: #a8c5ff;
+    --text-h1: #c0cfff;
+    --text-on-primary: #ffffff;
+    --text-on-dark: #ffffff;
+    --border-color-light: #495057;
+    --border-color-medium: #5a6268;
+    --border-color-subtle: #404651;
+    --shadow-color: rgba(0, 0, 0, 0.25);
+    --shadow-color-hover: rgba(0, 0, 0, 0.35);
+    --shadow-badge: rgba(0, 0, 0, 0.3);
+    --primary-color: #4b8eff;
+    --primary-color-dark: #2a7eff;
+    --primary-color-hover-bg: #2a7eff;
+    --primary-color-focus-shadow: rgba(75, 142, 255, 0.35);
+    --secondary-color: #868e96;
+    --secondary-color-dark: #6c757d;
+    --secondary-color-hover-bg: #6c757d;
+    --info-color: #28b8d2;
+    --info-color-dark: #1da9c2;
+    --info-color-hover-bg: #28b8d2;
+    --warning-color: #ffdd70;
+    --warning-color-dark: #ffca2c;
+    --warning-color-hover-bg: #ffca2c2a;
+    --warning-text-dark: #333;
+    --danger-color: #ff6b78;
+    --danger-color-dark: #e63946;
+    --danger-color-hover-bg: #e639462a;
+    --primary-gradient: linear-gradient(180deg, #5a9eff 0%, #4b8eff 100%);
+}
+
+/* === 2. Basis-Styling MIT VARIABLEN === */
+/* === 2. Base Styling WITH VARIABLES === */
+/* ===================================== */
+
+/* DE: Basis-Reset für alle Elemente / EN: Base reset for all elements */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* DE: Body-Styling / EN: Body styling */
 body {
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.6;
-    background-color: #e9ecef; /* Helles Grau als Seitenhintergrund */
-    color: #333d49; /* Dunkelgrau für Standardtext */
+    background-color: var(--bg-main); /* Variable */
+    color: var(--text-primary);     /* Variable */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease; /* DE: Übergang für Theme-Wechsel / EN: Transition for theme switch */
 }
 
-/* === LAYOUT CONTAINER & GRID === */
-/* =============================== */
+/* DE: Layout-Container / EN: Layout container */
+.container { max-width: 1200px; margin: 25px auto; padding: 0 20px; }
 
-/* DE: Hauptcontainer für den Inhalt, zentriert und mit maximaler Breite */
-/* EN: Main content container, centered and with max width */
-.container {
-    max-width: 1200px;
-    margin: 25px auto; /* Zentriert horizontal, Abstand oben/unten */
-    padding: 0 20px; /* Seitenabstand */
-}
+/* === 3. HEADER BAR === */
+/* === 3. HEADER BAR === */
+/* ===================== */
 
-/* DE: Definition des 3-Spalten-Grids */
-/* EN: Definition of the 3-column grid */
-.main-grid {
-    display: grid;
-    grid-template-columns: 1fr 2.5fr 1.5fr; /* Spaltenverhältnisse */
-    gap: 30px; /* Abstand zwischen Spalten */
-}
-
-/* DE: Responsivität: Eine Spalte auf schmalen Bildschirmen */
-/* EN: Responsiveness: Single column on narrow screens */
-@media (max-width: 991.98px) {
-    .main-grid {
-        grid-template-columns: 1fr; /* Nur eine Spalte */
-        gap: 25px;
-    }
-    /* DE: Kleinere Überschriften auf schmalen Bildschirmen */
-    /* EN: Smaller headings on narrow screens */
-    h1 { font-size: 1.5rem; }
-    h2 { font-size: 1.2rem; }
-}
-
-/* DE: Verhindert, dass Grid-Spalten durch Inhalt aufgebläht werden */
-/* EN: Prevents grid columns from being blown out by content */
-.grid-column-left,
-.grid-column-middle,
-.grid-column-right {
-    min-width: 0;
-}
-
-/* === HEADER BAR === */
-/* ================== */
-
-/* DE: Styling für die Kopfleiste */
-/* EN: Styling for the header bar */
+/* DE: Styling für die Kopfleiste / EN: Styling for the header bar */
 .app-header {
-    background-color: #1c4b82; /* Dunkelblau */
-    color: #ffffff;           /* Weiße Schrift */
-    padding: 15px 25px;
-    margin-bottom: 30px;      /* Abstand nach unten zum Grid */
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: var(--text-headings); /* Variable */
+    color: var(--text-on-dark); /* Variable */
+    padding: 15px 25px; margin-bottom: 30px; border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color); /* Variable */
+    display: flex; justify-content: space-between; align-items: center;
+    transition: background-color 0.3s ease; /* DE: Übergang für Theme-Wechsel / EN: Transition for theme switch */
 }
+/* DE: Styling für H1 in Kopfleiste / EN: Styling for H1 in header bar */
+h1 { font-size: 1.6rem; color: inherit; font-weight: 600; margin: 0; line-height: 1.3; }
 
-/* DE: Styling für die H1 in der Kopfleiste */
-/* EN: Styling for the H1 in the header bar */
-h1 {
-    font-size: 1.6rem;
-    color: inherit; /* Erbt Weiß vom Header */
-    font-weight: 600;
-    margin: 0; /* Kein eigener Abstand */
-    line-height: 1.3;
+/* DE: Theme Toggle Button im Header / EN: Theme toggle button in the header */
+#theme-toggle-btn {
+    background: none; border: 1px solid var(--text-on-dark); color: var(--text-on-dark);
+    padding: 5px 8px; font-size: 1rem; border-radius: 6px; cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
+#theme-toggle-btn:hover { background-color: rgba(255,255,255,0.1); }
+#theme-toggle-btn i.fa-solid { margin-right: 0; }
+/* DE: Dark Mode Anpassung für Toggle Button Rand/Farbe / EN: Dark Mode adjustment for toggle button border/color */
+body.dark-mode #theme-toggle-btn { border-color: var(--text-primary); color: var(--text-primary); }
+body.dark-mode #theme-toggle-btn:hover { background-color: rgba(255, 255, 255, 0.05); }
 
-/* === CONTENT BOX BASIS === */
-/* ========================= */
+/* === 4. Allgemeine Elemente === */
+/* === 4. General Elements === */
+/* ============================= */
 
-/* DE: Grundlegendes Styling für die weißen Inhaltsboxen */
-/* EN: Basic styling for the white content boxes */
-.content-box {
-    background-color: #ffffff;
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
-    height: fit-content; /* Höhe passt sich Inhalt an */
-}
-
-/* === ÜBERSCHRIFTEN (INNERHALB VON BOXEN) === */
-/* ========================================= */
-
-/* DE: Allgemeines Styling für H2 Überschriften (meist in Boxen) */
-/* EN: General styling for H2 headings (mostly inside boxes) */
+/* DE: Allgemeines Styling für H2 Überschriften (meist in Boxen) / EN: General styling for H2 headings (mostly inside boxes) */
 h2 {
-    font-size: 1.3rem;
-    border-bottom: 1px solid #e1e5eb; /* Linie darunter */
-    padding-bottom: 0.6rem;
-    margin-bottom: 1.2rem;
-    color: #1c4b82; /* Dunkelblau */
-    font-weight: 600;
+    font-size: 1.3rem; border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 0.6rem; margin-bottom: 1.2rem;
+    color: var(--text-headings); font-weight: 600;
+    transition: color 0.3s ease, border-color 0.3s ease; /* DE: Übergang für Theme-Wechsel / EN: Transition for theme switch */
 }
-/* DE: Kein extra Margin über H2, wenn sie direktes Kind einer .content-box ist */
-/* EN: No extra margin above H2 if it's a direct child of .content-box */
-.content-box > h2 {
-    margin-top: 0;
-}
-
-/* DE: Horizontale Linie wird nicht generell gebraucht */
-/* EN: Horizontal rule not needed globally */
+/* DE: Kleinere Überschriften auf schmalen Bildschirmen / EN: Smaller headings on narrow screens */
+@media (max-width: 991.98px) { h1{font-size:1.5rem;} h2{font-size:1.2rem;} }
+/* DE: Horizontale Linie wird nicht generell gebraucht / EN: Horizontal rule not needed globally */
 hr { display: none; }
 
+/* === 5. GRID LAYOUT === */
+/* === 5. GRID LAYOUT === */
+/* ====================== */
 
-/* === LINKE SPALTE: MENÜ & DATENSICHERUNG === */
-/* ========================================= */
+/* DE: Definition des 3-Spalten-Grids / EN: Definition of the 3-column grid */
+.main-grid { display: grid; grid-template-columns: 1fr 2.5fr 1.5fr; gap: 30px; }
+/* DE: Responsivität: Eine Spalte / EN: Responsiveness: Single column */
+@media (max-width: 991.98px) { .main-grid { grid-template-columns: 1fr; gap: 25px; } }
+/* DE: Grid-Spalten dürfen schrumpfen / EN: Allow grid columns to shrink */
+.grid-column-left, .grid-column-middle, .grid-column-right { min-width: 0; }
 
-/* DE: Container für die oberen Menü-Buttons */
-/* EN: Container for the top menu buttons */
-.action-menu {
-    margin-top: 0.5rem;
-    margin-bottom: 1.5rem;
+/* === 6. CONTENT BOX BASIS === */
+/* === 6. CONTENT BOX BASE === */
+/* ============================ */
+
+/* DE: Grundlegendes Styling für die weißen Inhaltsboxen / EN: Basic styling for the white content boxes */
+.content-box {
+    background-color: var(--bg-card); padding: 25px; border-radius: 10px;
+    box-shadow: 0 4px 12px var(--shadow-color); height: fit-content;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* DE: Übergang für Theme-Wechsel / EN: Transition for theme switch */
 }
+/* DE: Kein extra Margin über H2, wenn sie direktes Kind ist / EN: No extra margin above H2 if it's a direct child */
+.content-box > h2 { margin-top: 0; }
 
-/* DE: Gemeinsame Klasse für alle Buttons im Menü-Stil */
-/* EN: Common class for all menu-style buttons */
-.menu-button {
-    background: none !important; /* Überschreibt andere Button-Styles */
-    border: none !important;
-    padding: 10px 5px !important; /* Einheitliches Padding */
-    margin: 0; /* Kein Außenabstand */
-    width: 100%; /* Volle Breite */
-    display: flex; /* Icon und Text nebeneinander */
-    align-items: center; /* Vertikal zentrieren */
-    text-align: left; /* Text linksbündig */
-    color: #333d49; /* Textfarbe */
-    font-weight: 500; /* Schriftstärke */
-    font-size: 0.95rem; /* Schriftgröße */
-    border-radius: 6px; /* Abrundung für Hover */
-    cursor: pointer;
-    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out; /* Übergang */
-    box-shadow: none !important;
-    background-image: none !important;
-}
-.menu-button i.fa-solid { /* Icon im Menü-Button */
-    margin-right: 12px;
-    color: #5a6a7d; /* Icon-Farbe */
-    width: 1.2em; /* Feste Breite für Ausrichtung */
-    text-align: center;
-    font-size: 1.1em;
-    transition: color 0.15s ease-in-out;
-}
-.menu-button:hover { /* Hover-Effekt für Menü-Button */
-    background-color: #f1f3f5; /* Heller Hintergrund */
-    color: #1c4b82; /* Textfarbe ändern */
-}
-.menu-button:hover i.fa-solid { color: #1c4b82; } /* Icon-Farbe ändern */
 
-/* DE: Spezieller Stil für den primären Menü-Button "Neue Fahrt" */
-/* EN: Special style for the primary menu button "Add Trip" */
-button#add-new-btn.menu-button { color: #0d6efd; font-weight: 600; }
-button#add-new-btn.menu-button i.fa-solid { color: #0d6efd; }
-button#add-new-btn.menu-button:hover { background-color: #e7f1ff; color: #0b5ed7; }
-button#add-new-btn.menu-button:hover i.fa-solid { color: #0b5ed7; }
+/* === 7. LINKE SPALTE: MENÜ & DATENSICHERUNG === */
+/* === 7. LEFT COLUMN: MENU & BACKUP/RESTORE === */
+/* ============================================ */
 
-/* DE: Horizontale Linie im Menü */
-/* EN: Horizontal rule in the menu */
-.action-menu hr { display: block; margin: 10px 0; border: none; border-top: 1px solid #e9ecef; }
+/* DE: Container für die oberen Menü-Buttons / EN: Container for the top menu buttons */
+.action-menu { margin-top: 0.5rem; margin-bottom: 1.5rem; }
 
-/* DE: Datensicherungs-Bereich in linker Spalte */
-/* EN: Backup/Restore section in left column */
-#backup-restore-section { margin-top: 1.5rem; border-top: 1px solid #e1e5eb; padding-top: 1rem; }
-#backup-restore-section h3 { font-size: 1.1rem; margin-bottom: 0.8rem; color: #1c4b82; font-weight: 600; border-top: none; padding-top: 0; margin-top: 0; }
+/* DE: Gemeinsame Klasse für alle Buttons im Menü-Stil / EN: Common class for all menu-style buttons */
+.menu-button { background: none !important; border: none !important; padding: 10px 5px !important; margin: 0; width: 100%; display: flex; align-items: center; text-align: left; color: var(--text-primary); font-weight: 500; font-size: 0.95rem; border-radius: 6px; cursor: pointer; transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out; box-shadow: none !important; background-image: none !important; }
+.menu-button i.fa-solid { margin-right: 12px; color: var(--text-secondary); width: 1.2em; text-align: center; font-size: 1.1em; transition: color 0.15s ease-in-out; }
+.menu-button:hover { background-color: var(--bg-hover-menu); color: var(--text-headings); }
+.menu-button:hover i.fa-solid { color: var(--text-headings); }
+
+/* DE: Spezieller Stil für den primären Menü-Button "Neue Fahrt" / EN: Special style for the primary menu button "Add Trip" */
+button#add-new-btn.menu-button { color: var(--primary-color); font-weight: 600; }
+button#add-new-btn.menu-button i.fa-solid { color: var(--primary-color); }
+button#add-new-btn.menu-button:hover { background-color: var(--primary-color-focus-shadow); color: var(--primary-color-dark); }
+button#add-new-btn.menu-button:hover i.fa-solid { color: var(--primary-color-dark); }
+
+/* DE: Horizontale Linie im Menü / EN: Horizontal rule in the menu */
+.action-menu hr { display: block; margin: 10px 0; border: none; border-top: 1px solid var(--border-color-light); transition: border-color 0.3s ease; }
+
+/* DE: Datensicherungs-Bereich in linker Spalte / EN: Backup/Restore section in left column */
+#backup-restore-section { margin-top: 1.5rem; border-top: 1px solid var(--border-color-light); padding-top: 1rem; transition: border-color 0.3s ease;}
+#backup-restore-section h3 { font-size: 1.1rem; margin-bottom: 0.8rem; color: var(--text-headings); font-weight: 600; border-top: none; padding-top: 0; margin-top: 0; }
 #backup-restore-section .backup-restore-buttons { margin-bottom: 10px; }
-#backup-restore-section .backup-restore-buttons .menu-button { margin-bottom: 8px; } /* Abstand zwischen Backup/Restore Buttons */
-#backup-restore-section p { margin-bottom: 0; color: #5a6a7d; font-size: 0.9rem; }
+#backup-restore-section .backup-restore-buttons .menu-button { margin-bottom: 8px; } /* DE: Abstand zwischen Backup/Restore Buttons / EN: Margin between Backup/Restore buttons */
+#backup-restore-section p { margin-bottom: 0; color: var(--text-secondary); font-size: 0.9rem; }
 
-/* === MITTLERE SPALTE: FORMULAR & LISTE === */
-/* ========================================= */
 
-/* DE: Container für das einklappbare Formular */
-/* EN: Container for the collapsible form */
-#fahrt-formular {
-    max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0;
-    margin-bottom: 0; box-shadow: none; border: none;
-    transition: max-height 0.5s ease-out, padding 0.5s ease-out, margin-bottom 0.5s ease-out, border 0.3s ease-out, box-shadow 0.3s ease-out;
-}
-/* DE: Sichtbarer Zustand des Formulars */
-/* EN: Visible state of the form */
-#fahrt-formular.form-visible {
-    max-height: 1500px; /* Höhe für den Inhalt */
-    overflow-y: auto; /* Scrollbar, falls doch höher */
-    padding: 25px;
-    margin-bottom: 30px; /* Abstand zur Liste darunter */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
-    border: 1px solid #e1e5eb;
-    border-radius: 10px;
-}
-#fahrt-formular > h2 { margin-top: 0; } /* H2 "Neuen Eintrag..." */
+/* === 8. MITTLERE SPALTE: FORMULAR === */
+/* === 8. MIDDLE COLUMN: FORM === */
+/* =================================== */
 
-/* DE: Styling der Formular-Elemente darin */
-/* EN: Styling of the form elements inside */
+/* DE: Container für das einklappbare Formular / EN: Container for the collapsible form */
+#fahrt-formular { max-height: 0; overflow: hidden; padding-top: 0; padding-bottom: 0; margin-bottom: 0; box-shadow: none; border: none; background-color: transparent; transition: max-height 0.5s ease-out, padding 0.5s ease-out, margin-bottom 0.5s ease-out, border 0.3s ease-out, box-shadow 0.3s ease-out, background-color 0.3s ease; }
+/* DE: Sichtbarer Zustand des Formulars / EN: Visible state of the form */
+#fahrt-formular.form-visible { max-height: 1500px; overflow-y: auto; padding: 25px; margin-bottom: 30px; background-color: var(--bg-card); box-shadow: 0 4px 12px var(--shadow-color); border: 1px solid var(--border-color-light); border-radius: 10px; }
+#fahrt-formular > h2 { margin-top: 0; color: var(--text-headings); border-color: var(--border-color-light); } /* H2 "Neuen Eintrag..." */
+
+/* DE: Styling der Formular-Elemente / EN: Styling of the form elements */
 #trip-entry-form div:not(:last-child) { margin-bottom: 20px; } /* Abstand zw. Formularzeilen */
 #trip-entry-form div:last-child { margin-bottom: 0; } /* Kein Abstand unter Buttons */
-label { display: block; margin-bottom: 8px; font-weight: 500; color: #4e5c6e; font-size: 0.95rem; }
-input[type="text"], input[type="date"], input[type="number"], select {
-    width: 100%; padding: 12px 15px; border: 1px solid #d3dbe3; border-radius: 8px;
-    font-size: 1rem; font-family: inherit; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-    background-color: #fdfdff;
-}
-input:focus, select:focus { border-color: #0d6efd; outline: 0; box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); background-color: #fff; }
+label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem; }
+input[type="text"], input[type="date"], input[type="number"], select { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color-medium); border-radius: 8px; font-size: 1rem; font-family: inherit; transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, background-color 0.15s ease-in-out, color 0.15s ease-in-out; background-color: var(--bg-input); color: var(--text-primary); }
+input:focus, select:focus { border-color: var(--primary-color); outline: 0; box-shadow: 0 0 0 0.25rem var(--primary-color-focus-shadow); background-color: var(--bg-card); }
 
-/* DE: Container für die Fahrtenliste (hat KEINE .content-box Klasse!) */
-/* EN: Container for the trip list (does NOT have .content-box class!) */
+
+/* === 9. MITTLERE SPALTE: FAHRTENLISTE === */
+/* === 9. MIDDLE COLUMN: TRIP LIST === */
+/* ======================================= */
+
+/* DE: Container der Liste (hat KEINE .content-box Klasse im HTML!) */
+/* EN: List container (does NOT have .content-box class in HTML!) */
 #fahrten-liste-container {}
 /* DE: Spezielles Styling für die H2 "Fahrten" als Badge */
 /* EN: Special styling for the H2 "Fahrten" as a badge */
-#fahrten-liste-container > h2 {
-    display: inline-block; background-color: #1c4b82; color: #ffffff;
-    padding: 8px 15px; border-radius: 6px; border-bottom: none;
-    margin-bottom: 1.5rem; font-size: 1.2rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); text-align: left;
-}
-/* DE: Innerer Div, der die Listeneinträge/Karten enthält */
-/* EN: Inner div containing the list items/cards */
+#fahrten-liste-container > h2 { display: inline-block; background-color: var(--text-headings); color: var(--text-on-dark); padding: 8px 15px; border-radius: 6px; border-bottom: none; margin-bottom: 1.5rem; font-size: 1.2rem; box-shadow: 0 2px 5px var(--shadow-badge); text-align: left; transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
+/* DE: Innerer Div, der die Karten-Items enthält */
+/* EN: Inner div containing the card items */
 #fahrten-liste { margin-top: 0; }
 
 /* DE: Styling für einen einzelnen Listeneintrag (als Karte) */
 /* EN: Styling for a single list item (as card) */
-.fahrt-item {
-    background-color: #ffffff; padding: 20px; border-radius: 8px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.07); margin-bottom: 15px;
-    transition: box-shadow 0.2s ease-in-out;
-    position: relative; /* Bezugspunkt für Toggle Button */
-    text-align: left;
-}
+.fahrt-item { background-color: var(--bg-card); padding: 20px; border-radius: 8px; box-shadow: 0 3px 6px var(--shadow-color); margin-bottom: 15px; transition: box-shadow 0.2s ease-in-out, background-color 0.3s ease; position: relative; /* DE: Für Toggle Button / EN: For Toggle Button */ text-align: left; }
 .fahrt-item:last-child { margin-bottom: 0; }
-.fahrt-item:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.fahrt-item:hover { box-shadow: 0 5px 15px var(--shadow-color-hover); }
 
 /* DE: Kopfzeile innerhalb der Karte */
 /* EN: Header row inside the card */
-.list-item-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #f1f3f5; margin-bottom: 15px; }
+.list-item-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border-color-subtle); margin-bottom: 15px; transition: border-color 0.3s ease;}
 /* DE: Container für Datum/Zeit/Auto links im Header */
 /* EN: Container for Date/Time/Car on the left in the header */
 .list-item-date-time { display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px 15px; flex-grow: 1; }
 /* DE: Info-Blöcke (Icon+Text) im Header */
 /* EN: Info blocks (Icon+Text) in the header */
-.list-item-info { display: inline-flex; align-items: baseline; font-size: 0.9rem; color: #6c757d; }
-.list-icon { margin-right: 6px; width: 1em; text-align: center; }
+.list-item-info { display: inline-flex; align-items: baseline; font-size: 0.9rem; color: var(--text-secondary); }
+.list-icon { margin-right: 6px; width: 1em; text-align: center; } /* Icons im Header */
 
 /* DE: Detail-Bereich (einklappbar) */
 /* EN: Details section (collapsible) */
-.list-item-details { margin-top: 0; /* War 15px, aber Header hat jetzt margin-bottom */ overflow: hidden; opacity: 1; max-height: 500px; transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, margin-top 0.4s ease-in-out; }
+.list-item-details { margin-top: 0; overflow: hidden; opacity: 1; max-height: 500px; transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, margin-top 0.4s ease-in-out; }
 /* DE: Eingeklappter Zustand der Details */
 /* EN: Collapsed state of the details */
 .fahrt-item.details-collapsed .list-item-details { max-height: 0; opacity: 0; margin-top: 0; }
@@ -272,70 +281,82 @@ input:focus, select:focus { border-color: #0d6efd; outline: 0; box-shadow: 0 0 0
 .list-item-details div:last-child { margin-bottom: 0; }
 /* DE: Labels (Bezeichnungen) in den Details */
 /* EN: Labels in the details section */
-span.list-label { display: inline-block; width: 110px; font-weight: 500; color: #5a6a7d; margin-right: 10px; vertical-align: baseline; font-size: 0.9rem; }
+span.list-label { display: inline-block; width: 110px; font-weight: 500; color: var(--text-secondary); margin-right: 10px; vertical-align: baseline; font-size: 0.9rem; }
 
 /* DE: Button-Container (Edit/Delete) im Header der Liste */
 /* EN: Button container (Edit/Delete) in the list header */
 #fahrten-liste .buttons-container { display: flex; gap: 8px; flex-shrink: 0; margin-left: 15px; /* Abstand zu Datum/Zeit Block */ }
 /* DE: Edit/Delete Buttons Aussehen */
 /* EN: Edit/Delete button appearance */
-#fahrten-liste .edit-btn, #fahrten-liste .delete-btn { padding: 3px 6px; font-size: 0.8rem; border-radius: 6px; line-height: 1; background: none; border: 1px solid transparent; color: #adb5bd; transition: color .2s, background-color .2s; }
-#fahrten-liste .edit-btn:hover { background-color: #ffc1071a; color: #e0a800; }
-#fahrten-liste .delete-btn:hover { background-color: #e639461a; color: #dc3545; }
-#fahrten-liste button i.fa-solid { margin-right: 0; } /* Kein Abstand bei Icon-Buttons */
+#fahrten-liste .edit-btn, #fahrten-liste .delete-btn { padding: 3px 6px; font-size: 0.8rem; border-radius: 6px; line-height: 1; background: none; border: 1px solid transparent; color: var(--text-secondary); transition: color .2s, background-color .2s; }
+#fahrten-liste .edit-btn:hover { background-color: var(--warning-color-hover-bg); color: var(--warning-color-dark); }
+#fahrten-liste .delete-btn:hover { background-color: var(--danger-color-hover-bg); color: var(--danger-color-dark); }
+#fahrten-liste button i.fa-solid { margin-right: 0; }
 
 /* DE: Toggle Button (Details ein/ausklappen) unten rechts */
 /* EN: Toggle button (collapse/expand details) bottom right */
 .toggle-details-btn {
     position: absolute; bottom: 10px; left: auto; right: 15px; /* Position unten rechts */
     padding: 2px 5px; font-size: 0.8rem; line-height: 1;
-    background-color: #f8f9fa; border: 1px solid #dee2e6; color: #6c757d;
+    background-color: var(--bg-hover-light); border: 1px solid var(--border-color-medium); color: var(--text-secondary);
     border-radius: 4px; cursor: pointer; transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
-.toggle-details-btn:hover { background-color: #0d6efd; color: #ffffff; border-color: #0d6efd; } /* Blauer Hover */
+.toggle-details-btn:hover { background-color: var(--primary-color); color: var(--text-on-primary); border-color: var(--primary-color); } /* Blauer Hover */
 .toggle-details-btn i.fa-solid { margin-right: 0; }
 
 
-/* === RECHTE SPALTE: ZUSAMMENFASSUNG & FAHRZEUGE === */
+/* === 10. RECHTE SPALTE: ZUSAMMENFASSUNG & FAHRZEUGE === */
+/* === 10. RIGHT COLUMN: SUMMARY & CARS === */
 /* =============================================== */
 
-/* DE: Zusammenfassungs-Box */
-/* EN: Summary box */
+/* DE: Zusammenfassungs-Box / EN: Summary box */
  #zusammenfassung { /* Nutzt .content-box */ }
  #zusammenfassung > h2 { margin-top: 0; }
  #zusammenfassung ul { list-style: none; padding-left: 0; margin-top: 0.5rem; }
- #zusammenfassung li { margin-bottom: 0.4rem; color: #4e5c6e; }
- #zusammenfassung li strong { font-weight: 600; color: #1c4b82; }
+ #zusammenfassung li { margin-bottom: 0.4rem; color: var(--text-secondary); }
+ #zusammenfassung li strong { font-weight: 600; color: var(--text-headings); }
 
- /* DE: Fahrzeugverwaltungs-Box */
- /* EN: Car management box */
+ /* DE: Fahrzeugverwaltungs-Box / EN: Car management box */
  #fahrzeug-verwaltung { /* Nutzt .content-box */ }
  #fahrzeug-verwaltung > h2 { margin-top: 0; }
- /* Weitere Styles für #fahrzeug-verwaltung sind oben bei Linker Spalte -> Fahrzeugverwaltung definiert (IDs sind eindeutig) */
+ /* DE: Styles für Auto-Formular/Liste (werden von Regeln unter #add-car-form / #car-list abgedeckt) */
+ /* EN: Styles for car form/list (covered by rules under #add-car-form / #car-list) */
+ #fahrzeug-verwaltung #add-car-form label { font-weight: 500; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 5px; display: block; }
+ #fahrzeug-verwaltung #add-car-form input { padding: 8px 10px; font-size: 0.95rem; margin-bottom: 10px; width: 100%; border: 1px solid var(--border-color-medium); border-radius: 6px; background-color: var(--bg-input); color: var(--text-primary); }
+ #fahrzeug-verwaltung #add-car-form div:last-of-type { margin-bottom: 0; }
+ #fahrzeug-verwaltung #add-car-btn { margin-top: 10px; /* Wird durch .menu-button gestyled */ color: var(--primary-color); }
+ #fahrzeug-verwaltung #add-car-btn i.fa-solid { color: var(--primary-color); }
+ #fahrzeug-verwaltung #add-car-btn:hover { background-color: var(--primary-color-focus-shadow); color: var(--primary-color-dark); }
+ #fahrzeug-verwaltung #add-car-btn:hover i.fa-solid { color: var(--primary-color-dark); }
+ #fahrzeug-verwaltung #car-list-container {} /* Container für Liste */
+ #fahrzeug-verwaltung #car-list { list-style: none; padding-left: 0; margin-top: 1rem; border-top: 1px solid var(--border-color-light); padding-top: 1rem; transition: border-color 0.3s ease; } /* Linie über Liste */
+ #fahrzeug-verwaltung #car-list li { padding: 5px 0; border-bottom: 1px dashed var(--border-color-light); font-size: 0.95rem; transition: border-color 0.3s ease; }
+ #fahrzeug-verwaltung #car-list li:last-child { border-bottom: none; }
+ #fahrzeug-verwaltung #car-list strong { font-weight: 600; margin-left: 10px; display: inline-block; color: var(--text-secondary); }
 
 
-/* === ALLGEMEINE BUTTONS (NICHT MENÜ/LISTE) === */
-/* ========================================== */
+/* === 11. ALLGEMEINE BUTTONS (NICHT MENÜ/LISTE/THEME) === */
+/* === 11. GENERAL BUTTONS (NOT MENU/LIST/THEME) === */
+/* ================================================== */
 
 /* DE: Styling für Standard-Buttons wie Speichern, Abbrechen */
 /* EN: Styling for standard buttons like Save, Cancel */
-button { /* Basis-Styling, wird ggf. überschrieben */
-    /* padding: 12px 18px; */ /* Wird jetzt spezifischer gesetzt */
-    border: 1px solid transparent; border-radius: 8px; cursor: pointer;
+button:not(.menu-button):not(#fahrten-liste button):not(#theme-toggle-btn) {
+    padding: 12px 18px; border: 1px solid transparent; border-radius: 8px; cursor: pointer;
     font-size: 0.95rem; font-weight: 600; line-height: 1.5; text-align: center;
     text-decoration: none; vertical-align: middle; user-select: none;
     transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, transform 0.1s ease;
 }
-button:active { transform: scale(0.97); }
-button:focus-visible { outline: 2px solid #0d6efd; outline-offset: 2px; }
+button:active:not(.menu-button):not(#fahrten-liste button):not(#theme-toggle-btn) { transform: scale(0.97); } /* Active nur für normale Buttons */
+button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
 
 /* DE: Icon-Abstand für normale Buttons mit Text */
 /* EN: Icon spacing for normal buttons with text */
-button:not(.menu-button):not(#fahrten-liste button) i.fa-solid { margin-right: 8px; }
+button:not(.menu-button):not(#fahrten-liste button):not(#theme-toggle-btn) i.fa-solid { margin-right: 8px; }
 
 /* DE: Spezifische Styles für Speichern/Abbrechen Buttons */
 /* EN: Specific styles for Save/Cancel buttons */
-#speichern-btn { padding: 12px 18px; background-color: #0d6efd; background-image: linear-gradient(180deg, #2e89ff 0%, #0d6efd 100%); border-color: #0d6efd; color: white; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075); }
-#speichern-btn:hover { background-color: #0b5ed7; background-image: none; border-color: #0a58ca; }
-#cancel-edit-btn { padding: 12px 18px; background-color: #6c757d; border-color: #6c757d; color: white; margin-left: 10px; }
-#cancel-edit-btn:hover { background-color: #5a6268; border-color: #545b62; }
+#speichern-btn { background-color: var(--primary-color); background-image: var(--primary-gradient); border-color: var(--primary-color); color: var(--text-on-primary); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075); }
+#speichern-btn:hover { background-color: var(--primary-color-hover-bg); background-image: none; border-color: var(--primary-color-dark); }
+#cancel-edit-btn { background-color: var(--secondary-color); border-color: var(--secondary-color); color: var(--text-on-primary); margin-left: 10px; }
+#cancel-edit-btn:hover { background-color: var(--secondary-color-hover-bg); border-color: var(--secondary-color-dark); }
