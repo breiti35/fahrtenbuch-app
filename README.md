@@ -1,10 +1,10 @@
 # 🚗 Fahrtenbuch Web App
 
-**EN:** A web application for managing logbooks, saving data locally in the browser via `localStorage`, built with HTML, CSS, and JavaScript.
+**EN:** A web application for managing logbooks, saving data locally in the browser via `localStorage`, built with HTML, CSS, and JavaScript. Features a redesigned collapsible sidebar and a modal dialog for adding vehicles.
 
-**DE:** Eine via Browser im `localStorage` speichernde Webanwendung zur Verwaltung von Fahrtenbüchern, erstellt mit HTML, CSS und JavaScript.
+**DE:** Eine via Browser im `localStorage` speichernde Webanwendung zur Verwaltung von Fahrtenbüchern, erstellt mit HTML, CSS und JavaScript. Mit neu gestalteter, einklappbarer Seitenleiste und Modal-Dialog zum Hinzufügen von Fahrzeugen.
 
-**Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)]
+**Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)] *(Link ggf. anpassen)*
 
 ---
 
@@ -18,34 +18,40 @@
 ## Funktionen / Features ✨
 
 * **📝 Fahrten / Trips:**
-    * **EN:** Add, edit, and delete trips including:
-        * Date, Start/End Time
-        * Start/End Location
-        * Start/End Odometer reading
-        * Automatic distance calculation in the form
-        * Purpose of the trip (Business, Private, Commute)
-        * Car selection
-    * **DE:** Erfassen, Bearbeiten und Löschen von Fahrten mit:
-        * Datum, Start-/Endzeit
-        * Start-/End-Ort
-        * Start-/End-Kilometerstand
-        * Automatischer Distanzberechnung im Formular
-        * Zweck der Fahrt (Geschäftlich, Privat, Arbeitsweg)
-        * Fahrzeugauswahl
+    * **EN:** Add, edit, and delete trips including: Date, Start/End Time, Start/End Location, Start/End Odometer reading.
+    * **EN:** Automatic distance calculation in the form.
+    * **EN:** Purpose of the trip (Business, Private, Commute).
+    * **EN:** Car selection for each trip.
+    * **DE:** Erfassen, Bearbeiten und Löschen von Fahrten mit: Datum, Start-/Endzeit, Start-/End-Ort, Start-/End-Kilometerstand.
+    * **DE:** Automatischer Distanzberechnung im Formular.
+    * **DE:** Zweck der Fahrt (Geschäftlich, Privat, Arbeitsweg).
+    * **DE:** Fahrzeugauswahl pro Fahrt.
 
 * **🚙 Fahrzeugverwaltung / Car Management:**
-    * **EN:** Add multiple vehicles (Name/Model, License Plate).
-    * **DE:** Anlegen von mehreren Fahrzeugen (Name/Modell, Kennzeichen).
+    * **EN:** Add multiple vehicles (Name/Model, License Plate) via a **modal dialog**.
+    * **EN:** Display list of added vehicles with **icons**.
+    * **DE:** Anlegen von mehreren Fahrzeugen (Name/Modell, Kennzeichen) über einen **Modal-Dialog**.
+    * **DE:** Anzeige der angelegten Fahrzeuge in einer Liste mit **Icons**.
 
-* **📊 Ansicht / View:**
+* **📊 Ansicht & Bedienung / View & Usability:**
     * **EN:** Clear list of trips (sorted by date/time).
-    * **EN:** Collapsible detail view per trip (with toggle button).
+    * **EN:** Collapsible detail view per trip (toggle button).
     * **EN:** Display of the used car per trip.
     * **EN:** Dynamic summary of kilometers by purpose.
+    * **EN:** Responsive 3-column layout where the **middle column adjusts** its width.
+    * **EN:** Redesigned **collapsible sidebar** with internal toggle button.
+    * **EN:** Clean user interface with icons (Font Awesome) and modern styling.
+    * **EN:** Collapsible form for adding/editing trips.
+    * **EN:** Dark Mode (automatic detection or manual toggle via header button).
     * **DE:** Übersichtliche Liste der Fahrten (sortiert nach Datum/Zeit).
-    * **DE:** Einklappbare Detailansicht pro Fahrt (mit Pfeil-Button).
+    * **DE:** Einklappbare Detailansicht pro Fahrt (Umschalt-Button).
     * **DE:** Anzeige des verwendeten Fahrzeugs pro Fahrt.
     * **DE:** Dynamische Zusammenfassung der Kilometer nach Zweck.
+    * **DE:** Responsives 3-Spalten-Layout, bei dem sich die **mittlere Spalte anpasst**.
+    * **DE:** Neu gestaltete, **einklappbare Seitenleiste** mit internem Umschalt-Button.
+    * **DE:** Aufgeräumte Oberfläche mit Icons (Font Awesome) und modernem Styling.
+    * **DE:** Einklappbares Formular für neue/zu bearbeitende Fahrten.
+    * **DE:** Dark Mode (automatische Erkennung oder manueller Wechsel über Button in Kopfleiste).
 
 * **💾 Daten / Data:**
     * **EN:** All data stored locally in the browser (`localStorage`).
@@ -57,19 +63,10 @@
     * **DE:** Backup der gesamten Daten (Fahrten & Fahrzeuge) als JSON-Datei.
     * **DE:** Wiederherstellung der Daten aus einer JSON-Backup-Datei.
 
-* **🎨 Bedienung & Design / Usability & Design:**
-    * **EN:** Responsive 3-column layout.
-    * **EN:** Clean user interface with icons (Font Awesome) and modern styling.
-    * **EN:** Collapsible form for adding/editing entries.
-    * **EN:** Dark Mode (automatic detection or manual toggle via header button)
-    * **DE:** Responsives 3-Spalten-Layout.
-    * **DE:** Aufgeräumte Oberfläche mit Icons (Font Awesome) und modernem Styling.
-    * **DE:** Einklappbares Formular für neue/zu bearbeitende Einträge.
-    * **DE:** Dark Mode (automatische Erkennung oder manueller Wechsel über Button in Kopfleiste).
-
 * **✔️ Validierung / Validation:**
-    * **EN:** Checks for required fields, times, and odometer readings (incl. **per-car continuity check**).
-    * **DE:** Überprüfung von Pflichtfeldern, Zeiten und Kilometerständen (inkl. **Prüfung der Kontinuität pro Fahrzeug**).
+    * **EN:** Checks for required fields, times, and odometer readings (incl. **per-car continuity check** for new trips).
+    * **DE:** Überprüfung von Pflichtfeldern, Zeiten und Kilometerständen (inkl. **Prüfung der Kontinuität pro Fahrzeug** bei neuen Fahrten).
 
 *(EN: More features may follow)*
 *(DE: Weitere Features können folgen)*
+
