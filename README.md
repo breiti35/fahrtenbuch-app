@@ -1,8 +1,8 @@
 # 🚗 Fahrtenbuch Web App
 
-**EN:** A web application for managing logbooks, saving data locally in the browser via `localStorage`, built with HTML, CSS, and JavaScript. Features a redesigned collapsible sidebar and allows adding, editing, and deleting vehicles via a modal dialog.
+**EN:** A web application for managing logbooks, saving data locally in the browser via `localStorage`, built with HTML, CSS, and JavaScript. Features a redesigned collapsible sidebar, allows adding, editing, and deleting vehicles, and filtering of the trip list.
 
-**DE:** Eine via Browser im `localStorage` speichernde Webanwendung zur Verwaltung von Fahrtenbüchern, erstellt mit HTML, CSS und JavaScript. Mit neu gestalteter, einklappbarer Seitenleiste und der Möglichkeit, Fahrzeuge über einen Modal-Dialog hinzuzufügen, zu bearbeiten und zu löschen.
+**DE:** Eine via Browser im `localStorage` speichernde Webanwendung zur Verwaltung von Fahrtenbüchern, erstellt mit HTML, CSS und JavaScript. Mit neu gestalteter, einklappbarer Seitenleiste, der Möglichkeit, Fahrzeuge hinzuzufügen, zu bearbeiten und zu löschen, sowie einer Filterfunktion für die Fahrtenliste.
 
 **Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)] 
 
@@ -39,21 +39,26 @@
     * **EN:** Clear list of trips (sorted by date/time).
     * **EN:** Collapsible detail view per trip (toggle button).
     * **EN:** Display of the used car per trip.
-    * **EN:** Dynamic summary of kilometers by purpose.
+    * **EN:** Dynamic summary of kilometers by purpose (updates based on filters).
     * **EN:** Responsive 3-column layout where the **middle column adjusts** its width.
     * **EN:** Redesigned **collapsible sidebar** with internal toggle button.
     * **EN:** Clean user interface with icons (Font Awesome) and modern styling.
     * **EN:** Collapsible form for adding/editing trips.
     * **EN:** Dark Mode (automatic detection or manual toggle via header button).
+    * **EN:** **Filter trip list** by vehicle, purpose, and date range. **(NEW)**
+    * **EN:** Reset filters to show all trips. **(NEW)**
     * **DE:** Übersichtliche Liste der Fahrten (sortiert nach Datum/Zeit).
     * **DE:** Einklappbare Detailansicht pro Fahrt (Umschalt-Button).
     * **DE:** Anzeige des verwendeten Fahrzeugs pro Fahrt.
-    * **DE:** Dynamische Zusammenfassung der Kilometer nach Zweck.
+    * **DE:** Dynamische Zusammenfassung der Kilometer nach Zweck (aktualisiert sich basierend auf Filtern).
     * **DE:** Responsives 3-Spalten-Layout, bei dem sich die **mittlere Spalte anpasst**.
     * **DE:** Neu gestaltete, **einklappbare Seitenleiste** mit internem Umschalt-Button.
     * **DE:** Aufgeräumte Oberfläche mit Icons (Font Awesome) und modernem Styling.
     * **DE:** Einklappbares Formular für neue/zu bearbeitende Fahrten.
     * **DE:** Dark Mode (automatische Erkennung oder manueller Wechsel über Button in Kopfleiste).
+    * **DE:** **Filterung der Fahrtenliste** nach Fahrzeug, Zweck und Zeitraum. **(NEU)**
+    * **DE:** Zurücksetzen der Filter zur Anzeige aller Fahrten. **(NEU)**
+
 
 * **💾 Daten / Data:**
     * **EN:** All data stored locally in the browser (`localStorage`).
