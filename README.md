@@ -1,10 +1,10 @@
 # 🚗 Fahrtenbuch Web App
 
-**EN:** A web application for managing logbooks, saving data locally in the browser via `localStorage`, built with HTML, CSS, and JavaScript. Features a redesigned collapsible sidebar and a modal dialog for adding vehicles.
+**EN:** A web application for managing logbooks, saving data locally in the browser via `localStorage`, built with HTML, CSS, and JavaScript. Features a redesigned collapsible sidebar and allows adding, editing, and deleting vehicles via a modal dialog.
 
-**DE:** Eine via Browser im `localStorage` speichernde Webanwendung zur Verwaltung von Fahrtenbüchern, erstellt mit HTML, CSS und JavaScript. Mit neu gestalteter, einklappbarer Seitenleiste und Modal-Dialog zum Hinzufügen von Fahrzeugen.
+**DE:** Eine via Browser im `localStorage` speichernde Webanwendung zur Verwaltung von Fahrtenbüchern, erstellt mit HTML, CSS und JavaScript. Mit neu gestalteter, einklappbarer Seitenleiste und der Möglichkeit, Fahrzeuge über einen Modal-Dialog hinzuzufügen, zu bearbeiten und zu löschen.
 
-**Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)] *(Link ggf. anpassen)*
+**Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)] 
 
 ---
 
@@ -28,10 +28,12 @@
     * **DE:** Fahrzeugauswahl pro Fahrt.
 
 * **🚙 Fahrzeugverwaltung / Car Management:**
-    * **EN:** Add multiple vehicles (Name/Model, License Plate) via a **modal dialog**.
-    * **EN:** Display list of added vehicles with **icons**.
-    * **DE:** Anlegen von mehreren Fahrzeugen (Name/Modell, Kennzeichen) über einen **Modal-Dialog**.
-    * **DE:** Anzeige der angelegten Fahrzeuge in einer Liste mit **Icons**.
+    * **EN:** Add, **edit, and delete** multiple vehicles (Name/Model, License Plate) via a **modal dialog**.
+    * **EN:** Display list of added vehicles with **icons** and action buttons.
+    * **EN:** Prevents adding vehicles with duplicate license plates.
+    * **DE:** Anlegen, **Bearbeiten und Löschen** von mehreren Fahrzeugen (Name/Modell, Kennzeichen) über einen **Modal-Dialog**.
+    * **DE:** Anzeige der angelegten Fahrzeuge in einer Liste mit **Icons** und Aktions-Buttons.
+    * **DE:** Verhindert das Hinzufügen von Fahrzeugen mit doppeltem Kennzeichen.
 
 * **📊 Ansicht & Bedienung / View & Usability:**
     * **EN:** Clear list of trips (sorted by date/time).
@@ -65,8 +67,9 @@
 
 * **✔️ Validierung / Validation:**
     * **EN:** Checks for required fields, times, and odometer readings (incl. **per-car continuity check** for new trips).
+    * **EN:** Checks for duplicate license plates when adding/editing vehicles.
     * **DE:** Überprüfung von Pflichtfeldern, Zeiten und Kilometerständen (inkl. **Prüfung der Kontinuität pro Fahrzeug** bei neuen Fahrten).
+    * **DE:** Prüfung auf doppelte Kennzeichen beim Hinzufügen/Bearbeiten von Fahrzeugen.
 
 *(EN: More features may follow)*
 *(DE: Weitere Features können folgen)*
-

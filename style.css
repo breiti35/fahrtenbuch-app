@@ -659,5 +659,55 @@ button:not(.menu-button):not(#fahrten-liste button):not(#theme-toggle-btn):not(#
     background-image: none;
     border-color: var(--primary-color-dark);
 }
+/* === Styling für Fahrzeugliste Aktionen (NEU) === */
+#fahrzeug-verwaltung #car-list li {
+    /* Flexbox ist jetzt im JS inline gesetzt, kann hier aber überschrieben werden */
+    /* display: flex; */
+    /* justify-content: space-between; */
+    /* align-items: center; */
+    padding: 8px 5px; /* Etwas mehr Padding */
+}
 
+#fahrzeug-verwaltung #car-list .car-actions {
+    /* Container für die Buttons */
+    flex-shrink: 0; /* Verhindert, dass die Buttons schrumpfen */
+    margin-left: 10px; /* Kleiner Abstand zu den Infos */
+}
+
+#fahrzeug-verwaltung #car-list .edit-car-btn,
+#fahrzeug-verwaltung #car-list .delete-car-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem; /* Etwas größer */
+    padding: 3px 6px; /* Konsistentes Padding */
+    color: var(--text-secondary);
+    border-radius: 4px; /* Abrundung */
+    transition: color 0.2s, background-color 0.2s;
+    vertical-align: middle; /* Icons besser ausrichten */
+    line-height: 1; /* Verhindert zu großen Zeilenabstand */
+}
+
+#fahrzeug-verwaltung #car-list .edit-car-btn {
+    margin-left: 8px; /* Abstand vom linken Button */
+}
+#fahrzeug-verwaltung #car-list .delete-car-btn {
+    margin-left: 4px; /* Abstand zwischen den Buttons */
+}
+
+/* Hover-Effekte (ähnlich wie bei Fahrtenliste) */
+#fahrzeug-verwaltung #car-list .edit-car-btn:hover {
+    background-color: var(--warning-color-hover-bg);
+    color: var(--warning-color-dark);
+}
+
+#fahrzeug-verwaltung #car-list .delete-car-btn:hover {
+    background-color: var(--danger-color-hover-bg);
+    color: var(--danger-color-dark);
+}
+
+#fahrzeug-verwaltung #car-list .edit-car-btn i.fa-solid,
+#fahrzeug-verwaltung #car-list .delete-car-btn i.fa-solid {
+    margin-right: 0; /* Kein extra Abstand für Icons in diesen kleinen Buttons */
+}
 /* === ENDE Modal-Dialog Styling === */

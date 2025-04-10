@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // === 2. Statusvariablen ===
     // ========================================================================
     let editId = null; // ID der Fahrt, die bearbeitet wird (null = keine Bearbeitung)
+    let editCarId = null; // ID des Fahrzeugs, das bearbeitet wird (null = keine Bearbeitung)
     let cars = [];     // Array für die Fahrzeugliste
 
 
@@ -225,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /**
      * Zeigt die Liste der angelegten Fahrzeuge im HTML (rechte Spalte) an,
-     * jetzt mit einem Icon vor jedem Fahrzeug.
+     * jetzt mit Bearbeiten- und Löschen-Buttons.
      */
 function displayCarList() {
     if (!carListUl) {
@@ -240,19 +241,38 @@ function displayCarList() {
         cars.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         cars.forEach(car => {
             const li = document.createElement('li');
+            // WICHTIG: Füge Flexbox-Styling direkt zum li hinzu für die Ausrichtung
+            li.style.display = 'flex';
+            li.style.justifyContent = 'space-between';
+            li.style.alignItems = 'center';
+            // Setze data-car-id direkt am li, damit wir es später leichter finden
+            li.setAttribute('data-car-id', car.id);
 
-            // Erzeuge HTML mit Icon und Text
             const carNameText = car.name || 'Unbenannt';
             const carPlateText = car.plate ? ` (${car.plate})` : '';
 
-            li.innerHTML = `
-                <i class="fa-solid fa-car-side fa-fw car-list-icon"></i>
+            // Container für Icon, Name und Kennzeichen
+            const carInfoSpan = document.createElement('span');
+            carInfoSpan.innerHTML = `
+                <i class="fa-solid fa-car-side fa-fw car-list-icon" style="margin-right: 8px;"></i>
                 <span>${carNameText}</span>
-                <strong>${carPlateText}</strong>
+                <strong style="margin-left: 5px;">${carPlateText}</strong>
             `;
-            // Optional: Edit/Delete Buttons hinzufügen
-            // li.innerHTML += `<span class="car-actions"> <button>...</button> </span>`;
 
+            // Container für die Buttons
+            const carActionsSpan = document.createElement('span');
+            carActionsSpan.classList.add('car-actions'); // Klasse für Styling
+            carActionsSpan.innerHTML = `
+                <button class="edit-car-btn" title="Fahrzeug bearbeiten" data-car-id="${car.id}" style="background: none; border: none; cursor: pointer; font-size: 0.9rem; padding: 2px 5px; color: var(--text-secondary); margin-left: 8px;">
+                    <i class="fa-solid fa-pencil"></i>
+                </button>
+                <button class="delete-car-btn" title="Fahrzeug löschen" data-car-id="${car.id}" style="background: none; border: none; cursor: pointer; font-size: 0.9rem; padding: 2px 5px; color: var(--text-secondary); margin-left: 4px;">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            `;
+
+            li.appendChild(carInfoSpan);
+            li.appendChild(carActionsSpan);
             carListUl.appendChild(li);
         });
     }
@@ -301,55 +321,158 @@ function displayCarList() {
         }, 50);
     }
 
-    /**
-     * Schließt den Modal-Dialog zum Hinzufügen eines Fahrzeugs.
+ /**
+     * Schließt den Modal-Dialog zum Hinzufügen/Bearbeiten eines Fahrzeugs
+     * und setzt den Bearbeitungsstatus zurück.
      */
-    function closeAddCarModal() {
-        if (!addCarModal) return;
-        addCarModal.classList.remove('modal-visible');
-    }
+ function closeAddCarModal() {
+    if (!addCarModal) return;
+    addCarModal.classList.remove('modal-visible');
+
+    // WICHTIG: Bearbeitungsstatus zurücksetzen
+    editCarId = null;
+
+    // Titel und Button-Text auf Standard zurücksetzen
+    const modalTitle = addCarModal.querySelector('.modal-header h2');
+    if (modalTitle) modalTitle.textContent = 'Neues Fahrzeug hinzufügen';
+    if (modalSaveButton) modalSaveButton.textContent = 'Fahrzeug speichern';
+
+    // Optional: Formular leeren, falls gewünscht (war vorher nicht drin)
+    // modalCarForm?.reset();
+    // if (modalCarError) {
+    //     modalCarError.textContent = '';
+    //     modalCarError.style.display = 'none';
+    // }
+    console.log("Modal geschlossen, Edit-Status zurückgesetzt.");
+}
 
     /**
      * Verarbeitet das Speichern aus dem Modal-Dialog.
+     * Unterscheidet zwischen Hinzufügen eines neuen Fahrzeugs und
+     * Aktualisieren eines bestehenden Fahrzeugs.
      */
     function handleModalSaveCar() {
         const name = modalCarNameInput?.value.trim();
         const plate = modalCarPlateInput?.value.trim();
 
-        // Validierung
+        // --- Grundlegende Validierung (gilt für Neu und Bearbeiten) ---
         if (!name || !plate) {
             showModalError("Bitte Name/Modell und Kennzeichen eingeben.");
-            return;
+            return; // Nicht weitermachen, wenn Felder leer sind
         }
-        if (cars.some(car => car.plate.toLowerCase() === plate.toLowerCase())) {
-            // Hinweis statt Fehler, Speichern trotzdem erlauben
-            showModalError(`Hinweis: Ein Fahrzeug mit dem Kennzeichen "${plate}" existiert bereits.`);
-            // Optional: Hier return; wenn Duplikate komplett verhindert werden sollen
+
+        // --- Prüfen, ob wir im Bearbeiten-Modus sind ---
+        if (editCarId !== null) {
+            // === BEARBEITEN-MODUS ===
+            console.log("Speichere Änderungen für Fahrzeug-ID:", editCarId);
+
+            // Zusätzliche Validierung: Prüfen, ob ein *anderes* Auto dieses Kennzeichen bereits hat
+            const otherCarHasSamePlate = cars.some(car =>
+                car.id.toString() !== editCarId.toString() && // Ignoriere das Auto, das wir gerade bearbeiten
+                car.plate.toLowerCase() === plate.toLowerCase() // Prüfe auf gleiches Kennzeichen (Groß/Klein egal)
+            );
+            if (otherCarHasSamePlate) {
+                showModalError(`Ein anderes Fahrzeug (${cars.find(c => c.plate.toLowerCase() === plate.toLowerCase())?.name || '?'}) hat bereits das Kennzeichen "${plate}".`);
+                return; // Speichern verhindern
+            }
+
+            // Finde das zu bearbeitende Auto im Array
+            const carToUpdate = cars.find(car => car.id.toString() === editCarId.toString());
+
+            if (carToUpdate) {
+                // Aktualisiere die Daten des Autos im Array
+                carToUpdate.name = name;
+                carToUpdate.plate = plate;
+
+                // Speichern, UI aktualisieren und Modal schließen
+                saveCars();
+                displayCarList();
+                populateCarDropdown();
+                console.log("Fahrzeug erfolgreich aktualisiert:", carToUpdate);
+                closeAddCarModal(); // Schließt Modal und setzt editCarId zurück
+                // alert("Änderungen gespeichert."); // Optional
+            } else {
+                console.error("Fehler beim Speichern: Zu bearbeitendes Fahrzeug nicht mehr im Array gefunden, ID:", editCarId);
+                alert("Fehler: Das zu bearbeitende Fahrzeug konnte nicht gefunden werden.");
+                closeAddCarModal(); // Modal trotzdem schließen
+            }
+
         } else {
-             // Alten Fehler löschen, wenn keine Duplikatwarnung nötig ist
-             if (modalCarError) {
-                modalCarError.textContent = '';
-                modalCarError.style.display = 'none';
-             }
+            // === HINZUFÜGEN-MODUS (Original-Logik) ===
+            console.log("Speichere neues Fahrzeug...");
+
+            // Validierung (Original): Prüfen, ob Kennzeichen schon existiert
+            if (cars.some(car => car.plate.toLowerCase() === plate.toLowerCase())) {
+                // Hinweis statt Fehler, Speichern trotzdem erlauben (wie vorher)
+                showModalError(`Hinweis: Ein Fahrzeug mit dem Kennzeichen "${plate}" existiert bereits.`);
+                return;
+                // Optional: return; wenn Duplikate komplett verhindert werden sollen
+            } else {
+                 // Alten Fehler löschen, wenn keine Duplikatwarnung nötig ist
+                 if (modalCarError) {
+                    modalCarError.textContent = '';
+                    modalCarError.style.display = 'none';
+                 }
+            }
+
+            // Neues Fahrzeugobjekt
+            const newCar = {
+                id: Date.now() + Math.random().toString(16).slice(2),
+                name: name,
+                plate: plate
+            };
+
+            // Speichern und UI aktualisieren
+            cars.push(newCar);
+            saveCars();
+            displayCarList();
+            populateCarDropdown();
+
+            console.log("Neues Fahrzeug gespeichert (via Modal):", newCar);
+            closeAddCarModal(); // Schließt Modal
         }
+    }
+    /**
+     * Öffnet den Modal-Dialog zum Bearbeiten eines vorhandenen Fahrzeugs.
+     * @param {string|number} carId Die ID des zu bearbeitenden Fahrzeugs.
+     */
+    function openEditCarModal(carId) {
+    if (!addCarModal || !modalCarForm) return;
+    console.log("Öffne Fahrzeug-Modal zum Bearbeiten für ID:", carId);
 
-        // Neues Fahrzeugobjekt
-        const newCar = {
-            id: Date.now() + Math.random().toString(16).slice(2),
-            name: name,
-            plate: plate
-        };
+    // Finde das zu bearbeitende Fahrzeug im 'cars'-Array
+    const carToEdit = cars.find(car => car.id.toString() === carId.toString());
 
-        // Speichern und UI aktualisieren
-        cars.push(newCar);
-        saveCars();
-        displayCarList();
-        populateCarDropdown();
-
-        console.log("Neues Fahrzeug gespeichert (via Modal):", newCar);
-        closeAddCarModal();
+    if (!carToEdit) {
+        console.error("Zu bearbeitendes Fahrzeug nicht gefunden, ID:", carId);
+        alert("Fehler: Zu bearbeitendes Fahrzeug nicht gefunden.");
+        return;
     }
 
+    // Setze die globale Variable für den Bearbeitungsmodus
+    editCarId = carId;
+
+    // Modal-Formular mit den Daten des Fahrzeugs füllen
+    modalCarNameInput.value = carToEdit.name;
+    modalCarPlateInput.value = carToEdit.plate;
+
+    // Fehlermeldung zurücksetzen
+    if (modalCarError) {
+        modalCarError.textContent = '';
+        modalCarError.style.display = 'none';
+    }
+
+    // Titel und Button-Text im Modal anpassen
+    const modalTitle = addCarModal.querySelector('.modal-header h2');
+    if (modalTitle) modalTitle.textContent = 'Fahrzeug bearbeiten';
+    if (modalSaveButton) modalSaveButton.textContent = 'Änderungen speichern';
+
+    // Modal sichtbar machen
+    addCarModal.classList.add('modal-visible');
+    setTimeout(() => {
+        modalCarNameInput?.focus(); // Fokus auf erstes Feld
+    }, 50);
+    }
     /**
      * Zeigt eine Fehlermeldung im Modal an.
      * @param {string} message - Die anzuzeigende Fehlermeldung.
@@ -1050,6 +1173,55 @@ function displayCarList() {
         }
     }
 
+/**
+     * Handler für Klicks innerhalb der Fahrzeugliste (delegiert an Buttons).
+     * Kümmert sich um das Löschen und Bearbeiten von Fahrzeugen.
+     * @param {Event} event - Das Klick-Event.
+     */
+function handleCarListClick(event) {
+    // Prüfen, ob auf einen Löschen-Button geklickt wurde
+    const deleteButton = event.target.closest('.delete-car-btn');
+    if (deleteButton) {
+        const carIdToDelete = deleteButton.dataset.carId;
+        console.log("Versuche Fahrzeug zu löschen, ID:", carIdToDelete);
+
+        if (confirm('Soll dieses Fahrzeug wirklich endgültig gelöscht werden?')) {
+            const index = cars.findIndex(car => car.id.toString() === carIdToDelete.toString());
+            if (index !== -1) {
+                // Prüfen, ob das zu löschende Auto gerade bearbeitet wird und ggf. abbrechen
+                if (editCarId && editCarId.toString() === carIdToDelete.toString()) {
+                    editCarId = null; // Bearbeitungsmodus beenden
+                    // Modal ggf. schließen oder Zustand zurücksetzen (optional, da es eh gelöscht wird)
+                    closeAddCarModal(); // Sicherstellen, dass Modal zu ist
+                }
+
+                cars.splice(index, 1);
+                console.log("Fahrzeug aus Array entfernt.");
+                saveCars();
+                displayCarList();
+                populateCarDropdown();
+                console.log("Fahrzeug erfolgreich gelöscht und UI aktualisiert.");
+                // alert("Fahrzeug wurde gelöscht."); // Alert kann ggf. weg
+            } else {
+                console.warn("Zu löschendes Fahrzeug nicht im Array gefunden, ID:", carIdToDelete);
+                alert("Fehler: Zu löschendes Fahrzeug nicht gefunden.");
+            }
+        } else {
+            console.log("Löschvorgang abgebrochen.");
+        }
+        return; // Wichtig: Funktion hier beenden, wenn delete geklickt wurde
+    }
+
+    // Prüfen, ob auf einen Edit-Button geklickt wurde (NEU)
+    const editButton = event.target.closest('.edit-car-btn');
+    if (editButton) {
+        const carIdToEdit = editButton.dataset.carId;
+        console.log("Edit-Button für Fahrzeug geklickt, ID:", carIdToEdit);
+        openEditCarModal(carIdToEdit); // Rufe die neue Funktion auf
+        return; // Wichtig: Funktion hier beenden
+    }
+}
+
 
     // ========================================================================
     // === 13. Event Listener Setup ===
@@ -1088,6 +1260,7 @@ function displayCarList() {
         modalCloseButton?.addEventListener('click', closeAddCarModal); // X schließt Modal
         modalCancelButton?.addEventListener('click', closeAddCarModal); // Abbrechen schließt Modal
         modalSaveButton?.addEventListener('click', handleModalSaveCar); // Speichern verarbeitet Modal
+        carListUl?.addEventListener('click', handleCarListClick); // Listener für Fahrzeugliste (Edit/Delete) NEU
         // Schließen bei Klick auf den Overlay-Hintergrund
         addCarModal?.addEventListener('click', (event) => {
             if (event.target === addCarModal) { // Nur wenn direkt auf Overlay geklickt wird
