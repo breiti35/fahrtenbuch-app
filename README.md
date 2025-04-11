@@ -1,11 +1,10 @@
 # 🚗 Fahrtenbuch Web App
 
-**EN:** A web application for managing logbooks, saving data locally in the browser via `localStorage`, built with HTML, CSS, and JavaScript. Features a redesigned collapsible sidebar, allows adding, editing, and deleting vehicles, and filtering of the trip list.
+**EN:** A web application for managing logbooks, saving data locally in the browser via `localStorage`, built with HTML, CSS, and JavaScript. Features include a collapsible sidebar, vehicle management (add/edit/delete), trip list filtering, CSV/JSON export/import, dark mode, and improved UX with non-blocking notifications and custom confirmation dialogs.
 
-**DE:** Eine via Browser im `localStorage` speichernde Webanwendung zur Verwaltung von Fahrtenbüchern, erstellt mit HTML, CSS und JavaScript. Mit neu gestalteter, einklappbarer Seitenleiste, der Möglichkeit, Fahrzeuge hinzuzufügen, zu bearbeiten und zu löschen, sowie einer Filterfunktion für die Fahrtenliste.
+**DE:** Eine via Browser im `localStorage` speichernde Webanwendung zur Verwaltung von Fahrtenbüchern, erstellt mit HTML, CSS und JavaScript. Mit einklappbarer Seitenleiste, Fahrzeugverwaltung (Hinzufügen/Bearbeiten/Löschen), Filterfunktion für Fahrten, CSV/JSON Export/Import, Dark Mode und verbesserter Nutzerführung durch nicht-blockierende Benachrichtigungen und eigene Bestätigungsdialoge.
 
 **Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)] 
-
 ---
 
 ## Entwicklung / Development 🧑‍💻
@@ -45,8 +44,11 @@
     * **EN:** Clean user interface with icons (Font Awesome) and modern styling.
     * **EN:** Collapsible form for adding/editing trips.
     * **EN:** Dark Mode (automatic detection or manual toggle via header button).
-    * **EN:** **Filter trip list** by vehicle, purpose, and date range. **(NEW)**
-    * **EN:** Reset filters to show all trips. **(NEW)**
+    * **EN:** **Filter trip list** by vehicle, purpose, and date range.
+    * **EN:** Reset filters to show all trips.
+    * **EN:** Inline form validation messages (no blocking `alert`). **(NEW)**
+    * **EN:** Custom modal for delete confirmations (no blocking `confirm`). **(NEW)**
+    * **EN:** Non-blocking success/error notifications (toasts) with progress bar. **(NEW)**
     * **DE:** Übersichtliche Liste der Fahrten (sortiert nach Datum/Zeit).
     * **DE:** Einklappbare Detailansicht pro Fahrt (Umschalt-Button).
     * **DE:** Anzeige des verwendeten Fahrzeugs pro Fahrt.
@@ -56,8 +58,11 @@
     * **DE:** Aufgeräumte Oberfläche mit Icons (Font Awesome) und modernem Styling.
     * **DE:** Einklappbares Formular für neue/zu bearbeitende Fahrten.
     * **DE:** Dark Mode (automatische Erkennung oder manueller Wechsel über Button in Kopfleiste).
-    * **DE:** **Filterung der Fahrtenliste** nach Fahrzeug, Zweck und Zeitraum. **(NEU)**
-    * **DE:** Zurücksetzen der Filter zur Anzeige aller Fahrten. **(NEU)**
+    * **DE:** **Filterung der Fahrtenliste** nach Fahrzeug, Zweck und Zeitraum.
+    * **DE:** Zurücksetzen der Filter zur Anzeige aller Fahrten.
+    * **DE:** Inline-Fehlermeldungen bei Formularvalidierung (kein blockierendes `alert`). **(NEU)**
+    * **DE:** Eigener Modal-Dialog für Löschbestätigungen (kein blockierendes `confirm`). **(NEU)**
+    * **DE:** Nicht-blockierende Erfolgs-/Fehler-Benachrichtigungen (Toasts) mit Fortschrittsbalken. **(NEU)**
 
 
 * **💾 Daten / Data:**

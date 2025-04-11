@@ -710,4 +710,192 @@ button:not(.menu-button):not(#fahrten-liste button):not(#theme-toggle-btn):not(#
 #fahrzeug-verwaltung #car-list .delete-car-btn i.fa-solid {
     margin-right: 0; /* Kein extra Abstand für Icons in diesen kleinen Buttons */
 }
+/* Gilt für Modal-Fehler und jetzt auch Formular-Fehler */
+.error-message {
+    color: var(--danger-color-dark, #a94442); /* Dunklere Rot-Variante für Text */
+    background-color: var(--danger-color-hover-bg, #f2dede); /* Heller roter Hintergrund */
+    border: 1px solid var(--danger-color, #e63946);
+    border-radius: 6px; /* Abgerundete Ecken */
+    padding: 10px 15px; /* Innenabstand */
+    font-size: 0.9rem;
+    margin-top: 10px; /* Abstand nach oben (relevant im Modal) */
+    margin-bottom: 15px; /* Abstand nach unten (relevant im Formular) */
+    text-align: left; /* Text linksbündig */
+}
+
+/* Spezifisch für Dark Mode, falls nötig */
+body.dark-mode .error-message {
+    color: var(--danger-color, #ff6b78);
+    background-color: rgba(230, 57, 70, 0.15); /* Dunklerer, transparenter roter Hintergrund */
+    border-color: var(--danger-color, #ff6b78);
+}
+/* === 13. Styling für Bestätigungs-Modal (NEU) === */
+/* =============================================== */
+
+/* Die meisten Stile werden von den allgemeinen .modal-* Klassen geerbt. */
+/* Wir brauchen hauptsächlich den Stil für den roten Button. */
+
+/* Spezifischer Stil für den roten Bestätigen-Button im Modal Footer */
+.modal-footer .button-danger {
+    /* Erbt Basis-Styling von .modal-footer button */
+    font-weight: 600; /* Etwas fetter als sekundär */
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+    color: var(--text-on-primary); /* Heller Text auf dunklem Button */
+    /* Optional: Leichter Schatten wie bei primärem Button */
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out; /* Übergang hinzufügen */
+}
+
+.modal-footer .button-danger:hover {
+    background-color: var(--danger-color-dark); /* Dunklere Variante beim Hover */
+    border-color: var(--danger-color-dark);
+    color: var(--text-on-primary);
+    /* background-image: none; */ /* Falls ein Farbverlauf verwendet wird, hier entfernen */
+}
+
+/* Optional: Sicherstellen, dass der Fokus-Stil passt */
+.modal-footer .button-danger:focus-visible {
+    outline: 2px solid var(--danger-color);
+    outline-offset: 2px;
+    /* Leichter roter Fokus-Schatten, ähnlich wie bei primary */
+    box-shadow: 0 0 0 0.2rem var(--danger-color-hover-bg);
+}
+
+/* Optional: Sicherstellen, dass der Abstand zwischen den Buttons passt */
+#confirm-delete-modal .modal-footer {
+    gap: 10px; /* Stellt sicher, dass der Abstand konsistent ist */
+}
+
+
+/* === 14. Styling für Benachrichtigungen (Toasts) (NEU) === */
+/* ======================================================== */
+
+/* Container für alle Benachrichtigungen */
+#notification-container {
+    position: fixed; /* Bleibt beim Scrollen an fester Position */
+    bottom: 20px;    /* Abstand vom unteren Rand */
+    right: 20px;     /* Abstand vom rechten Rand */
+    z-index: 1050;   /* Sollte über den meisten anderen Elementen liegen */
+    display: flex;
+    flex-direction: column; /* Nachrichten untereinander */
+    align-items: flex-end;  /* Nachrichten am rechten Rand ausrichten */
+}
+
+/* Einzelne Benachrichtigungs-Box */
+.notification {
+    background-color: var(--bg-card, #fff);
+    color: var(--text-primary, #333);
+    padding: 12px 18px;
+    border-radius: 6px;
+    margin-top: 10px; /* Abstand zwischen Nachrichten */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    opacity: 0; /* Startet unsichtbar für Animation */
+    animation: fadeInOut 10s ease-in-out forwards; /* Animation anwenden */
+    min-width: 200px; /* Mindestbreite */
+    max-width: 350px; /* Maximalbreite */
+    font-size: 0.95rem;
+    border-left: 5px solid var(--info-color); /* Standard-Randfarbe (Info) */
+}
+
+/* Spezifische Stile für Erfolgsmeldungen */
+.notification.notification-success {
+    background-color: #dff0d8; /* Heller Grünton */
+    color: #3c763d;            /* Dunkler Grünton */
+    border-left-color: #5cb85c; /* Grüner Rand */
+}
+body.dark-mode .notification.notification-success {
+    background-color: #2a3b2a; /* Dunkler Grünton */
+    color: #a3d9a5;            /* Heller Grünton */
+    border-left-color: #6fbf73; /* Hellerer grüner Rand */
+}
+
+/* Spezifische Stile für Fehlermeldungen (optional, für später) */
+.notification.notification-error {
+    background-color: #f2dede; /* Heller Rotton */
+    color: #a94442;            /* Dunkler Rotton */
+    border-left-color: var(--danger-color, #e63946); /* Roter Rand */
+}
+body.dark-mode .notification.notification-error {
+    background-color: #3b2a2a; /* Dunkler Rotton */
+    color: #f4a3a3;            /* Heller Rotton */
+    border-left-color: var(--danger-color, #ff6b78); /* Hellerer roter Rand */
+}
+
+
+/* Keyframe-Animation für Ein- und Ausblenden */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(100%); } /* Startet rechts außen, unsichtbar */
+  15% { opacity: 1; transform: translateX(0); }   /* Kommt rein, wird sichtbar */
+  85% { opacity: 1; transform: translateX(0); }   /* Bleibt sichtbar */
+  100% { opacity: 0; transform: translateX(100%); }/* Geht raus, wird unsichtbar */
+}
+
+/* === Ergänzung für Benachrichtigungs-Styling (Fortschrittsbalken) === */
+
+/* Container für den Fortschrittsbalken unter dem Text */
+.notification .notification-progress-bar {
+    height: 4px; /* Höhe des Balkens */
+    width: 100%; /* Volle Breite der Notification-Box */
+    background-color: rgba(0, 0, 0, 0.1); /* Hintergrundfarbe des Containers */
+    border-radius: 2px; /* Abrundung */
+    margin-top: 8px; /* Abstand zum Text */
+    overflow: hidden; /* Stellt sicher, dass der innere Balken nicht überläuft */
+}
+body.dark-mode .notification .notification-progress-bar {
+    background-color: rgba(255, 255, 255, 0.1); /* Angepasster Hintergrund für Dark Mode */
+}
+
+/* Innerer Balken, der animiert wird */
+.notification .notification-progress-bar-inner {
+    height: 100%;
+    width: 100%; /* Startet voll */
+    background-color: var(--primary-color); /* Standardfarbe (kann durch Typ überschrieben werden) */
+    border-radius: 2px; /* Abrundung passt zum Container */
+    transform-origin: left; /* Animation startet von links */
+    animation: progressBarShrink linear forwards; /* Keyframe-Animation anwenden */
+    /* Animationsdauer wird per Inline-Style im JS gesetzt */
+}
+
+/* Keyframe-Animation für das Schrumpfen des Balkens */
+@keyframes progressBarShrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* Farben für den inneren Balken je nach Typ */
+.notification .progress-bar-success {
+    background-color: #5cb85c; /* Gleiches Grün wie Rand */
+}
+body.dark-mode .notification .progress-bar-success {
+    background-color: #6fbf73;
+}
+
+.notification .progress-bar-error {
+    background-color: var(--danger-color); /* Gleiches Rot wie Rand */
+}
+body.dark-mode .notification .progress-bar-error {
+    background-color: var(--danger-color); /* Kann gleich bleiben oder angepasst werden */
+}
+
+.notification .progress-bar-info {
+    background-color: var(--info-color); /* Gleiches Info-Blau wie Rand */
+}
+body.dark-mode .notification .progress-bar-info {
+    background-color: var(--info-color);
+}
+
+/* Optional: Fade-Out Animation für die gesamte Notification (wird im JS getriggert) */
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateX(10px); } /* Leicht nach rechts bewegen beim Ausblenden */
+}
+
+/* Hinweis: Die fadeInOut Animation für das Erscheinen/Verschwinden der Box
+   ist bereits im vorherigen CSS-Block definiert. Die fadeOut-Animation hier
+   kann verwendet werden, um das Verschwinden am Ende des Timeouts weicher zu machen,
+   wenn man es im JS aktiviert (siehe Kommentar in showNotification). */
+
+
+
 /* === ENDE Modal-Dialog Styling === */

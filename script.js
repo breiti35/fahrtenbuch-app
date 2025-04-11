@@ -1,5 +1,5 @@
 // === script.js ===
-// Stand: 2025-04-08, Finale Version mit Modal-Dialog für Fahrzeuge
+// Stand: 2025-04-11, Mit Filter-Funktion und Custom Confirm Modal
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -21,16 +21,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const kmStartInput = document.getElementById('km-start');
     const kmEndeInput = document.getElementById('km-ende');
     const distanzInput = document.getElementById('distanz');
-    const carSelect = document.getElementById('car-select');
+    const carSelect = document.getElementById('car-select'); // Hauptformular
     const zweckSelect = document.getElementById('zweck');
-    // Neu: Filter Elemente
-    const filterControlsDiv = document.getElementById('filter-controls');
-    const filterCarSelect = document.getElementById('filter-car');
-    const filterPurposeSelect = document.getElementById('filter-purpose');
-    const filterDateStartInput = document.getElementById('filter-date-start');
-    const filterDateEndInput = document.getElementById('filter-date-end');
-    const applyFilterButton = document.getElementById('apply-filter-btn');
-    const resetFilterButton = document.getElementById('reset-filter-btn');
     // Listen & Anzeigen
     const fahrtenListeDiv = document.getElementById('fahrten-liste');
     const zusammenfassungDiv = document.getElementById('zusammenfassung');
@@ -53,6 +45,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalCarNameInput = document.getElementById('modal-car-name');
     const modalCarPlateInput = document.getElementById('modal-car-plate');
     const modalCarError = document.getElementById('modal-car-error');
+    // Filter Elemente
+    const filterControlsDiv = document.getElementById('filter-controls');
+    const filterCarSelect = document.getElementById('filter-car'); // Filter-Dropdown
+    const filterPurposeSelect = document.getElementById('filter-purpose');
+    const filterDateStartInput = document.getElementById('filter-date-start');
+    const filterDateEndInput = document.getElementById('filter-date-end');
+    const applyFilterButton = document.getElementById('apply-filter-btn');
+    const resetFilterButton = document.getElementById('reset-filter-btn');
+    // NEU: Referenzen für Bestätigungs-Modal
+    const confirmModal = document.getElementById('confirm-delete-modal');
+    const confirmModalMessage = document.getElementById('modal-confirm-message');
+    const confirmModalConfirmBtn = document.getElementById('modal-confirm-confirm-btn');
+    const confirmModalCancelBtn = document.getElementById('modal-confirm-cancel-btn');
+    const confirmModalCloseBtn = document.getElementById('modal-confirm-close-btn');
+    // NEU: Referenz für Formular-Fehler Div
+    const formErrorDiv = document.getElementById('form-error-message');
+    // NEU: Referenz für Notification Container
+    const notificationContainer = document.getElementById('notification-container');
 
 
     // ========================================================================
@@ -61,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let editId = null; // ID der Fahrt, die bearbeitet wird (null = keine Bearbeitung)
     let editCarId = null; // ID des Fahrzeugs, das bearbeitet wird (null = keine Bearbeitung)
     let cars = [];     // Array für die Fahrzeugliste
+    let confirmModalCallback = null; // Speicher für die "Ja"-Aktion des Bestätigungs-Modals
 
 
     // ========================================================================
@@ -78,13 +89,66 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /**
      * Gibt das aktuelle Datum als String im JJJJ-MM-TT Format zurück.
-     * (Aktuell statisch für Konsistenz beim Testen)
      */
     function getDatumString() {
-        // return new Date().toISOString().slice(0, 10); // Dynamisch
-        return "2025-04-08"; // Statisch
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
+    // ========================================================================
+    // === Funktion zum Anzeigen von Benachrichtigungen ===
+    // ========================================================================
 
+    /**
+     * Zeigt eine kurze Benachrichtigung (Toast) mit Fortschrittsbalken an.
+     * @param {string} message Die anzuzeigende Nachricht.
+     * @param {string} [type='success'] Typ der Nachricht ('success', 'error', 'info') - beeinflusst Styling.
+     * @param {number} [duration=10000] Anzeigedauer in Millisekunden (Standard: 10 Sekunden).
+     */
+    function showNotification(message, type = 'success', duration = 10000) { // Standard-Dauer auf 10s erhöht
+        if (!notificationContainer) {
+            console.error("Notification-Container nicht gefunden!");
+            return;
+        }
+
+        // Neues Div für die gesamte Nachricht (Text + Balken)
+        const notificationDiv = document.createElement('div');
+        notificationDiv.classList.add('notification');
+        notificationDiv.classList.add(`notification-${type}`); // Typ-Klasse für Styling (z.B. Randfarbe)
+
+        // Element für den Nachrichtentext
+        const messageElement = document.createElement('div'); // div statt p für einfacheres Styling
+        messageElement.textContent = message;
+
+        // Container für den Fortschrittsbalken
+        const progressBarContainer = document.createElement('div');
+        progressBarContainer.classList.add('notification-progress-bar');
+
+        // Innerer Fortschrittsbalken (der animiert wird)
+        const progressBarInner = document.createElement('div');
+        progressBarInner.classList.add('notification-progress-bar-inner');
+        progressBarInner.classList.add(`progress-bar-${type}`); // Klasse für Farbe des Balkens
+        // Setze die Animationsdauer über Inline-Style, basierend auf 'duration'
+        progressBarInner.style.animationDuration = `${duration / 1000}s`;
+
+        // Elemente zusammenbauen
+        progressBarContainer.appendChild(progressBarInner);
+        notificationDiv.appendChild(messageElement);
+        notificationDiv.appendChild(progressBarContainer);
+
+        // Komplette Nachricht zum Container hinzufügen
+        notificationContainer.appendChild(notificationDiv);
+
+        // Nachricht nach 'duration' Millisekunden wieder entfernen
+        setTimeout(() => {
+            // Fade-Out Animation (optional, CSS muss das unterstützen)
+            notificationDiv.style.animation = 'fadeOut 0.5s ease-out forwards';
+            // Nach der Fade-Out Animation entfernen
+            setTimeout(() => notificationDiv.remove(), 500);
+        }, duration);
+    }
 
     // ========================================================================
     // === 4. Theme (Dark Mode) Funktionen ===
@@ -180,13 +244,13 @@ document.addEventListener('DOMContentLoaded', function() {
         let collapsed = false; // Standard: ausgeklappt
         try {
             const savedState = localStorage.getItem('sidebarCollapsed');
-            if (savedState === 'true') { // localStorage speichert Strings
+            if (savedState === 'true') {
                 collapsed = true;
             }
         } catch (e) {
             console.error("Fehler beim Laden des Sidebar-Zustands:", e);
         }
-        setSidebarState(collapsed); // Initialen Zustand anwenden
+        setSidebarState(collapsed);
     }
 
 
@@ -199,24 +263,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadCars() {
         const storedCars = localStorage.getItem('fahrtenbuchCars');
         try {
-            // Stellt sicher, dass cars immer ein Array ist
             const parsedCars = storedCars ? JSON.parse(storedCars) : [];
             cars = Array.isArray(parsedCars) ? parsedCars : [];
             console.log(`${cars.length} Fahrzeuge geladen.`);
         } catch (e) {
             console.error("Fehler beim Laden der Fahrzeuge:", e);
-            cars = []; // Im Fehlerfall leeres Array
+            cars = [];
         }
-        // Stellt sicher, dass jedes Auto eine ID hat (für Altdaten)
         cars.forEach(car => {
             if (!car.id) {
                 car.id = Date.now() + Math.random().toString(16).slice(2);
             }
         });
-        // Optional: Zurückspeichern, falls IDs hinzugefügt wurden
-        // if (cars.some(car => !storedCars || !storedCars.includes(car.id))) {
-        //    saveCars();
-        // }
     }
 
     /**
@@ -232,59 +290,54 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-/**
+    /**
      * Zeigt die Liste der angelegten Fahrzeuge im HTML (rechte Spalte) an,
      * jetzt mit Bearbeiten- und Löschen-Buttons.
      */
-function displayCarList() {
-    if (!carListUl) {
-        console.error("Element für Fahrzeugliste (UL) nicht gefunden!");
-        return;
+    function displayCarList() {
+        if (!carListUl) {
+            console.error("Element für Fahrzeugliste (UL) nicht gefunden!");
+            return;
+        }
+        carListUl.innerHTML = ''; // Liste leeren
+        if (cars.length === 0) {
+            carListUl.innerHTML = '<li>Keine Fahrzeuge angelegt.</li>';
+        } else {
+            cars.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            cars.forEach(car => {
+                const li = document.createElement('li');
+                li.style.display = 'flex';
+                li.style.justifyContent = 'space-between';
+                li.style.alignItems = 'center';
+                li.setAttribute('data-car-id', car.id);
+
+                const carNameText = car.name || 'Unbenannt';
+                const carPlateText = car.plate ? ` (${car.plate})` : '';
+
+                const carInfoSpan = document.createElement('span');
+                carInfoSpan.innerHTML = `
+                    <i class="fa-solid fa-car-side fa-fw car-list-icon" style="margin-right: 8px;"></i>
+                    <span>${carNameText}</span>
+                    <strong style="margin-left: 5px;">${carPlateText}</strong>
+                `;
+
+                const carActionsSpan = document.createElement('span');
+                carActionsSpan.classList.add('car-actions');
+                carActionsSpan.innerHTML = `
+                    <button class="edit-car-btn" title="Fahrzeug bearbeiten" data-car-id="${car.id}" style="background: none; border: none; cursor: pointer; font-size: 0.9rem; padding: 2px 5px; color: var(--text-secondary); margin-left: 8px;">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                    <button class="delete-car-btn" title="Fahrzeug löschen" data-car-id="${car.id}" style="background: none; border: none; cursor: pointer; font-size: 0.9rem; padding: 2px 5px; color: var(--text-secondary); margin-left: 4px;">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+
+                li.appendChild(carInfoSpan);
+                li.appendChild(carActionsSpan);
+                carListUl.appendChild(li);
+            });
+        }
     }
-    carListUl.innerHTML = ''; // Liste leeren
-    if (cars.length === 0) {
-        carListUl.innerHTML = '<li>Keine Fahrzeuge angelegt.</li>';
-    } else {
-        // Sortieren nach Name für konsistente Anzeige
-        cars.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-        cars.forEach(car => {
-            const li = document.createElement('li');
-            // WICHTIG: Füge Flexbox-Styling direkt zum li hinzu für die Ausrichtung
-            li.style.display = 'flex';
-            li.style.justifyContent = 'space-between';
-            li.style.alignItems = 'center';
-            // Setze data-car-id direkt am li, damit wir es später leichter finden
-            li.setAttribute('data-car-id', car.id);
-
-            const carNameText = car.name || 'Unbenannt';
-            const carPlateText = car.plate ? ` (${car.plate})` : '';
-
-            // Container für Icon, Name und Kennzeichen
-            const carInfoSpan = document.createElement('span');
-            carInfoSpan.innerHTML = `
-                <i class="fa-solid fa-car-side fa-fw car-list-icon" style="margin-right: 8px;"></i>
-                <span>${carNameText}</span>
-                <strong style="margin-left: 5px;">${carPlateText}</strong>
-            `;
-
-            // Container für die Buttons
-            const carActionsSpan = document.createElement('span');
-            carActionsSpan.classList.add('car-actions'); // Klasse für Styling
-            carActionsSpan.innerHTML = `
-                <button class="edit-car-btn" title="Fahrzeug bearbeiten" data-car-id="${car.id}" style="background: none; border: none; cursor: pointer; font-size: 0.9rem; padding: 2px 5px; color: var(--text-secondary); margin-left: 8px;">
-                    <i class="fa-solid fa-pencil"></i>
-                </button>
-                <button class="delete-car-btn" title="Fahrzeug löschen" data-car-id="${car.id}" style="background: none; border: none; cursor: pointer; font-size: 0.9rem; padding: 2px 5px; color: var(--text-secondary); margin-left: 4px;">
-                    <i class="fa-solid fa-trash-can"></i>
-                </button>
-            `;
-
-            li.appendChild(carInfoSpan);
-            li.appendChild(carActionsSpan);
-            carListUl.appendChild(li);
-        });
-    }
-}
 
     /**
      * Füllt das Dropdown-Menü im Hauptformular (Fahrten) mit den Fahrzeugen.
@@ -294,12 +347,10 @@ function displayCarList() {
             console.error("Fahrzeugauswahl-Dropdown nicht gefunden!");
             return;
         }
-        const aktuellerWert = carSelect.value; // Aktuellen Wert merken
-        // Alle Optionen außer der ersten (-- Bitte wählen --) entfernen
+        const aktuellerWert = carSelect.value;
         while (carSelect.options.length > 1) {
             carSelect.remove(1);
         }
-        // Sortierte Fahrzeuge hinzufügen
         cars.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         cars.forEach(car => {
             const option = document.createElement('option');
@@ -307,210 +358,177 @@ function displayCarList() {
             option.textContent = `${car.name || 'Unbenannt'}${car.plate ? ` (${car.plate})` : ''}`;
             carSelect.appendChild(option);
         });
-        // Versuchen, den alten Wert wieder auszuwählen
         carSelect.value = aktuellerWert;
     }
-      /**
+
+     /**
      * Füllt das Dropdown-Menü im Filterbereich mit den Fahrzeugen.
      */
-      function populateFilterCarDropdown() {
+    function populateFilterCarDropdown() {
         if (!filterCarSelect) {
             console.error("Fahrzeugauswahl-Dropdown im Filter nicht gefunden!");
             return;
         }
-        // Merken, was aktuell ausgewählt ist (wird später wichtig)
         const aktuellerWert = filterCarSelect.value;
-
-        // Alle Optionen außer der ersten ("Alle Fahrzeuge") entfernen
         while (filterCarSelect.options.length > 1) {
             filterCarSelect.remove(1);
         }
-        // Sortierte Fahrzeuge hinzufügen
         cars.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
         cars.forEach(car => {
             const option = document.createElement('option');
-            option.value = car.id; // ID als Wert
+            option.value = car.id;
             option.textContent = `${car.name || 'Unbenannt'}${car.plate ? ` (${car.plate})` : ''}`;
             filterCarSelect.appendChild(option);
         });
-        // Versuchen, den alten Wert wieder auszuwählen (falls Filter zurückgesetzt wird etc.)
         filterCarSelect.value = aktuellerWert;
         console.log("Filter-Fahrzeug-Dropdown befüllt.");
     }
+
     // --- Modal-Funktionen für Fahrzeuge ---
     /**
      * Öffnet den Modal-Dialog zum Hinzufügen eines Fahrzeugs.
      */
     function openAddCarModal() {
         if (!addCarModal || !modalCarForm) return;
-        console.log("Öffne Fahrzeug-Modal...");
+        console.log("Öffne Fahrzeug-Modal zum Hinzufügen...");
+        editCarId = null; // Sicherstellen, dass wir im Hinzufügen-Modus sind
         modalCarForm.reset();
         if (modalCarError) {
             modalCarError.textContent = '';
             modalCarError.style.display = 'none';
         }
-        addCarModal.classList.add('modal-visible');
+        // Titel und Button auf Standard setzen
+        const modalTitle = addCarModal.querySelector('.modal-header h2');
+        if (modalTitle) modalTitle.textContent = 'Neues Fahrzeug hinzufügen';
+        if (modalSaveButton) modalSaveButton.textContent = 'Fahrzeug speichern';
+
+        addCarModal.classList.add('modal-visible'); // Klasse nutzen
         setTimeout(() => {
             modalCarNameInput?.focus();
         }, 50);
     }
 
- /**
+     /**
+     * Öffnet den Modal-Dialog zum Bearbeiten eines vorhandenen Fahrzeugs.
+     * @param {string|number} carId Die ID des zu bearbeitenden Fahrzeugs.
+     */
+    function openEditCarModal(carId) {
+        if (!addCarModal || !modalCarForm) return;
+        console.log("Öffne Fahrzeug-Modal zum Bearbeiten für ID:", carId);
+
+        const carToEdit = cars.find(car => car.id.toString() === carId.toString());
+        if (!carToEdit) {
+            console.error("Zu bearbeitendes Fahrzeug nicht gefunden, ID:", carId);
+            alert("Fehler: Zu bearbeitendes Fahrzeug nicht gefunden.");
+            return;
+        }
+
+        editCarId = carId; // Globale Variable setzen
+
+        modalCarNameInput.value = carToEdit.name;
+        modalCarPlateInput.value = carToEdit.plate;
+
+        if (modalCarError) {
+            modalCarError.textContent = '';
+            modalCarError.style.display = 'none';
+        }
+
+        const modalTitle = addCarModal.querySelector('.modal-header h2');
+        if (modalTitle) modalTitle.textContent = 'Fahrzeug bearbeiten';
+        if (modalSaveButton) modalSaveButton.textContent = 'Änderungen speichern';
+
+        addCarModal.classList.add('modal-visible'); // Klasse nutzen
+        setTimeout(() => {
+            modalCarNameInput?.focus();
+        }, 50);
+    }
+
+    /**
      * Schließt den Modal-Dialog zum Hinzufügen/Bearbeiten eines Fahrzeugs
      * und setzt den Bearbeitungsstatus zurück.
      */
- function closeAddCarModal() {
-    if (!addCarModal) return;
-    addCarModal.classList.remove('modal-visible');
+    function closeAddCarModal() {
+        if (!addCarModal) return;
+        addCarModal.classList.remove('modal-visible'); // Klasse nutzen
 
-    // WICHTIG: Bearbeitungsstatus zurücksetzen
-    editCarId = null;
+        editCarId = null; // Bearbeitungsstatus zurücksetzen
 
-    // Titel und Button-Text auf Standard zurücksetzen
-    const modalTitle = addCarModal.querySelector('.modal-header h2');
-    if (modalTitle) modalTitle.textContent = 'Neues Fahrzeug hinzufügen';
-    if (modalSaveButton) modalSaveButton.textContent = 'Fahrzeug speichern';
+        // Titel und Button-Text auf Standard zurücksetzen (wird in openAdd/Edit gesetzt)
+        // const modalTitle = addCarModal.querySelector('.modal-header h2');
+        // if (modalTitle) modalTitle.textContent = 'Neues Fahrzeug hinzufügen';
+        // if (modalSaveButton) modalSaveButton.textContent = 'Fahrzeug speichern';
 
-    // Optional: Formular leeren, falls gewünscht (war vorher nicht drin)
-    // modalCarForm?.reset();
-    // if (modalCarError) {
-    //     modalCarError.textContent = '';
-    //     modalCarError.style.display = 'none';
-    // }
-    console.log("Modal geschlossen, Edit-Status zurückgesetzt.");
-}
+        console.log("Fahrzeug-Modal geschlossen, Edit-Status zurückgesetzt.");
+    }
 
     /**
-     * Verarbeitet das Speichern aus dem Modal-Dialog.
-     * Unterscheidet zwischen Hinzufügen eines neuen Fahrzeugs und
-     * Aktualisieren eines bestehenden Fahrzeugs.
+     * Verarbeitet das Speichern aus dem Modal-Dialog (Fahrzeug).
+     * Unterscheidet zwischen Hinzufügen und Aktualisieren.
      */
     function handleModalSaveCar() {
         const name = modalCarNameInput?.value.trim();
         const plate = modalCarPlateInput?.value.trim();
 
-        // --- Grundlegende Validierung (gilt für Neu und Bearbeiten) ---
         if (!name || !plate) {
             showModalError("Bitte Name/Modell und Kennzeichen eingeben.");
-            return; // Nicht weitermachen, wenn Felder leer sind
+            return;
         }
 
-        // --- Prüfen, ob wir im Bearbeiten-Modus sind ---
         if (editCarId !== null) {
-            // === BEARBEITEN-MODUS ===
+            // BEARBEITEN-MODUS
             console.log("Speichere Änderungen für Fahrzeug-ID:", editCarId);
-
-            // Zusätzliche Validierung: Prüfen, ob ein *anderes* Auto dieses Kennzeichen bereits hat
             const otherCarHasSamePlate = cars.some(car =>
-                car.id.toString() !== editCarId.toString() && // Ignoriere das Auto, das wir gerade bearbeiten
-                car.plate.toLowerCase() === plate.toLowerCase() // Prüfe auf gleiches Kennzeichen (Groß/Klein egal)
+                car.id.toString() !== editCarId.toString() &&
+                car.plate.toLowerCase() === plate.toLowerCase()
             );
             if (otherCarHasSamePlate) {
                 showModalError(`Ein anderes Fahrzeug (${cars.find(c => c.plate.toLowerCase() === plate.toLowerCase())?.name || '?'}) hat bereits das Kennzeichen "${plate}".`);
-                return; // Speichern verhindern
+                return;
             }
-
-            // Finde das zu bearbeitende Auto im Array
             const carToUpdate = cars.find(car => car.id.toString() === editCarId.toString());
-
             if (carToUpdate) {
-                // Aktualisiere die Daten des Autos im Array
                 carToUpdate.name = name;
                 carToUpdate.plate = plate;
-
-                // Speichern, UI aktualisieren und Modal schließen
                 saveCars();
                 displayCarList();
                 populateCarDropdown();
-                populateFilterCarDropdown();
+                populateFilterCarDropdown(); // Filter auch aktualisieren
                 console.log("Fahrzeug erfolgreich aktualisiert:", carToUpdate);
-                closeAddCarModal(); // Schließt Modal und setzt editCarId zurück
-                // alert("Änderungen gespeichert."); // Optional
+                closeAddCarModal();
             } else {
                 console.error("Fehler beim Speichern: Zu bearbeitendes Fahrzeug nicht mehr im Array gefunden, ID:", editCarId);
                 alert("Fehler: Das zu bearbeitende Fahrzeug konnte nicht gefunden werden.");
-                closeAddCarModal(); // Modal trotzdem schließen
+                closeAddCarModal();
             }
-
         } else {
-            // === HINZUFÜGEN-MODUS (Original-Logik) ===
+            // HINZUFÜGEN-MODUS
             console.log("Speichere neues Fahrzeug...");
-
-            // Validierung (Original): Prüfen, ob Kennzeichen schon existiert
             if (cars.some(car => car.plate.toLowerCase() === plate.toLowerCase())) {
-                // Hinweis statt Fehler, Speichern trotzdem erlauben (wie vorher)
-                showModalError(`Hinweis: Ein Fahrzeug mit dem Kennzeichen "${plate}" existiert bereits.`);
-                return;
-                // Optional: return; wenn Duplikate komplett verhindert werden sollen
+                showModalError(`Fehler: Ein Fahrzeug mit dem Kennzeichen "${plate}" existiert bereits.`);
+                return; // Hinzufügen verhindern
             } else {
-                 // Alten Fehler löschen, wenn keine Duplikatwarnung nötig ist
                  if (modalCarError) {
                     modalCarError.textContent = '';
                     modalCarError.style.display = 'none';
                  }
             }
-
-            // Neues Fahrzeugobjekt
             const newCar = {
                 id: Date.now() + Math.random().toString(16).slice(2),
                 name: name,
                 plate: plate
             };
-
-            // Speichern und UI aktualisieren
             cars.push(newCar);
             saveCars();
             displayCarList();
             populateCarDropdown();
-            populateFilterCarDropdown();
-
+            populateFilterCarDropdown(); // Filter auch aktualisieren
             console.log("Neues Fahrzeug gespeichert (via Modal):", newCar);
-            closeAddCarModal(); // Schließt Modal
+            closeAddCarModal();
         }
     }
+
     /**
-     * Öffnet den Modal-Dialog zum Bearbeiten eines vorhandenen Fahrzeugs.
-     * @param {string|number} carId Die ID des zu bearbeitenden Fahrzeugs.
-     */
-    function openEditCarModal(carId) {
-    if (!addCarModal || !modalCarForm) return;
-    console.log("Öffne Fahrzeug-Modal zum Bearbeiten für ID:", carId);
-
-    // Finde das zu bearbeitende Fahrzeug im 'cars'-Array
-    const carToEdit = cars.find(car => car.id.toString() === carId.toString());
-
-    if (!carToEdit) {
-        console.error("Zu bearbeitendes Fahrzeug nicht gefunden, ID:", carId);
-        alert("Fehler: Zu bearbeitendes Fahrzeug nicht gefunden.");
-        return;
-    }
-
-    // Setze die globale Variable für den Bearbeitungsmodus
-    editCarId = carId;
-
-    // Modal-Formular mit den Daten des Fahrzeugs füllen
-    modalCarNameInput.value = carToEdit.name;
-    modalCarPlateInput.value = carToEdit.plate;
-
-    // Fehlermeldung zurücksetzen
-    if (modalCarError) {
-        modalCarError.textContent = '';
-        modalCarError.style.display = 'none';
-    }
-
-    // Titel und Button-Text im Modal anpassen
-    const modalTitle = addCarModal.querySelector('.modal-header h2');
-    if (modalTitle) modalTitle.textContent = 'Fahrzeug bearbeiten';
-    if (modalSaveButton) modalSaveButton.textContent = 'Änderungen speichern';
-
-    // Modal sichtbar machen
-    addCarModal.classList.add('modal-visible');
-    setTimeout(() => {
-        modalCarNameInput?.focus(); // Fokus auf erstes Feld
-    }, 50);
-    }
-    /**
-     * Zeigt eine Fehlermeldung im Modal an.
+     * Zeigt eine Fehlermeldung im Fahrzeug-Modal an.
      * @param {string} message - Die anzuzeigende Fehlermeldung.
      */
     function showModalError(message) {
@@ -519,49 +537,79 @@ function displayCarList() {
         modalCarError.style.display = 'block';
     }
 
+    // ========================================================================
+    // === NEU: Funktionen für Bestätigungs-Modal ===
+    // ========================================================================
+
+         /**
+     * Öffnet das Bestätigungs-Modal mit einer Nachricht und speichert die Callback-Funktion.
+     * (Mit zusätzlichem Debugging für Element-Referenzen)
+     * @param {string} message Die Nachricht, die im Modal angezeigt werden soll.
+     * @param {function} onConfirm Die Funktion, die ausgeführt wird, wenn "Bestätigen" geklickt wird.
+     */
+         function openConfirmModal(message, onConfirm) {
+            if (!confirmModal || !confirmModalMessage) {
+                console.error("Bestätigungs-Modal Elemente NICHT gefunden!");
+                return;
+            }
+            confirmModalMessage.textContent = message;
+            confirmModalCallback = onConfirm;
+            // Nur Klasse hinzufügen:
+            confirmModal.classList.add('modal-visible');
+        }
+    
+        /**
+         * Schließt das Bestätigungs-Modal und setzt den Callback zurück.
+         * (Finale, saubere Version)
+         */
+        function closeConfirmModal() {
+            if (!confirmModal) {
+                 console.error("Modal Element in closeConfirmModal NICHT gefunden!");
+                 return;
+            }
+            // Nur Klasse entfernen:
+            confirmModal.classList.remove('modal-visible');
+            confirmModalCallback = null;
+        }
+
+
 
     // ========================================================================
     // === 7. Kernfunktionen (Fahrten: Speichern, Update, Edit-Modus) ===
     // ========================================================================
     /**
      * Bereitet die Formularfelder für die Eingabe einer neuen Fahrt vor.
-     * Versucht, Start-Ort und KM-Stand von der letzten Fahrt zu übernehmen.
      */
     function felderFuerNeueFahrtVorbereiten() {
-        if (editId !== null) return; // Nur ausführen, wenn nicht im Edit-Modus
-
+        if (editId !== null) return;
         console.log("Bereite Felder für neue Fahrt vor...");
         try {
-            const alleFahrten = ladeFahrtenAusLocalStorage(); // Holt sortierte Fahrten
+            const alleFahrten = ladeFahrtenAusLocalStorage();
             if (alleFahrten.length > 0) {
-                // Finde die absolut letzte Fahrt (unabhängig vom Fahrzeug)
                 const letzteFahrt = alleFahrten[alleFahrten.length - 1];
                 if (letzteFahrt) {
                     startOrtInput.value = letzteFahrt.zielOrt || '';
                     kmStartInput.value = letzteFahrt.kmEnde || '';
-                    // Optional: Fahrzeug der letzten Fahrt vorauswählen?
-                    // carSelect.value = letzteFahrt.carId || '';
                 } else {
                     startOrtInput.value = '';
                     kmStartInput.value = '';
                 }
             } else {
-                // Wenn noch keine Fahrten existieren
                 startOrtInput.value = '';
                 kmStartInput.value = '';
             }
-            // Restliche Felder zurücksetzen
             datumInput.value = getDatumString();
             zielOrtInput.value = '';
             distanzInput.value = '';
             startTimeInput.value = '';
             endTimeInput.value = '';
-            zweckSelect.value = 'geschaeftlich'; // Standardzweck
-            if (!carSelect.value && cars.length > 0) {
-                 // Wenn kein Auto ausgewählt ist, aber Autos existieren, das erste auswählen?
-                 // carSelect.value = cars[0].id; // Sortiert nach Name
+            zweckSelect.value = 'geschaeftlich';
+            // Fehler-Div leeren
+            if(formErrorDiv) {
+                formErrorDiv.innerHTML = '';
+                formErrorDiv.style.display = 'none';
             }
-            berechneUndZeigeDistanz(); // Initiale Distanzberechnung (wird 0 sein)
+            berechneUndZeigeDistanz();
         } catch (e) {
             console.error("Fehler beim Vorbelegen der Felder für neue Fahrt:", e);
         }
@@ -578,7 +626,6 @@ function displayCarList() {
         } else {
             erfolg = fahrtSpeichern();
         }
-        // Formular nur bei Erfolg schließen
         if (erfolg && formularDiv) {
             formularDiv.classList.remove('form-visible');
             console.log("Formular nach erfolgreichem Speichern/Update geschlossen.");
@@ -589,7 +636,6 @@ function displayCarList() {
 
     /**
      * Startet den Bearbeitungsmodus für eine Fahrt.
-     * @param {string|number} fahrtId - Die ID der zu bearbeitenden Fahrt.
      */
     function starteEditModus(fahrtId) {
         console.log("Starte Edit-Modus für ID:", fahrtId);
@@ -597,11 +643,10 @@ function displayCarList() {
         const fahrt = fahrten.find(f => f.id.toString() === fahrtId.toString());
 
         if (!fahrt) {
-            alert("Fehler: Zu bearbeitender Eintrag nicht gefunden!");
+            alert("Fehler: Zu bearbeitender Eintrag nicht gefunden!"); // Hier evtl. auch ersetzen?
             return;
         }
 
-        // Formular mit den Daten der Fahrt füllen
         datumInput.value = fahrt.datum || '';
         startTimeInput.value = fahrt.startTime || '';
         endTimeInput.value = fahrt.endTime || '';
@@ -613,40 +658,44 @@ function displayCarList() {
         carSelect.value = fahrt.carId || '';
         zweckSelect.value = fahrt.zweck || 'geschaeftlich';
 
-        // Status setzen und UI anpassen
-        editId = fahrtId; // Wichtig: Setzt den Edit-Modus
+        editId = fahrtId;
         speichernButton.textContent = 'Änderung speichern';
-        cancelEditButton?.style.setProperty('display', 'inline-block'); // Abbrechen-Button zeigen
+        cancelEditButton?.style.setProperty('display', 'inline-block');
 
-        // Formular anzeigen und hinscrollen
+        // Fehler-Div leeren beim Starten des Edits
+         if(formErrorDiv) {
+            formErrorDiv.innerHTML = '';
+            formErrorDiv.style.display = 'none';
+        }
+
         if (formularDiv) {
             formularDiv.classList.add('form-visible');
             formularDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-        datumInput?.focus(); // Fokus auf erstes Feld
+        datumInput?.focus();
     }
 
     /**
      * Bricht den Edit-Modus ab oder setzt das Formular zurück.
-     * @param {boolean} [doScroll=true] - Ob zum Formular gescrollt werden soll (relevant?)
      */
-    function abbrechenEditModus(doScroll = true) { // doScroll wird hier nicht wirklich verwendet
+    function abbrechenEditModus(doScroll = true) {
         console.log("Breche Edit ab / Setze Formular zurück.");
-        editId = null; // Edit-Modus beenden
+        editId = null;
         if (tripEntryForm) {
-            tripEntryForm.reset(); // Formular-Inhalte löschen
+            tripEntryForm.reset();
         } else {
             console.error("tripEntryForm nicht gefunden zum Zurücksetzen!");
         }
-        // Formular ausblenden (wird ggf. direkt danach wieder eingeblendet)
         if (formularDiv) {
             formularDiv.classList.remove('form-visible');
         }
-        // Button-Texte und Sichtbarkeiten zurücksetzen
         if (speichernButton) speichernButton.textContent = 'Fahrt speichern';
         if (cancelEditButton) cancelEditButton.style.display = 'none';
-
-        // Felder für *neue* Fahrt vorbereiten (setzt Datum, KM etc.)
+         // Fehler-Div leeren
+         if(formErrorDiv) {
+            formErrorDiv.innerHTML = '';
+            formErrorDiv.style.display = 'none';
+        }
         felderFuerNeueFahrtVorbereiten();
         console.log("Edit abgebrochen / Formular zurückgesetzt.");
     }
@@ -659,7 +708,7 @@ function displayCarList() {
     function fahrtAktualisieren(id) {
         console.log("Aktualisiere Fahrt mit ID:", id);
         const fahrtData = {
-            id: id, // Behält die Original-ID
+            id: id,
             datum: datumInput.value,
             startTime: startTimeInput.value,
             endTime: endTimeInput.value,
@@ -672,25 +721,28 @@ function displayCarList() {
             zweck: zweckSelect.value
         };
 
-        // Validieren (ohne KM-Kontinuitätsprüfung beim Update)
         if (!validateFahrt(fahrtData, false)) {
-            return false; // Validierung fehlgeschlagen
+            return false;
         }
 
         let fahrten = ladeFahrtenAusLocalStorage();
         const index = fahrten.findIndex(f => f.id.toString() === id.toString());
 
         if (index !== -1) {
-            fahrten[index] = fahrtData; // Ersetze alte Daten
-            speichereAlleFahrten(fahrten); // Speicher das geänderte Array
+            fahrten[index] = fahrtData;
+            speichereAlleFahrten(fahrten);
             console.log("Fahrt erfolgreich aktualisiert.");
-            ladeGespeicherteFahrten(); // Liste neu laden
-            updateZusammenfassung(ladeFahrtenAusLocalStorage());   //Alle Fahrten übergeben
-            abbrechenEditModus(false); // Edit-Modus beenden und Formular zurücksetzen/schließen
+
+            // NEU: Erfolgsmeldung anzeigen
+            showNotification("Änderungen erfolgreich gespeichert!", "success");
+
+            handleApplyFilter(); // Anzeige aktualisieren
+            abbrechenEditModus(false);
             return true;
         } else {
-            alert("Fehler beim Update: Eintrag nicht gefunden!");
-            abbrechenEditModus(false); // Edit-Modus trotzdem beenden
+            // alert("Fehler beim Update: Eintrag nicht gefunden."); // Ersetzt durch Notification?
+            showNotification("Fehler: Eintrag beim Update nicht gefunden!", "error"); // Optional: Fehlermeldung
+            abbrechenEditModus(false);
             return false;
         }
     }
@@ -702,7 +754,7 @@ function displayCarList() {
     function fahrtSpeichern() {
         console.log("Speichere neue Fahrt...");
         const neueFahrt = {
-            id: Date.now(), // Zeitstempel als einfache ID
+            id: Date.now(),
             datum: datumInput.value,
             startTime: startTimeInput.value,
             endTime: endTimeInput.value,
@@ -715,17 +767,19 @@ function displayCarList() {
             zweck: zweckSelect.value
         };
 
-        // Validieren (MIT KM-Kontinuitätsprüfung)
         if (!validateFahrt(neueFahrt, true)) {
-            return false; // Validierung fehlgeschlagen
+            return false;
         }
 
         console.log('Neue Fahrt validiert:', neueFahrt);
-        speichereNeueFahrtImLocalStorage(neueFahrt); // Zum Array hinzufügen und speichern
-        ladeGespeicherteFahrten(); // Liste neu laden
-        updateZusammenfassung(ladeFahrtenAusLocalStorage());   // Alle Fahrten übergeben
-        felderFuerNeueFahrtVorbereiten(); // Felder für die *nächste* neue Fahrt vorbereiten
-        zielOrtInput?.focus(); // Fokus auf Zielort für schnelle Folgeeingabe?
+        speichereNeueFahrtImLocalStorage(neueFahrt);
+
+        // NEU: Erfolgsmeldung anzeigen
+        showNotification("Fahrt erfolgreich gespeichert!", "success");
+
+        handleApplyFilter(); // Anzeige aktualisieren
+        felderFuerNeueFahrtVorbereiten();
+        // zielOrtInput?.focus(); // Fokus vielleicht nicht ideal, wenn Meldung erscheint
         return true;
     }
 
@@ -734,92 +788,100 @@ function displayCarList() {
     // === 8. Validierungsfunktion (Fahrten) ===
     // ========================================================================
     /**
-     * Prüft ein Fahrt-Objekt auf Gültigkeit.
+     * Prüft ein Fahrt-Objekt auf Gültigkeit und zeigt Fehler gesammelt an.
      * @param {object} fahrt - Das zu prüfende Fahrt-Objekt.
      * @param {boolean} checkKmContinuity - Soll die KM-Kontinuität geprüft werden?
      * @returns {boolean} true, wenn valide, sonst false.
      */
     function validateFahrt(fahrt, checkKmContinuity) {
         console.log("Validiere Fahrt:", fahrt, "Kontinuität prüfen:", checkKmContinuity);
-
-        // Pflichtfelder prüfen
-        if (!fahrt.datum || !fahrt.startTime || !fahrt.endTime || !fahrt.startOrt || !fahrt.zielOrt || fahrt.kmStart === '' || fahrt.kmEnde === '' || !fahrt.distanz || !fahrt.carId || !fahrt.zweck) {
-            alert('Bitte alle Felder ausfüllen (Datum, Zeiten, Orte, KM-Stände, Fahrzeug, Zweck). Die Distanz wird automatisch berechnet.');
-            return false;
+        const errorMessages = []; // Array zum Sammeln von Fehlermeldungen
+        // const errorDiv = document.getElementById('form-error-message'); // Globale Variable nutzen: formErrorDiv
+        if (!formErrorDiv) {
+             console.error("Fehler-Div #form-error-message nicht gefunden!");
+             alert("Interner Fehler: Fehleranzeige-Element nicht gefunden. Validierung nicht möglich.");
+             return false;
         }
+        formErrorDiv.innerHTML = '';
+        formErrorDiv.style.display = 'none';
 
-        // KM prüfen
+        // --- Pflichtfelder prüfen ---
+        if (!fahrt.datum) errorMessages.push("Bitte Datum eingeben.");
+        if (!fahrt.startTime) errorMessages.push("Bitte Startzeit eingeben.");
+        if (!fahrt.endTime) errorMessages.push("Bitte Endzeit eingeben.");
+        if (!fahrt.startOrt) errorMessages.push("Bitte Start-Ort eingeben.");
+        if (!fahrt.zielOrt) errorMessages.push("Bitte Ziel-Ort eingeben.");
+        if (!fahrt.carId) errorMessages.push("Bitte Fahrzeug auswählen.");
+        if (!fahrt.zweck) errorMessages.push("Bitte Zweck auswählen.");
+
+        // --- KM prüfen ---
         const s = parseFloat(fahrt.kmStart);
         const e = parseFloat(fahrt.kmEnde);
-        if (isNaN(s) || isNaN(e)) {
-            alert('Ungültige Kilometerstände! Bitte nur Zahlen eingeben.');
-            return false;
+        if (fahrt.kmStart === '' || isNaN(s)) {
+             errorMessages.push("Bitte gültigen Start-Kilometerstand eingeben.");
         }
-        if (e < s) {
-            alert('Fehler: Der End-Kilometerstand muss größer oder gleich dem Start-Kilometerstand sein.');
-            return false;
+        if (fahrt.kmEnde === '' || isNaN(e)) {
+             errorMessages.push("Bitte gültigen End-Kilometerstand eingeben.");
         }
-
-        // Zeit prüfen
-        if (fahrt.endTime < fahrt.startTime) {
-            alert('Fehler: Die Endzeit darf nicht vor der Startzeit liegen.');
-            return false;
+        if (!isNaN(s) && !isNaN(e) && e < s) {
+             errorMessages.push("End-Kilometerstand muss größer oder gleich dem Start-Kilometerstand sein.");
         }
 
-        // Distanz prüfen (sollte eigentlich immer berechnet sein)
-        const d = parseFloat(fahrt.distanz);
-        if (isNaN(d)) {
-            alert('Fehler: Die Distanz konnte nicht berechnet werden oder ist ungültig.');
-            return false;
-        }
-        // Sicherstellen, dass berechnete Distanz zu KM passt (mit kleiner Toleranz)
-        if (Math.abs(d - (e - s)) > 0.01) {
-             console.warn("Validierung: Berechnete Distanz weicht von KM-Differenz ab.", `Distanz: ${d}`, `KM: ${e}-${s}=${e-s}`);
-             // Hier keinen Fehler werfen, da Rundung im Input Feld möglich ist.
+        // --- Zeit prüfen ---
+        if (fahrt.startTime && fahrt.endTime && fahrt.endTime < fahrt.startTime) {
+            errorMessages.push("Endzeit darf nicht vor der Startzeit liegen.");
         }
 
-
-        // KM Kontinuität prüfen (nur bei NEUER Fahrt)
-        if (checkKmContinuity && fahrt.carId) {
-            const alleFahrten = ladeFahrtenAusLocalStorage(); // Holt sortierte Fahrten
+        // --- KM Kontinuität prüfen (nur bei NEUER Fahrt und wenn bisher keine Fehler) ---
+        if (errorMessages.length === 0 && checkKmContinuity && fahrt.carId && !isNaN(s)) {
+            const alleFahrten = ladeFahrtenAusLocalStorage();
             let letzteFahrtDesAutos = null;
-            // Finde die letzte Fahrt für das ausgewählte Auto
             for (let i = alleFahrten.length - 1; i >= 0; i--) {
                 if (alleFahrten[i].carId === fahrt.carId) {
                     letzteFahrtDesAutos = alleFahrten[i];
                     break;
                 }
             }
-
-            if (letzteFahrtDesAutos) { // Wenn es eine vorherige Fahrt für dieses Auto gibt
+            if (letzteFahrtDesAutos) {
                 const letzterKM = parseFloat(letzteFahrtDesAutos.kmEnde);
-                if (!isNaN(letzterKM) && s < letzterKM) { // Wenn neuer Start < letztes Ende
-                    const carName = cars.find(c => c.id === fahrt.carId)?.name || 'Unbekannt';
-                    alert(`Kontinuitätsfehler für Fahrzeug "${carName}":\nDer Start-Kilometerstand (${s}) ist niedriger als der letzte bekannte End-Kilometerstand (${letzterKM}) dieses Fahrzeugs.`);
-                    return false; // Ungültig
+                if (!isNaN(letzterKM) && s < letzterKM) {
+                    const carName = cars.find(c => c.id.toString() === fahrt.carId.toString())?.name || 'Unbekannt';
+                    errorMessages.push(`Kontinuitätsfehler für Fahrzeug "${carName}": Der Start-KM (${s}) ist niedriger als der letzte End-KM (${letzterKM}) dieses Fahrzeugs.`);
                 }
             }
         } // Ende KM Kontinuitätsprüfung
 
+        // --- Ergebnis der Validierung ---
+        if (errorMessages.length > 0) {
+            formErrorDiv.innerHTML = errorMessages.join('<br>');
+            formErrorDiv.style.display = 'block';
+            formErrorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            console.warn("Validierung fehlgeschlagen:", errorMessages);
+            return false;
+        }
+
         console.log("Fahrt-Validierung erfolgreich.");
-        return true; // Alles OK
+        return true;
     }
 
 
     // ========================================================================
     // === 9. Speicher / Ladefunktionen (localStorage) ===
     // ========================================================================
-    /**
+     /**
      * Speichert das komplette (sortierte!) Fahrten-Array im localStorage.
      */
     function speichereAlleFahrten(fahrtenArray) {
         // Sortieren nach Datum, dann Startzeit, dann KM-Start
+         if (!Array.isArray(fahrtenArray)) {
+            console.error("speichereAlleFahrten wurde kein Array übergeben!", fahrtenArray);
+            return;
+        }
         fahrtenArray.sort((a, b) => {
             const dtA = (a.datum || '') + 'T' + (a.startTime || '00:00');
             const dtB = (b.datum || '') + 'T' + (b.startTime || '00:00');
             if (dtA < dtB) return -1;
             if (dtA > dtB) return 1;
-            // Bei gleicher Startzeit nach KM-Start sortieren
             return parseFloat(a.kmStart || 0) - parseFloat(b.kmStart || 0);
         });
         try {
@@ -827,24 +889,7 @@ function displayCarList() {
             console.log(`${fahrtenArray.length} Fahrten im localStorage gespeichert.`);
         } catch (e) {
             console.error("Fehler beim Speichern der Fahrten im localStorage:", e);
-            alert("Fehler beim Speichern der Fahrten!");
-        }
-    }
-    /**
-     * Lädt alle Fahrten aus dem localStorage.
-     * Gibt immer ein Array zurück (ggf. leer).
-     */
-    function ladeFahrtenAusLocalStorage() {
-        const rawData = localStorage.getItem('fahrtenbuchEintraege');
-        try {
-            const parsedData = rawData ? JSON.parse(rawData) : [];
-            // Sicherstellen, dass immer ein Array zurückgegeben wird
-            const result = Array.isArray(parsedData) ? parsedData : [];
-            // Die Sortierung erfolgt jetzt beim Speichern oder Anzeigen, hier nicht mehr nötig.
-            return result;
-        } catch (e) {
-            console.error("Fehler beim Parsen der Fahrten aus localStorage:", e);
-            return []; // Leeres Array im Fehlerfall
+            alert("Fehler beim Speichern der Fahrten!"); // Hier evtl. auch ersetzen?
         }
     }
 
@@ -853,62 +898,69 @@ function displayCarList() {
      */
     function speichereNeueFahrtImLocalStorage(neueFahrt) {
         let fahrten = ladeFahrtenAusLocalStorage();
-        // Sicherstellen, dass keine Fahrt mit gleicher ID hinzugefügt wird
         if (!fahrten.some(f => f.id === neueFahrt.id)) {
             fahrten.push(neueFahrt);
-            speichereAlleFahrten(fahrten); // Speichert das aktualisierte, sortierte Array
+            speichereAlleFahrten(fahrten);
         } else {
             console.warn("Versuch, Fahrt mit bereits existierender ID zu speichern:", neueFahrt.id);
         }
     }
 
     /**
-    * Lädt alle gespeicherten Fahrten aus dem localStorage und zeigt sie an.
-    * Enthält Fix für TypeError.
-    */
-    function ladeGespeicherteFahrten() {
-    const alleFahrten = ladeFahrtenAusLocalStorage(); // Holt Array
-    if (!Array.isArray(alleFahrten)) {
-         console.error("FEHLER: ladeFahrtenAusLocalStorage hat kein Array zurückgegeben!", alleFahrten);
-         return;
+     * Lädt alle Fahrten aus dem localStorage.
+     * Gibt immer ein Array zurück (ggf. leer).
+     */
+    function ladeFahrtenAusLocalStorage() {
+        const rawData = localStorage.getItem('fahrtenbuchEintraege');
+        try {
+            const parsedData = rawData ? JSON.parse(rawData) : [];
+            const result = Array.isArray(parsedData) ? parsedData : [];
+            return result;
+        } catch (e) {
+            console.error("Fehler beim Parsen der Fahrten aus localStorage:", e);
+            return [];
+        }
     }
-    displayTrips(alleFahrten); // Zeigt alle Fahrten an
-}
 
 
     // ========================================================================
     // === 10. Löschfunktion (Fahrten) ===
     // ========================================================================
     /**
-     * Löscht eine Fahrt anhand ihrer ID.
+     * Löscht eine Fahrt anhand ihrer ID (jetzt mit Bestätigungs-Modal).
      * @param {string|number} fahrtId - Die ID der zu löschenden Fahrt.
      */
     function fahrtLoeschen(fahrtId) {
         console.log("Lösche Fahrt mit ID:", fahrtId);
-        let fahrten = ladeFahrtenAusLocalStorage();
-        const anzahlVorher = fahrten.length;
-        const aktualisierteFahrten = fahrten.filter(f => f.id.toString() !== fahrtId.toString());
+        const deleteAction = () => {
+            console.log("Bestätigung erhalten, lösche Fahrt:", fahrtId);
+            let fahrten = ladeFahrtenAusLocalStorage();
+            const anzahlVorher = fahrten.length;
+            const aktualisierteFahrten = fahrten.filter(f => f.id.toString() !== fahrtId.toString());
 
-        if (anzahlVorher !== aktualisierteFahrten.length) {
-            speichereAlleFahrten(aktualisierteFahrten); // Aktualisierte Liste speichern
-            ladeGespeicherteFahrten(); // Anzeige aktualisieren
-            updateZusammenfassung(ladeFahrtenAusLocalStorage());   // Alle Fahrten übergeben
-            console.log(`Fahrt mit ID ${fahrtId} erfolgreich gelöscht.`);
-            // Wenn die gelöschte Fahrt gerade bearbeitet wurde, Edit-Modus beenden
-            if (editId && editId.toString() === fahrtId.toString()) {
-                abbrechenEditModus(false);
+            if (anzahlVorher !== aktualisierteFahrten.length) {
+                speichereAlleFahrten(aktualisierteFahrten);
+                handleApplyFilter(); // Anzeige aktualisieren
+                console.log(`Fahrt mit ID ${fahrtId} erfolgreich gelöscht.`);
+                 // NEU: Erfolgsmeldung anzeigen
+                showNotification("Fahrt erfolgreich gelöscht.", "success"); // Oder 'info'
+                if (editId && editId.toString() === fahrtId.toString()) {
+                    abbrechenEditModus(false);
+                }
+            } else {
+                console.warn("Zu löschende Fahrt-ID nicht gefunden:", fahrtId);
+                 showNotification("Fehler: Zu löschende Fahrt nicht gefunden!", "error"); // Optional
             }
-        } else {
-            console.warn("Zu löschende Fahrt-ID nicht gefunden:", fahrtId);
-        }
+        };
+        openConfirmModal('Soll dieser Fahrteintrag wirklich gelöscht werden?', deleteAction);
     }
 
 
     // ========================================================================
     // === 11. Anzeige-Funktionen (Fahrtenliste, Zusammenfassung, Distanz) ===
     // ========================================================================
-    /**
-     * NEUE FUNKTION: Zeigt eine übergebene Liste von Fahrten im HTML an.
+     /**
+     * Zeigt eine übergebene Liste von Fahrten im HTML an.
      * Leert die Liste vorher.
      * @param {Array} tripsToDisplay - Das Array der Fahrten, die angezeigt werden sollen.
      */
@@ -918,12 +970,11 @@ function displayCarList() {
             return;
         }
         console.log(`${tripsToDisplay.length} Fahrten werden angezeigt.`);
-        fahrtenListeDiv.innerHTML = ''; // Liste leeren
+        fahrtenListeDiv.innerHTML = '';
 
         if (tripsToDisplay.length === 0) {
-            fahrtenListeDiv.innerHTML = '<p>Keine Fahrten entsprechen den aktuellen Kriterien.</p>'; // Angepasste Meldung
+            fahrtenListeDiv.innerHTML = '<p>Keine Fahrten entsprechen den aktuellen Kriterien.</p>';
         } else {
-            // Fahrten nach Datum/Zeit sortieren (wichtig für konsistente Anzeige)
             tripsToDisplay.sort((a, b) => {
                 const dtA = (a.datum || '') + 'T' + (a.startTime || '00:00');
                 const dtB = (b.datum || '') + 'T' + (b.startTime || '00:00');
@@ -931,36 +982,33 @@ function displayCarList() {
                 if (dtA > dtB) return 1;
                 return parseFloat(a.kmStart || 0) - parseFloat(b.kmStart || 0);
             });
-            // Fahrten zur Liste hinzufügen
             tripsToDisplay.forEach(fahrt => {
-                fahrtZurListeHinzufuegen(fahrt, true); // An Liste anhängen
+                fahrtZurListeHinzufuegen(fahrt, true);
             });
         }
     }
 
-
     /**
-     * ERSETZT die alte Version: Lädt alle gespeicherten Fahrten aus dem localStorage
-     * und zeigt sie mit der neuen displayTrips Funktion an.
+     * Lädt alle gespeicherten Fahrten aus dem localStorage und zeigt sie an.
+     * Wird hauptsächlich für Initialisierung und Reset benötigt.
      */
-    function ladeGespeicherteFahrten() {
-        const alleFahrten = ladeFahrtenAusLocalStorage(); // Holt Array
+    function ladeGespeicherteFahrten() { // Diese Funktion wird jetzt weniger direkt genutzt
+        const alleFahrten = ladeFahrtenAusLocalStorage();
         if (!Array.isArray(alleFahrten)) {
              console.error("FEHLER: ladeFahrtenAusLocalStorage hat kein Array zurückgegeben!", alleFahrten);
              return;
         }
-        displayTrips(alleFahrten); // Ruft die neue Funktion zum Anzeigen auf
+        displayTrips(alleFahrten);
     }
 
     /**
      * Erzeugt das HTML für einen einzelnen Listeneintrag und fügt ihn hinzu.
      * @param {object} fahrt - Das Fahrt-Objekt.
-     * @param {boolean} [append=false] - true: unten anhängen, false: oben einfügen.
+     * @param {boolean} [append=true] - true: unten anhängen.
      */
-    function fahrtZurListeHinzufuegen(fahrt, append = false) {
-        if (!fahrtenListeDiv) return; // Sicherheitscheck
+    function fahrtZurListeHinzufuegen(fahrt, append = true) { // append=true als Standard
+        if (!fahrtenListeDiv) return;
 
-        // Platzhalter entfernen, falls vorhanden
         const placeholder = fahrtenListeDiv.querySelector('p');
         if (placeholder) placeholder.remove();
 
@@ -968,10 +1016,9 @@ function displayCarList() {
         listItem.classList.add('fahrt-item');
         listItem.setAttribute('data-fahrt-id', fahrt.id);
 
-        // Werte vorbereiten und formatieren
         const kmStart = fahrt.kmStart || '0';
         const kmEnde = fahrt.kmEnde || '0';
-        const distanz = parseFloat(fahrt.distanz || '0').toFixed(1); // Immer eine Nachkommastelle
+        const distanz = parseFloat(fahrt.distanz || '0').toFixed(1);
         const datumFormatiert = formatDateDE(fahrt.datum);
         const startTime = fahrt.startTime || '--:--';
         const endTime = fahrt.endTime || '--:--';
@@ -982,7 +1029,6 @@ function displayCarList() {
         const carDisplay = car ? (car.name || 'Unbenannt') : 'Unbekannt';
         const carTitle = car ? `${car.name || 'Unbenannt'}${car.plate ? ` (${car.plate})` : ''}` : 'Unbekanntes Fahrzeug';
 
-        // HTML-Struktur des Listeneintrags
         const buttonsHTML = `
             <div class="buttons-container">
                 <button class="edit-btn" title="Bearbeiten"><i class="fa-solid fa-pencil"></i></button>
@@ -1015,11 +1061,10 @@ function displayCarList() {
            ${toggleBtnHTML}
        `;
 
-        // Eintrag zum HTML hinzufügen
         if (append) {
-            fahrtenListeDiv.appendChild(listItem); // Unten anfügen (Standard beim Laden)
+            fahrtenListeDiv.appendChild(listItem);
         } else {
-            fahrtenListeDiv.insertBefore(listItem, fahrtenListeDiv.firstChild); // Oben einfügen
+            fahrtenListeDiv.insertBefore(listItem, fahrtenListeDiv.firstChild);
         }
     }
 
@@ -1027,48 +1072,45 @@ function displayCarList() {
      * Aktualisiert die Kilometer-Zusammenfassung für die übergebene Liste von Fahrten.
      * @param {Array} fahrten - Das Array der Fahrten, die berücksichtigt werden sollen.
      */
-    function updateZusammenfassung(fahrten) { // Nimmt jetzt 'fahrten' als Argument
-    if (!zusammenfassungDiv) {
-         console.error("Zusammenfassungs-Div nicht gefunden!");
-         return;
-    }
-    // Sicherstellen, dass 'fahrten' ein Array ist, bevor forEach aufgerufen wird
-    if (!Array.isArray(fahrten)) {
-        console.error("Fehler: updateZusammenfassung wurde ohne gültiges Array aufgerufen.", fahrten);
-        // Setze die Zusammenfassung auf 0 oder eine Fehlermeldung
-         zusammenfassungDiv.innerHTML = `
-            <h2>Zusammenfassung</h2>
-            <p>Fehler bei der Berechnung.</p>
-            <ul><li>-</li><li>-</li><li>-</li></ul>`;
-        return;
-    }
-
-    let totalKm = 0, geschaeftlichKm = 0, privatKm = 0, arbeitswegKm = 0;
-
-    fahrten.forEach(fahrt => { // Verwendet das übergebene Array
-        const dist = parseFloat(fahrt.distanz);
-        if (!isNaN(dist)) {
-            totalKm += dist;
-            switch (fahrt.zweck) {
-                case 'geschaeftlich': geschaeftlichKm += dist; break;
-                case 'privat': privatKm += dist; break;
-                case 'arbeitsweg': arbeitswegKm += dist; break;
-            }
+    function updateZusammenfassung(fahrten) {
+        if (!zusammenfassungDiv) {
+             console.error("Zusammenfassungs-Div nicht gefunden!");
+             return;
         }
-    });
-    // HTML für die Zusammenfassung generieren
-    zusammenfassungDiv.innerHTML = `
-        <h2>Zusammenfassung</h2>
-        <p><strong>Angezeigt:</strong> ${totalKm.toFixed(1)} km</p> <ul>
-            <li>Geschäftlich: ${geschaeftlichKm.toFixed(1)} km</li>
-            <li>Privat: ${privatKm.toFixed(1)} km</li>
-            <li>Arbeitsweg: ${arbeitswegKm.toFixed(1)} km</li>
-        </ul>`;
-    console.log("Zusammenfassung aktualisiert für angezeigte Fahrten.");
-}
+        if (!Array.isArray(fahrten)) {
+            console.error("Fehler: updateZusammenfassung wurde ohne gültiges Array aufgerufen.", fahrten);
+             zusammenfassungDiv.innerHTML = `
+                <h2>Zusammenfassung</h2>
+                <p>Fehler bei der Berechnung.</p>
+                <ul><li>-</li><li>-</li><li>-</li></ul>`;
+            return;
+        }
+
+        let totalKm = 0, geschaeftlichKm = 0, privatKm = 0, arbeitswegKm = 0;
+        fahrten.forEach(fahrt => {
+            const dist = parseFloat(fahrt.distanz);
+            if (!isNaN(dist)) {
+                totalKm += dist;
+                switch (fahrt.zweck) {
+                    case 'geschaeftlich': geschaeftlichKm += dist; break;
+                    case 'privat': privatKm += dist; break;
+                    case 'arbeitsweg': arbeitswegKm += dist; break;
+                }
+            }
+        });
+        zusammenfassungDiv.innerHTML = `
+            <h2>Zusammenfassung</h2>
+            <p><strong>Angezeigt:</strong> ${totalKm.toFixed(1)} km</p>
+            <ul>
+                <li>Geschäftlich: ${geschaeftlichKm.toFixed(1)} km</li>
+                <li>Privat: ${privatKm.toFixed(1)} km</li>
+                <li>Arbeitsweg: ${arbeitswegKm.toFixed(1)} km</li>
+            </ul>`;
+        console.log("Zusammenfassung aktualisiert für angezeigte Fahrten.");
+    }
 
     /**
-     * Funktion zur Live-Berechnung der Distanz im Formular, wenn KM-Stände geändert werden.
+     * Funktion zur Live-Berechnung der Distanz im Formular.
      */
     function berechneUndZeigeDistanz() {
         const startVal = kmStartInput?.value || '';
@@ -1077,10 +1119,10 @@ function displayCarList() {
         const endKm = parseFloat(endVal);
 
         if (!isNaN(startKm) && !isNaN(endKm) && endKm >= startKm) {
-            const dist = (endKm - startKm).toFixed(1); // Immer eine Nachkommastelle
+            const dist = (endKm - startKm).toFixed(1);
             if (distanzInput) distanzInput.value = dist;
         } else {
-            if (distanzInput) distanzInput.value = ''; // Feld leeren bei ungültiger Eingabe
+            if (distanzInput) distanzInput.value = '';
         }
     }
 
@@ -1088,28 +1130,27 @@ function displayCarList() {
     // ========================================================================
     // === 12. Export/Import Funktionen ===
     // ========================================================================
-    /**
+     /**
      * Exportiert die Daten als CSV-Datei.
      */
     function exportiereAlsCsv() {
         console.log('CSV Export wird gestartet...');
+        // WICHTIG: Immer ALLE Fahrten exportieren, nicht nur die gefilterten!
         const fahrten = ladeFahrtenAusLocalStorage();
         if (fahrten.length === 0) {
-            alert('Keine Fahrten zum Exportieren vorhanden.');
+            alert('Keine Fahrten zum Exportieren vorhanden.'); // Hier evtl. auch ersetzen?
             return;
         }
         const header = ["Datum", "Startzeit", "Endzeit", "Start-Ort", "Ziel-Ort", "KM-Start", "KM-Ende", "Distanz (km)", "Zweck", "Fahrzeug ID", "Fahrzeug Name", "Fahrzeug Kennzeichen"];
-        // Hilfsfunktion zum Escapen von Feldern für CSV
         const escapeCsvField = (field) => {
             const stringField = String(field == null ? '' : field);
             if (stringField.includes(';') || stringField.includes('"') || stringField.includes('\n')) {
-                return `"${stringField.replace(/"/g, '""')}"`; // Doppelte Anführungszeichen ersetzen und in Anführungszeichen setzen
+                return `"${stringField.replace(/"/g, '""')}"`;
             }
             return stringField;
         };
 
-        let csvContent = header.join(';') + '\n'; // Header-Zeile
-        // Datenzeilen hinzufügen
+        let csvContent = header.join(';') + '\n';
         fahrten.forEach(fahrt => {
             const car = cars.find(c => c.id.toString() === (fahrt.carId || '').toString());
             const carName = car ? car.name : '';
@@ -1140,17 +1181,16 @@ function displayCarList() {
     function exportiereAlsJson() {
         console.log("JSON Backup wird gestartet...");
         try {
-            const fahrten = ladeFahrtenAusLocalStorage();
-            // Stelle sicher, dass 'cars' aktuell ist (sollte durch loadCars() sein)
+            const fahrten = ladeFahrtenAusLocalStorage(); // Immer alle exportieren
             const backupData = {
                 fahrten: fahrten,
-                autos: cars // Nimmt das aktuelle 'cars'-Array
+                autos: cars
             };
-            const jsonString = JSON.stringify(backupData, null, 2); // Mit Einrückung für Lesbarkeit
+            const jsonString = JSON.stringify(backupData, null, 2);
             triggerDownload(jsonString, 'application/json;charset=utf-8;', `fahrtenbuch_backup_${getDatumString()}.json`);
         } catch (e) {
             console.error("Fehler beim Erstellen des JSON Backups:", e);
-            alert("Fehler beim Erstellen des Backups.");
+            alert("Fehler beim Erstellen des Backups."); // Hier evtl. auch ersetzen?
         }
     }
 
@@ -1164,216 +1204,110 @@ function displayCarList() {
         if (!file) {
             return; // Keine Datei ausgewählt
         }
+        const fileInput = event.target; // Referenz auf das Input-Element speichern
 
-        // Sicherheitsabfrage
-        if (!confirm(`ACHTUNG:\nAlle aktuell gespeicherten Fahrten UND Fahrzeuge werden durch den Inhalt der Datei "${file.name}" ersetzt.\n\nFortfahren?`)) {
-            event.target.value = null; // File Input zurücksetzen
-            return;
+        // Definiere die Aktion, die bei Bestätigung ausgeführt werden soll
+        const performImport = () => {
+            console.log("Bestätigung für Import erhalten.");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonContent = e.target.result;
+                    const importData = JSON.parse(jsonContent);
+
+                    if (!importData || typeof importData !== 'object') {
+                         throw new Error("Ungültiges Format: Importierte Daten sind kein Objekt.");
+                    }
+                    const hasFahrten = Array.isArray(importData.fahrten);
+                    const hasAutos = Array.isArray(importData.autos);
+
+                    if (!hasFahrten && !hasAutos) {
+                        throw new Error("Ungültiges Backup-Format: Weder 'fahrten' noch 'autos' Array gefunden.");
+                    }
+
+                    if (hasAutos) {
+                        cars = importData.autos;
+                        saveCars(); // Speichert neue Fahrzeuge (ggf. mit Fehler-Notification)
+                        console.log(`Import: ${cars.length} Fahrzeuge geladen.`);
+                    } else {
+                        console.log("Import: Kein 'autos'-Array in der Datei gefunden, Fahrzeuge nicht überschrieben.");
+                    }
+
+                    if (hasFahrten) {
+                        speichereAlleFahrten(importData.fahrten); // Speichert neue Fahrten (ggf. mit Fehler-Notification)
+                        console.log(`Import: ${importData.fahrten.length} Fahrten geladen.`);
+                    } else {
+                         console.log("Import: Kein 'fahrten'-Array in der Datei gefunden, Fahrten nicht überschrieben.");
+                    }
+
+                    // UI komplett neu initialisieren
+                    initialisiereApp(); // Lädt alles neu
+
+                    showNotification("Import erfolgreich abgeschlossen!", "success"); // Erfolgsmeldung
+
+                } catch (err) {
+                    console.error("Fehler beim JSON Import:", err);
+                    // Zeige Fehler als Notification statt alert
+                    showNotification(`Import fehlgeschlagen: ${err.message}`, "error", 5000); // Längere Anzeige für Fehler
+                } finally {
+                    // File Input immer zurücksetzen (jetzt über gespeicherte Referenz)
+                    if (fileInput) {
+                        fileInput.value = null;
+                    }
+                }
+            };
+            reader.onerror = function() {
+                console.error("Fehler beim Lesen der Datei:", reader.error);
+                 // Zeige Fehler als Notification statt alert
+                showNotification("Fehler beim Lesen der ausgewählten Datei.", "error", 5000);
+                if (fileInput) {
+                    fileInput.value = null; // File Input zurücksetzen
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        // Öffne das Bestätigungs-Modal statt confirm()
+        openConfirmModal(
+            `ACHTUNG:\nAlle aktuell gespeicherten Fahrten UND Fahrzeuge werden durch den Inhalt der Datei "${file.name}" ersetzt.\n\nFortfahren?`,
+            performImport
+        );
+
+        // Wichtig: File Input sofort zurücksetzen, falls Nutzer im Modal abbricht
+        if (fileInput) {
+             fileInput.value = null;
         }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const jsonContent = e.target.result;
-                const importData = JSON.parse(jsonContent);
-
-                // Validierung der Importdaten-Struktur
-                if (!importData || typeof importData !== 'object') {
-                     throw new Error("Ungültiges Format: Importierte Daten sind kein Objekt.");
-                }
-                if (!Array.isArray(importData.fahrten) || !Array.isArray(importData.autos)) {
-                    throw new Error("Ungültiges Backup-Format: 'fahrten' oder 'autos' Array fehlt oder ist kein Array.");
-                }
-                // Optionale tiefere Prüfung (Beispiel)
-                if (importData.fahrten.length > 0 && (typeof importData.fahrten[0].id === 'undefined' || typeof importData.fahrten[0].datum === 'undefined')) {
-                    console.warn("Warnung: Struktur der importierten Fahrten-Daten scheint unvollständig.");
-                }
-                if (importData.autos.length > 0 && (typeof importData.autos[0].id === 'undefined' || typeof importData.autos[0].name === 'undefined')) {
-                     console.warn("Warnung: Struktur der importierten Fahrzeug-Daten scheint unvollständig.");
-                }
-
-                // Daten überschreiben
-                cars = importData.autos; // Überschreibe das globale 'cars'-Array
-                saveCars(); // Speichere die neuen Fahrzeuge im localStorage
-                speichereAlleFahrten(importData.fahrten); // Überschreibe und speichere Fahrten (wird sortiert)
-
-                console.log(`Import erfolgreich: ${importData.fahrten.length} Fahrten, ${importData.autos.length} Fahrzeuge geladen.`);
-
-                // Wichtig: UI komplett neu initialisieren, um alle Änderungen anzuzeigen
-                initialisiereApp(); // Lädt alles neu basierend auf den importierten Daten
-                updateZusammenfassung(ladeFahrtenAusLocalStorage()); // Alle Fahrten übergeben
-
-                alert(`Import erfolgreich abgeschlossen!`);
-
-            } catch (err) {
-                console.error("Fehler beim JSON Import:", err);
-                alert(`Import fehlgeschlagen:\n${err.message}`);
-            } finally {
-                // File Input immer zurücksetzen
-                event.target.value = null;
-            }
-        };
-        reader.onerror = function() {
-            console.error("Fehler beim Lesen der Datei:", reader.error);
-            alert("Fehler beim Lesen der ausgewählten Datei.");
-            event.target.value = null;
-        };
-        reader.readAsText(file); // Datei als Text lesen
     }
 
     /**
      * Hilfsfunktion, um den Download einer Datei im Browser anzustoßen.
-     * @param {string} content - Der Dateiinhalt.
-     * @param {string} mimeType - Der MIME-Typ der Datei.
-     * @param {string} filename - Der gewünschte Dateiname.
      */
     function triggerDownload(content, mimeType, filename) {
-        // BOM (Byte Order Mark) für Excel-Kompatibilität bei CSV hinzufügen
         const BOM = mimeType.includes('csv') ? '\uFEFF' : '';
         const blob = new Blob([BOM + content], { type: mimeType });
         const link = document.createElement("a");
 
-        if (link.download !== undefined) { // Prüft, ob Browser Download-Attribut unterstützt
+        if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute("href", url);
             link.setAttribute("download", filename);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
-            link.click(); // Simuliert Klick auf den Link
-            document.body.removeChild(link); // Link wieder entfernen
-            URL.revokeObjectURL(url); // Speicher freigeben
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
             console.log(`Download für ${filename} angeboten.`);
         } else {
-            // Fallback für ältere Browser (selten nötig)
-            alert("Automatischer Download wird von Ihrem Browser nicht unterstützt.");
+            alert("Automatischer Download wird von Ihrem Browser nicht unterstützt."); // Hier evtl. auch ersetzen?
         }
     }
 
-/**
-     * Handler für Klicks innerhalb der Fahrzeugliste (delegiert an Buttons).
-     * Kümmert sich um das Löschen und Bearbeiten von Fahrzeugen.
-     * @param {Event} event - Das Klick-Event.
-     */
-function handleCarListClick(event) {
-    // Prüfen, ob auf einen Löschen-Button geklickt wurde
-    const deleteButton = event.target.closest('.delete-car-btn');
-    if (deleteButton) {
-        const carIdToDelete = deleteButton.dataset.carId;
-        console.log("Versuche Fahrzeug zu löschen, ID:", carIdToDelete);
-
-        if (confirm('Soll dieses Fahrzeug wirklich endgültig gelöscht werden?')) {
-            const index = cars.findIndex(car => car.id.toString() === carIdToDelete.toString());
-            if (index !== -1) {
-                // Prüfen, ob das zu löschende Auto gerade bearbeitet wird und ggf. abbrechen
-                if (editCarId && editCarId.toString() === carIdToDelete.toString()) {
-                    editCarId = null; // Bearbeitungsmodus beenden
-                    // Modal ggf. schließen oder Zustand zurücksetzen (optional, da es eh gelöscht wird)
-                    closeAddCarModal(); // Sicherstellen, dass Modal zu ist
-                }
-
-                cars.splice(index, 1);
-                console.log("Fahrzeug aus Array entfernt.");
-                saveCars();
-                displayCarList();
-                populateCarDropdown();
-                populateFilterCarDropdown();
-                console.log("Fahrzeug erfolgreich gelöscht und UI aktualisiert.");
-                // alert("Fahrzeug wurde gelöscht."); // Alert kann ggf. weg
-            } else {
-                console.warn("Zu löschendes Fahrzeug nicht im Array gefunden, ID:", carIdToDelete);
-                alert("Fehler: Zu löschendes Fahrzeug nicht gefunden.");
-            }
-        } else {
-            console.log("Löschvorgang abgebrochen.");
-        }
-        return; // Wichtig: Funktion hier beenden, wenn delete geklickt wurde
-    }
-
-    // Prüfen, ob auf einen Edit-Button geklickt wurde (NEU)
-    const editButton = event.target.closest('.edit-car-btn');
-    if (editButton) {
-        const carIdToEdit = editButton.dataset.carId;
-        console.log("Edit-Button für Fahrzeug geklickt, ID:", carIdToEdit);
-        openEditCarModal(carIdToEdit); // Rufe die neue Funktion auf
-        return; // Wichtig: Funktion hier beenden
-    }
-}
-    /**
-     * Handler für Klick auf "Filter anwenden".
-     * Liest Filterwerte, filtert Fahrten und zeigt das Ergebnis an.
-     */
-    function handleApplyFilter() {
-        console.log("Button 'Filter anwenden' geklickt.");
-
-        // Filterwerte auslesen
-        const selectedCarId = filterCarSelect.value;
-        const selectedPurpose = filterPurposeSelect.value;
-        const startDate = filterDateStartInput.value; // Format: "YYYY-MM-DD"
-        const endDate = filterDateEndInput.value;     // Format: "YYYY-MM-DD"
-
-        console.log("Filter Kriterien:", { selectedCarId, selectedPurpose, startDate, endDate });
-
-        // Alle Fahrten laden
-        const alleFahrten = ladeFahrtenAusLocalStorage();
-        let gefilterteFahrten = alleFahrten;
-
-        // Filtern nach Fahrzeug (wenn ausgewählt)
-        if (selectedCarId) {
-            gefilterteFahrten = gefilterteFahrten.filter(fahrt => fahrt.carId === selectedCarId);
-        }
-
-        // Filtern nach Zweck (wenn ausgewählt)
-        if (selectedPurpose) {
-            gefilterteFahrten = gefilterteFahrten.filter(fahrt => fahrt.zweck === selectedPurpose);
-        }
-
-        // Filtern nach Start-Datum (wenn eingegeben)
-        // Stellt sicher, dass das Fahrt-Datum größer oder gleich dem Start-Datum ist
-        if (startDate) {
-            gefilterteFahrten = gefilterteFahrten.filter(fahrt => fahrt.datum >= startDate);
-        }
-
-        // Filtern nach End-Datum (wenn eingegeben)
-        // Stellt sicher, dass das Fahrt-Datum kleiner oder gleich dem End-Datum ist
-        if (endDate) {
-            gefilterteFahrten = gefilterteFahrten.filter(fahrt => fahrt.datum <= endDate);
-        }
-
-        // Gefilterte Liste anzeigen
-        displayTrips(gefilterteFahrten);
-
-        // Zusammenfassung für gefilterte Liste aktualisieren
-        updateZusammenfassung(gefilterteFahrten);
-    }
-
-    /**
-     * Handler für Klick auf "Filter zurücksetzen".
-     * Setzt Filterfelder zurück und zeigt wieder alle Fahrten an.
-     */
-    function handleResetFilter() {
-        console.log("Button 'Filter zurücksetzen' geklickt.");
-
-        // Filterfelder zurücksetzen
-        filterCarSelect.value = "";
-        filterPurposeSelect.value = "";
-        filterDateStartInput.value = "";
-        filterDateEndInput.value = "";
-        console.log("Filterfelder zurückgesetzt.");
-
-        // Alle Fahrten laden und anzeigen
-        const alleFahrten = ladeFahrtenAusLocalStorage();
-        displayTrips(alleFahrten);
-
-        // Zusammenfassung für alle Fahrten aktualisieren
-        updateZusammenfassung(alleFahrten);
-    }
 
     // ========================================================================
     // === 13. Event Listener Setup ===
     // ========================================================================
     /**
      * Hängt alle notwendigen Event Listener an die HTML-Elemente.
-     * Wird einmal beim Initialisieren aufgerufen.
      */
     function setupEventListeners() {
         console.log("Initialisiere Event Listeners...");
@@ -1386,15 +1320,18 @@ function handleCarListClick(event) {
         // Fahrten-Liste Listener (für Edit/Delete/Toggle)
         fahrtenListeDiv?.addEventListener('click', handleListClick);
 
-        // NEU: Listener für Filter-Buttons
+        // Listener für Fahrzeugliste (Edit/Delete)
+        carListUl?.addEventListener('click', handleCarListClick);
+
+        // Listener für Filter-Buttons
         applyFilterButton?.addEventListener('click', handleApplyFilter);
         resetFilterButton?.addEventListener('click', handleResetFilter);
 
         // Export/Import Listener
         exportButton?.addEventListener('click', exportiereAlsCsv);
         exportJsonButton?.addEventListener('click', exportiereAlsJson);
-        importJsonButton?.addEventListener('click', () => importJsonFileInput?.click()); // Öffnet Datei-Dialog
-        importJsonFileInput?.addEventListener('change', importiereAusJson); // Verarbeitet ausgewählte Datei
+        importJsonButton?.addEventListener('click', () => importJsonFileInput?.click());
+        importJsonFileInput?.addEventListener('change', importiereAusJson);
 
         // Theme & Sidebar Listener
         themeToggleButton?.addEventListener('click', handleThemeToggle);
@@ -1405,15 +1342,34 @@ function handleCarListClick(event) {
         kmEndeInput?.addEventListener('input', berechneUndZeigeDistanz);
 
         // Listener für das Fahrzeug-Modal
-        addCarMenuButton?.addEventListener('click', openAddCarModal); // Menü-Button öffnet Modal
-        modalCloseButton?.addEventListener('click', closeAddCarModal); // X schließt Modal
-        modalCancelButton?.addEventListener('click', closeAddCarModal); // Abbrechen schließt Modal
-        modalSaveButton?.addEventListener('click', handleModalSaveCar); // Speichern verarbeitet Modal
-        carListUl?.addEventListener('click', handleCarListClick); // Listener für Fahrzeugliste (Edit/Delete) NEU
-        // Schließen bei Klick auf den Overlay-Hintergrund
+        addCarMenuButton?.addEventListener('click', openAddCarModal);
+        modalCloseButton?.addEventListener('click', closeAddCarModal);
+        modalCancelButton?.addEventListener('click', closeAddCarModal);
+        modalSaveButton?.addEventListener('click', handleModalSaveCar);
         addCarModal?.addEventListener('click', (event) => {
-            if (event.target === addCarModal) { // Nur wenn direkt auf Overlay geklickt wird
-                closeAddCarModal();
+            if (event.target === addCarModal) { closeAddCarModal(); }
+        });
+
+        // Listener für das Bestätigungs-Modal
+        confirmModalConfirmBtn?.addEventListener('click', () => {
+            console.log("Listener: Confirm Button geklickt."); // DEBUG Log
+            if (typeof confirmModalCallback === 'function') {
+                confirmModalCallback();
+            }
+            closeConfirmModal(); // Ruft closeConfirmModal auf
+        });
+        confirmModalCancelBtn?.addEventListener('click', () => {
+            console.log("Listener: Cancel Button geklickt."); // DEBUG Log
+            closeConfirmModal(); // Ruft closeConfirmModal auf
+        });
+        confirmModalCloseBtn?.addEventListener('click', () => {
+            console.log("Listener: Close (X) Button geklickt."); // DEBUG Log
+            closeConfirmModal(); // Ruft closeConfirmModal auf
+        });
+        confirmModal?.addEventListener('click', (event) => {
+            if (event.target === confirmModal) {
+                console.log("Listener: Overlay geklickt."); // DEBUG Log
+                closeConfirmModal(); // Ruft closeConfirmModal auf
             }
         });
 
@@ -1422,7 +1378,7 @@ function handleCarListClick(event) {
 
 
     // ========================================================================
-    // === 14. Handlers für UI-Aktionen (Neue Fahrt aufklappen, Listen-Klicks) ===
+    // === 14. Handlers für UI-Aktionen ===
     // ========================================================================
     /**
      * Handler für Klick auf "+ Neue Fahrt hinzufügen". Klappt das Formular ein/aus.
@@ -1433,19 +1389,13 @@ function handleCarListClick(event) {
             console.error("FEHLER: formularDiv ist null in handleAddNewClick!");
             return;
         }
-
-        // Wenn Formular sichtbar ist UND wir nicht im Edit-Modus sind -> schließen
         if (formularDiv.classList.contains('form-visible') && editId === null) {
             formularDiv.classList.remove('form-visible');
             console.log("Fahrten-Formular geschlossen.");
         } else {
-            // Wenn Formular versteckt ist ODER wir im Edit-Modus sind:
-            // Erstmal sicherstellen, dass wir im "Neu"-Modus sind (Edit abbrechen)
-            abbrechenEditModus(false); // Setzt Edit-ID zurück, leert Felder, schließt Formular kurz
-            // Dann Formular (wieder) öffnen
+            abbrechenEditModus(false);
             formularDiv.classList.add('form-visible');
             console.log("Fahrten-Formular für neue Fahrt geöffnet.");
-            // Fokus setzen und hinscrollen
             datumInput?.focus();
             formularDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -1456,29 +1406,23 @@ function handleCarListClick(event) {
      * @param {Event} event - Das Klick-Event.
      */
     function handleListClick(event) {
-        // Finde das übergeordnete Fahrt-Item, auf das geklickt wurde
         const fahrtElement = event.target.closest('[data-fahrt-id]');
-        if (!fahrtElement) return; // Klick war außerhalb eines Items
-
+        if (!fahrtElement) return;
         const fahrtId = fahrtElement.getAttribute('data-fahrt-id');
 
-        // Prüfe, ob auf einen der Buttons im Item geklickt wurde
         if (event.target.closest('.edit-btn')) {
             starteEditModus(fahrtId);
             return;
         }
         if (event.target.closest('.delete-btn')) {
-            if (confirm('Soll dieser Fahrteintrag wirklich gelöscht werden?')) {
-                fahrtLoeschen(fahrtId);
-            }
+            fahrtLoeschen(fahrtId); // Ruft jetzt Funktion auf, die Modal öffnet
             return;
         }
-        // Prüfe, ob auf den Toggle-Button für Details geklickt wurde
         const toggleButton = event.target.closest('.toggle-details-btn');
         if (toggleButton) {
-            fahrtElement.classList.toggle('details-collapsed'); // Klasse umschalten
+            fahrtElement.classList.toggle('details-collapsed');
             const icon = toggleButton.querySelector('i.fa-solid');
-            if (icon) { // Icon wechseln
+            if (icon) {
                 if (fahrtElement.classList.contains('details-collapsed')) {
                     icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
                     toggleButton.setAttribute('title', 'Details anzeigen');
@@ -1491,18 +1435,115 @@ function handleCarListClick(event) {
         }
     }
 
+    /**
+     * Handler für Klicks innerhalb der Fahrzeugliste (delegiert an Buttons).
+     * @param {Event} event - Das Klick-Event.
+     */
+    function handleCarListClick(event) {
+        const deleteButton = event.target.closest('.delete-car-btn');
+        if (deleteButton) {
+            const carIdToDelete = deleteButton.dataset.carId;
+            console.log("Versuche Fahrzeug zu löschen, ID:", carIdToDelete);
+            const deleteCarAction = () => {
+                console.log("Bestätigung erhalten, lösche Fahrzeug:", carIdToDelete);
+                const index = cars.findIndex(car => car.id.toString() === carIdToDelete.toString());
+                if (index !== -1) {
+                    if (editCarId && editCarId.toString() === carIdToDelete.toString()) {
+                        editCarId = null;
+                        closeAddCarModal();
+                    }
+                    cars.splice(index, 1);
+                    saveCars();
+                    displayCarList();
+                    populateCarDropdown();
+                    populateFilterCarDropdown();
+                    console.log("Fahrzeug erfolgreich gelöscht und UI aktualisiert.");
+                    // >>> HIER kommt die Erfolgsmeldung hin <<<
+                    showNotification("Fahrzeug erfolgreich gelöscht.", "success");
+                } else {
+                    console.warn("Zu löschendes Fahrzeug nicht im Array gefunden, ID:", carIdToDelete);
+                     // >>> HIER kann optional die Fehlermeldung hin <<<
+                    showNotification("Fehler: Zu löschendes Fahrzeug nicht gefunden!", "error");
+                    // alert("Fehler: Zu löschendes Fahrzeug nicht gefunden."); // Ersetzt durch Modal
+                }
+            };
+            // Prüfen, ob Fahrten dieses Auto noch nutzen (Datenintegrität - Basic Check)
+            const fahrten = ladeFahrtenAusLocalStorage();
+            const isCarUsed = fahrten.some(fahrt => fahrt.carId === carIdToDelete);
+            let message = 'Soll dieses Fahrzeug wirklich endgültig gelöscht werden?';
+            if (isCarUsed) {
+                message += '\n\nAchtung: Es gibt noch Fahrten, die diesem Fahrzeug zugeordnet sind!';
+                // Hier könnte man später komplexere Logik einbauen (Fahrten neu zuordnen etc.)
+            }
+            openConfirmModal(message, deleteCarAction);
+            return;
+        }
+
+        const editButton = event.target.closest('.edit-car-btn');
+        if (editButton) {
+            const carIdToEdit = editButton.dataset.carId;
+            console.log("Edit-Button für Fahrzeug geklickt, ID:", carIdToEdit);
+            openEditCarModal(carIdToEdit);
+            return;
+        }
+    }
+
+    /**
+     * Handler für Klick auf "Filter anwenden".
+     */
+    function handleApplyFilter() {
+        console.log("Button 'Filter anwenden' geklickt.");
+        const selectedCarId = filterCarSelect.value;
+        const selectedPurpose = filterPurposeSelect.value;
+        const startDate = filterDateStartInput.value;
+        const endDate = filterDateEndInput.value;
+        console.log("Filter Kriterien:", { selectedCarId, selectedPurpose, startDate, endDate });
+
+        const alleFahrten = ladeFahrtenAusLocalStorage();
+        let gefilterteFahrten = alleFahrten;
+
+        if (selectedCarId) {
+            gefilterteFahrten = gefilterteFahrten.filter(fahrt => fahrt.carId === selectedCarId);
+        }
+        if (selectedPurpose) {
+            gefilterteFahrten = gefilterteFahrten.filter(fahrt => fahrt.zweck === selectedPurpose);
+        }
+        if (startDate) {
+            gefilterteFahrten = gefilterteFahrten.filter(fahrt => fahrt.datum >= startDate);
+        }
+        if (endDate) {
+            gefilterteFahrten = gefilterteFahrten.filter(fahrt => fahrt.datum <= endDate);
+        }
+
+        displayTrips(gefilterteFahrten);
+        updateZusammenfassung(gefilterteFahrten);
+    }
+
+    /**
+     * Handler für Klick auf "Filter zurücksetzen".
+     */
+    function handleResetFilter() {
+        console.log("Button 'Filter zurücksetzen' geklickt.");
+        filterCarSelect.value = "";
+        filterPurposeSelect.value = "";
+        filterDateStartInput.value = "";
+        filterDateEndInput.value = "";
+        console.log("Filterfelder zurückgesetzt.");
+
+        const alleFahrten = ladeFahrtenAusLocalStorage();
+        displayTrips(alleFahrten);
+        updateZusammenfassung(alleFahrten);
+    }
+
 
     // ========================================================================
     // === 15. Initialisierung der App ===
     // ========================================================================
-     /**
+    /**
      * Startet die gesamte Anwendung nach Laden des HTML.
-     * (Angepasste Version zur Fehlerbehebung bei updateZusammenfassung)
      */
-     function initialisiereApp() {
+    function initialisiereApp() {
         console.log("Initialisiere App...");
-
-        // Sicherheitscheck für alle benötigten Elemente (kann bleiben wie er war)
         const requiredElementIds = [
             'fahrt-formular', 'trip-entry-form', 'speichern-btn', 'cancel-edit-btn', 'fahrten-liste',
             'datum', 'start-zeit', 'end-zeit', 'start-ort', 'ziel-ort',
@@ -1512,9 +1553,11 @@ function handleCarListClick(event) {
             'car-list', 'add-car-btn-menu',
             'add-car-modal', 'modal-close-btn', 'modal-cancel-car-btn', 'modal-save-car-btn',
             'modal-car-form', 'modal-car-name', 'modal-car-plate', 'modal-car-error',
-            // Filter Elemente auch prüfen:
             'filter-controls', 'filter-car', 'filter-purpose', 'filter-date-start', 'filter-date-end',
-            'apply-filter-btn', 'reset-filter-btn'
+            'apply-filter-btn', 'reset-filter-btn',
+            'confirm-delete-modal', 'modal-confirm-message', 'modal-confirm-confirm-btn',
+            'modal-confirm-cancel-btn', 'modal-confirm-close-btn',
+            'form-error-message'
         ];
         let missingElements = [];
         requiredElementIds.forEach(id => {
@@ -1526,33 +1569,30 @@ function handleCarListClick(event) {
         if (missingElements.length > 0) {
              console.error("FEHLER: Init - Folgende HTML-Elemente fehlen oder haben falsche IDs:", missingElements);
              alert(`Initialisierungsfehler! ${missingElements.length} wichtige Elemente fehlen. Details in der Konsole (F12).`);
-             return; // Abbruch
+             return;
         }
         console.log("Alle benötigten HTML-Elemente gefunden.");
 
-        // Initiale Aktionen in definierter Reihenfolge
         try { datumInput.value = getDatumString(); } catch (e) { console.error("Fehler beim Setzen des Datums:", e); }
-        loadCars();                     // 1. Fahrzeuge laden
+        loadCars();
 
-        // --- Fahrten laden und anzeigen (Geänderte Reihenfolge) ---
-        const alleFahrten = ladeFahrtenAusLocalStorage(); // 2a. Alle Fahrten EINMAL laden
-        if (!Array.isArray(alleFahrten)) { // Zusätzliche Sicherheitsprüfung
+        const alleFahrten = ladeFahrtenAusLocalStorage();
+        if (!Array.isArray(alleFahrten)) {
              console.error("FEHLER: ladeFahrtenAusLocalStorage hat beim Initialisieren kein Array zurückgegeben!", alleFahrten);
-             displayTrips([]); // Leere Liste anzeigen
-             updateZusammenfassung([]); // Leere Zusammenfassung
+             displayTrips([]);
+             updateZusammenfassung([]);
         } else {
-            displayTrips(alleFahrten);      // 2b. Geladene Fahrten anzeigen
-            updateZusammenfassung(alleFahrten); // 3. Zusammenfassung für geladene Fahrten berechnen
+            displayTrips(alleFahrten);
+            updateZusammenfassung(alleFahrten);
         }
-        // Der separate Aufruf von ladeGespeicherteFahrten() ist hier nicht mehr nötig.
 
-        displayCarList();               // 4. Fahrzeugliste anzeigen (rechts)
-        populateCarDropdown();          // 5. Fahrzeug-Dropdown im Fahrtenformular füllen
-        populateFilterCarDropdown();    // 6. Filter-Fahrzeug-Dropdown füllen
-        loadAndSetInitialTheme();       // 7. Theme laden/setzen
-        loadAndSetInitialSidebarState();// 8. Sidebar Zustand laden/setzen
-        felderFuerNeueFahrtVorbereiten();// 9. Formular für neue Fahrt vorbereiten
-        setupEventListeners();          // 10. Event-Handler aktivieren
+        displayCarList();
+        populateCarDropdown();
+        populateFilterCarDropdown();
+        loadAndSetInitialTheme();
+        loadAndSetInitialSidebarState();
+        felderFuerNeueFahrtVorbereiten();
+        setupEventListeners();
 
         console.log("App initialisiert und bereit.");
     }

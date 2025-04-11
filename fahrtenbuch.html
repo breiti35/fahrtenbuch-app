@@ -64,6 +64,7 @@
 
             <div id="fahrt-formular" class="content-box"> <h2>Neuen Eintrag hinzufügen / Bearbeiten</h2>
                  <form id="trip-entry-form">
+                    <div id="form-error-message" class="error-message" style="display: none; margin-bottom: 15px; padding: 10px; border-radius: 6px; text-align: left;"></div>
                     <div><label for="datum">Datum:</label><input type="date" id="datum" name="datum" required></div>
                     <div><label for="start-zeit">Startzeit:</label><input type="time" id="start-zeit" name="start-zeit" required></div>
                     <div><label for="end-zeit">Endzeit:</label><input type="time" id="end-zeit" name="end-zeit" required></div>
@@ -148,8 +149,26 @@
             <button type="button" id="modal-cancel-car-btn" class="button-secondary">Abbrechen</button>
             <button type="button" id="modal-save-car-btn" class="button-primary">Fahrzeug speichern</button>
         </div>
-
+        
     </div> </div> <script src="script.js" defer></script>
-
+    <div id="confirm-delete-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 id="modal-confirm-title">Bestätigung</h2> <button type="button" id="modal-confirm-close-btn"
+                    class="modal-close-button" title="Schließen">&times;</button>
+            </div>
+    
+            <div class="modal-body">
+                <p id="modal-confirm-message" style="margin-bottom: 0;">Soll die Aktion wirklich durchgeführt werden?</p>
+            </div>
+    
+            <div class="modal-footer">
+                <button type="button" id="modal-confirm-cancel-btn" class="button-secondary">Abbrechen</button>
+                <button type="button" id="modal-confirm-confirm-btn" class="button-danger">Bestätigen</button>
+            </div>
+    
+        </div>
+    </div>
+    <div id="notification-container"></div>
 </body>
 </html>
