@@ -147,48 +147,61 @@ document.addEventListener("DOMContentLoaded", function () {
    * @param {number} [duration=10000] Anzeigedauer in Millisekunden (Standard: 10 Sekunden).
    */
   function showNotification(message, type = "success", duration = 10000) {
-    // Standard-Dauer auf 10s erhöht
     if (!notificationContainer) {
       console.error("Notification-Container nicht gefunden!");
       return;
     }
 
-    // Neues Div für die gesamte Nachricht (Text + Balken)
+    // Neues Div für die gesamte Nachricht erstellen
     const notificationDiv = document.createElement("div");
     notificationDiv.classList.add("notification");
-    notificationDiv.classList.add(`notification-${type}`); // Typ-Klasse für Styling (z.B. Randfarbe)
+    notificationDiv.classList.add(`notification-${type}`);
 
-    // Element für den Nachrichtentext
-    const messageElement = document.createElement("div"); // div statt p für einfacheres Styling
+    // Innere Elemente (Text, Fortschrittsbalken) erstellen
+    const messageElement = document.createElement("div");
     messageElement.textContent = message;
 
-    // Container für den Fortschrittsbalken
     const progressBarContainer = document.createElement("div");
     progressBarContainer.classList.add("notification-progress-bar");
 
-    // Innerer Fortschrittsbalken (der animiert wird)
     const progressBarInner = document.createElement("div");
     progressBarInner.classList.add("notification-progress-bar-inner");
-    progressBarInner.classList.add(`progress-bar-${type}`); // Klasse für Farbe des Balkens
-    // Setze die Animationsdauer über Inline-Style, basierend auf 'duration'
-    progressBarInner.style.animationDuration = `${duration / 1000}s`;
+    progressBarInner.classList.add(`progress-bar-${type}`);
+    progressBarInner.style.animationDuration = `${duration / 1000}s`; // Dauer für Balken-Animation
 
     // Elemente zusammenbauen
     progressBarContainer.appendChild(progressBarInner);
     notificationDiv.appendChild(messageElement);
     notificationDiv.appendChild(progressBarContainer);
 
-    // Komplette Nachricht zum Container hinzufügen
+    // Zum DOM hinzufügen (ist noch unsichtbar wegen opacity: 0 in .notification CSS)
     notificationContainer.appendChild(notificationDiv);
 
-    // Nachricht nach 'duration' Millisekunden wieder entfernen
+    // --- Fade-In auslösen ---
+    // Kurze Verzögerung (requestAnimationFrame), damit die Transition ausgelöst wird.
+    requestAnimationFrame(() => {
+      notificationDiv.classList.add("notification-visible");
+    });
+
+    // --- Entfernen nach Ablauf der Dauer ---
+    // Dauer der Ausblend-Transition aus CSS (z.B. 0.5s = 500ms)
+    const fadeOutTransitionDuration = 500;
+
+    // Haupt-Timeout für die Gesamtdauer
     setTimeout(() => {
-      // Fade-Out Animation (optional, CSS muss das unterstützen)
-      notificationDiv.style.animation = "fadeOut 0.5s ease-out forwards";
-      // Nach der Fade-Out Animation entfernen
-      setTimeout(() => notificationDiv.remove(), 500);
-    }, duration);
+      // 1. Ausblend-Transition starten durch Entfernen der Klasse
+      notificationDiv.classList.remove("notification-visible");
+
+      // 2. Element aus dem DOM entfernen, NACHDEM die Transition abgeschlossen ist
+      setTimeout(() => {
+        // Sicherstellen, dass das Element noch existiert, bevor remove aufgerufen wird
+        if (notificationDiv.parentNode === notificationContainer) {
+          notificationContainer.removeChild(notificationDiv);
+        }
+      }, fadeOutTransitionDuration); // Wartezeit = Transition-Dauer
+    }, duration); // Gesamte Anzeigedauer (z.B. 10000ms)
   }
+
   /**
    * Aktualisiert die Paginierungs-Steuerelemente (Buttons, Seitenzahl).
    * Blendet die Steuerung aus, wenn es nur eine Seite oder weniger gibt.
@@ -1977,56 +1990,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /**
    * Handler für Klicks innerhalb der Fahrzeugliste (delegiert an Buttons).
+   * (Angepasst: Verhindert Löschen, wenn Fahrzeug noch genutzt wird)
    * @param {Event} event - Das Klick-Event.
    */
   function handleCarListClick(event) {
     const deleteButton = event.target.closest(".delete-car-btn");
     if (deleteButton) {
       const carIdToDelete = deleteButton.dataset.carId;
-      console.log("Versuche Fahrzeug zu löschen, ID:", carIdToDelete);
-      const deleteCarAction = () => {
-        console.log("Bestätigung erhalten, lösche Fahrzeug:", carIdToDelete);
-        const index = cars.findIndex(
-          (car) => car.id.toString() === carIdToDelete.toString()
-        );
-        if (index !== -1) {
-          if (editCarId && editCarId.toString() === carIdToDelete.toString()) {
-            editCarId = null;
-            closeAddCarModal();
-          }
-          cars.splice(index, 1);
-          saveCars();
-          displayCarList();
-          populateCarDropdown();
-          populateFilterCarDropdown();
-          console.log("Fahrzeug erfolgreich gelöscht und UI aktualisiert.");
-          // >>> HIER kommt die Erfolgsmeldung hin <<<
-          showNotification("Fahrzeug erfolgreich gelöscht.", "success");
-        } else {
-          console.warn(
-            "Zu löschendes Fahrzeug nicht im Array gefunden, ID:",
-            carIdToDelete
-          );
-          // >>> HIER kann optional die Fehlermeldung hin <<<
-          showNotification(
-            "Fehler: Zu löschendes Fahrzeug nicht gefunden!",
-            "error"
-          );
-          // alert("Fehler: Zu löschendes Fahrzeug nicht gefunden."); // Ersetzt durch Modal
-        }
-      };
-      // Prüfen, ob Fahrten dieses Auto noch nutzen (Datenintegrität - Basic Check)
+      console.log(
+        "Prüfe, ob Fahrzeug gelöscht werden kann, ID:",
+        carIdToDelete
+      );
+
+      // Prüfen, ob Fahrten dieses Auto noch nutzen
       const fahrten = ladeFahrtenAusLocalStorage();
       const isCarUsed = fahrten.some((fahrt) => fahrt.carId === carIdToDelete);
-      let message = "Soll dieses Fahrzeug wirklich endgültig gelöscht werden?";
+
+      // *** NEUE LOGIK HIER ***
       if (isCarUsed) {
-        message +=
-          "\n\nAchtung: Es gibt noch Fahrten, die diesem Fahrzeug zugeordnet sind!";
-        // Hier könnte man später komplexere Logik einbauen (Fahrten neu zuordnen etc.)
+        // Löschen verhindern und Fehlermeldung anzeigen
+        console.warn("Löschen verhindert: Fahrzeug wird noch verwendet.");
+        showNotification(
+          "Fahrzeug kann nicht gelöscht werden, da es noch in Fahrten verwendet wird.",
+          "error",
+          5000
+        );
+      } else {
+        // Fahrzeug wird nicht verwendet -> Bestätigungs-Modal anzeigen
+        console.log("Fahrzeug wird nicht verwendet, zeige Bestätigungs-Modal.");
+        const deleteCarAction = () => {
+          console.log("Bestätigung erhalten, lösche Fahrzeug:", carIdToDelete);
+          const index = cars.findIndex(
+            (car) => car.id.toString() === carIdToDelete.toString()
+          );
+          if (index !== -1) {
+            if (
+              editCarId &&
+              editCarId.toString() === carIdToDelete.toString()
+            ) {
+              editCarId = null;
+              closeAddCarModal();
+            }
+            cars.splice(index, 1);
+            saveCars(); // Kann Fehler werfen -> Notification dort
+            displayCarList();
+            populateCarDropdown();
+            populateFilterCarDropdown();
+            console.log("Fahrzeug erfolgreich gelöscht und UI aktualisiert.");
+            showNotification("Fahrzeug erfolgreich gelöscht.", "success");
+          } else {
+            console.warn(
+              "Zu löschendes Fahrzeug nicht im Array gefunden:",
+              carIdToDelete
+            );
+            showNotification(
+              "Fehler: Zu löschendes Fahrzeug nicht gefunden!",
+              "error"
+            );
+          }
+        };
+        // Standard-Nachricht ohne zusätzliche Warnung
+        openConfirmModal(
+          "Soll dieses Fahrzeug wirklich endgültig gelöscht werden?",
+          deleteCarAction
+        );
       }
-      openConfirmModal(message, deleteCarAction);
-      return;
-    }
+      return; // Wichtig: Funktion hier beenden nach Klick auf Delete-Button
+    } // Ende if (deleteButton)
 
     const editButton = event.target.closest(".edit-car-btn");
     if (editButton) {
@@ -2035,7 +2065,7 @@ document.addEventListener("DOMContentLoaded", function () {
       openEditCarModal(carIdToEdit);
       return;
     }
-  }
+  } // Ende handleCarListClick
 
   /**
    * Handler für Klick auf "Filter anwenden".

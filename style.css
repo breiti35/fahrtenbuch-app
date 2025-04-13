@@ -1353,7 +1353,10 @@ button {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  /* Verhindert, dass Klicks durch den Container gehen */
+  pointer-events: none;
 }
+
 .notification {
   background-color: var(--bg-card);
   color: var(--text-primary);
@@ -1361,21 +1364,27 @@ button {
   border-radius: 6px;
   margin-top: 10px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-  opacity: 0; /* Startet unsichtbar */
   min-width: 200px;
   max-width: 350px;
   font-size: 0.95rem;
   border-left: 5px solid var(--info-color); /* Standard: Info */
-  /* Animation entfernt, Steuerung über JS Klassen + Transition */
-  transform: translateX(20px); /* Startet leicht rechts */
-  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  pointer-events: auto; /* Erlaube Klicks auf die Notification selbst */
+
+  /* Geänderte Styles für Transition: */
+  opacity: 0; /* Startet unsichtbar */
+  transform: translateX(30px); /* Startet leicht rechts verschoben */
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out; /* Übergang definieren */
+  /* Alte Animation entfernt: */
+  /* animation: fadeInOut 3s ease-in-out forwards; */
 }
+
+/* Klasse zum Einblenden (wird von JS hinzugefügt/entfernt) */
 .notification.notification-visible {
-  /* Klasse wird von JS hinzugefügt */
   opacity: 1;
-  transform: translateX(0);
+  transform: translateX(0); /* Endposition */
 }
-/* Typ-spezifische Stile */
+
+/* Typ-spezifische Stile (unverändert) */
 .notification.notification-success {
   background-color: var(--success-bg-light);
   color: var(--success-text-dark);
@@ -1387,7 +1396,6 @@ button {
   border-left-color: var(--danger-color);
 }
 .notification.notification-info {
-  /* Falls 'info' Typ verwendet wird */
   background-color: #d9edf7;
   color: #31708f;
   border-left-color: var(--info-color);
@@ -1398,7 +1406,7 @@ body.dark-mode .notification.notification-info {
   border-left-color: var(--info-color-dm);
 }
 
-/* Fortschrittsbalken in Notification */
+/* Fortschrittsbalken (unverändert) */
 .notification .notification-progress-bar {
   height: 4px;
   width: 100%;
@@ -1413,13 +1421,11 @@ body.dark-mode .notification .notification-progress-bar {
 .notification .notification-progress-bar-inner {
   height: 100%;
   width: 100%;
-  background-color: var(--info-color); /* Default: Info */
+  background-color: var(--info-color);
   border-radius: 2px;
   transform-origin: left;
-  animation: progressBarShrink linear forwards; /* Animation anwenden */
-  /* animation-duration wird per JS gesetzt */
+  animation: progressBarShrink linear forwards;
 }
-/* Farben für Fortschrittsbalken */
 .notification .progress-bar-success {
   background-color: var(--success-color);
 }
@@ -1429,24 +1435,12 @@ body.dark-mode .notification .notification-progress-bar {
 .notification .progress-bar-info {
   background-color: var(--info-color);
 }
-
-/* Keyframe-Animation für Fortschrittsbalken */
 @keyframes progressBarShrink {
   from {
     width: 100%;
   }
   to {
     width: 0%;
-  }
-}
-/* Keyframe-Animation für Fade-Out (wird von JS getriggert) */
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-    transform: translateX(20px);
   }
 }
 
