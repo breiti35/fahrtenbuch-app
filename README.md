@@ -1,85 +1,48 @@
 # 🚗 Fahrtenbuch Web App
 
-**EN:** A web application for managing logbooks, saving data locally in the browser via `localStorage`, built with HTML, CSS, and JavaScript. Features include a collapsible sidebar, vehicle management (add/edit/delete), trip list filtering, CSV/JSON export/import, dark mode, and improved UX with non-blocking notifications and custom confirmation dialogs.
+Eine mit HTML, CSS und JavaScript erstellte Webanwendung zur Verwaltung von Fahrtenbüchern. Speichert Daten lokal im Browser (`localStorage`). Bietet eine moderne Oberfläche mit Dark Mode und verschiedenen Komfortfunktionen.
 
-**DE:** Eine via Browser im `localStorage` speichernde Webanwendung zur Verwaltung von Fahrtenbüchern, erstellt mit HTML, CSS und JavaScript. Mit einklappbarer Seitenleiste, Fahrzeugverwaltung (Hinzufügen/Bearbeiten/Löschen), Filterfunktion für Fahrten, CSV/JSON Export/Import, Dark Mode und verbesserter Nutzerführung durch nicht-blockierende Benachrichtigungen und eigene Bestätigungsdialoge.
-
-**Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)] 
----
-
-## Entwicklung / Development 🧑‍💻
-
-**EN:** This project was developed with assistance from Gemini, an AI from Google.
-**DE:** Dieses Projekt wurde mit Unterstützung von Gemini, einer KI von Google, entwickelt.
+**Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)] _(Link ggf. anpassen)_
 
 ---
 
-## Funktionen / Features ✨
+## Entwicklung 🧑‍💻
 
-* **📝 Fahrten / Trips:**
-    * **EN:** Add, edit, and delete trips including: Date, Start/End Time, Start/End Location, Start/End Odometer reading.
-    * **EN:** Automatic distance calculation in the form.
-    * **EN:** Purpose of the trip (Business, Private, Commute).
-    * **EN:** Car selection for each trip.
-    * **DE:** Erfassen, Bearbeiten und Löschen von Fahrten mit: Datum, Start-/Endzeit, Start-/End-Ort, Start-/End-Kilometerstand.
-    * **DE:** Automatischer Distanzberechnung im Formular.
-    * **DE:** Zweck der Fahrt (Geschäftlich, Privat, Arbeitsweg).
-    * **DE:** Fahrzeugauswahl pro Fahrt.
+Dieses Projekt wurde mit Unterstützung von Gemini, einer KI von Google, entwickelt.
 
-* **🚙 Fahrzeugverwaltung / Car Management:**
-    * **EN:** Add, **edit, and delete** multiple vehicles (Name/Model, License Plate) via a **modal dialog**.
-    * **EN:** Display list of added vehicles with **icons** and action buttons.
-    * **EN:** Prevents adding vehicles with duplicate license plates.
-    * **DE:** Anlegen, **Bearbeiten und Löschen** von mehreren Fahrzeugen (Name/Modell, Kennzeichen) über einen **Modal-Dialog**.
-    * **DE:** Anzeige der angelegten Fahrzeuge in einer Liste mit **Icons** und Aktions-Buttons.
-    * **DE:** Verhindert das Hinzufügen von Fahrzeugen mit doppeltem Kennzeichen.
+---
 
-* **📊 Ansicht & Bedienung / View & Usability:**
-    * **EN:** Clear list of trips (sorted by date/time).
-    * **EN:** Collapsible detail view per trip (toggle button).
-    * **EN:** Display of the used car per trip.
-    * **EN:** Dynamic summary of kilometers by purpose (updates based on filters).
-    * **EN:** Responsive 3-column layout where the **middle column adjusts** its width.
-    * **EN:** Redesigned **collapsible sidebar** with internal toggle button.
-    * **EN:** Clean user interface with icons (Font Awesome) and modern styling.
-    * **EN:** Collapsible form for adding/editing trips.
-    * **EN:** Dark Mode (automatic detection or manual toggle via header button).
-    * **EN:** **Filter trip list** by vehicle, purpose, and date range.
-    * **EN:** Reset filters to show all trips.
-    * **EN:** Inline form validation messages (no blocking `alert`). **(NEW)**
-    * **EN:** Custom modal for delete confirmations (no blocking `confirm`). **(NEW)**
-    * **EN:** Non-blocking success/error notifications (toasts) with progress bar. **(NEW)**
-    * **DE:** Übersichtliche Liste der Fahrten (sortiert nach Datum/Zeit).
-    * **DE:** Einklappbare Detailansicht pro Fahrt (Umschalt-Button).
-    * **DE:** Anzeige des verwendeten Fahrzeugs pro Fahrt.
-    * **DE:** Dynamische Zusammenfassung der Kilometer nach Zweck (aktualisiert sich basierend auf Filtern).
-    * **DE:** Responsives 3-Spalten-Layout, bei dem sich die **mittlere Spalte anpasst**.
-    * **DE:** Neu gestaltete, **einklappbare Seitenleiste** mit internem Umschalt-Button.
-    * **DE:** Aufgeräumte Oberfläche mit Icons (Font Awesome) und modernem Styling.
-    * **DE:** Einklappbares Formular für neue/zu bearbeitende Fahrten.
-    * **DE:** Dark Mode (automatische Erkennung oder manueller Wechsel über Button in Kopfleiste).
-    * **DE:** **Filterung der Fahrtenliste** nach Fahrzeug, Zweck und Zeitraum.
-    * **DE:** Zurücksetzen der Filter zur Anzeige aller Fahrten.
-    * **DE:** Inline-Fehlermeldungen bei Formularvalidierung (kein blockierendes `alert`). **(NEU)**
-    * **DE:** Eigener Modal-Dialog für Löschbestätigungen (kein blockierendes `confirm`). **(NEU)**
-    * **DE:** Nicht-blockierende Erfolgs-/Fehler-Benachrichtigungen (Toasts) mit Fortschrittsbalken. **(NEU)**
+## Funktionen ✨
 
+- **Fahrten:**
+  - Erfassen, Bearbeiten, Löschen (Datum, Zeit, Ort, KM, Zweck, Fahrzeug).
+  - Automatische Distanzberechnung.
+  - Sortierte Listenansicht (Neueste zuerst) mit Paginierung(Neu).
+  - Einklappbare Detailansicht pro Fahrt.
+  - Filterung nach Fahrzeug, Zweck und Zeitraum.
+- **Fahrzeuge:**
+  - Hinzufügen, Bearbeiten, Löschen über Modal-Dialog.
+  - Verhindert doppelte Kennzeichen.
+  - Übersichtliche Liste mit Aktionen.
+- **Ansicht & Bedienung:**
+  - Responsives 3-Spalten-Layout.
+  - Einklappbare Sidebar und Filterbox.
+  - Dark Mode (automatisch/manuell).
+  - Dynamische Kilometer-Zusammenfassung (basiert auf Filter).
+  - Verbesserte Nutzerführung:
+    - Inline-Validierungsfehler im Formular.
+    - Benutzerdefinierter Dialog für Löschbestätigungen.
+    - Nicht-blockierende Benachrichtigungen (Erfolg/Fehler) mit Fortschrittsbalken.
+- **Daten:**
+  - Lokale Speicherung (`localStorage`).
+  - Export als CSV (Trennzeichen wählbar) und JSON (Backup).
+  - Import aus JSON-Backup (mit Bestätigung).
+- **Neuheit Einstellungen:** \* Standardwerte (Fzg./Zweck) festlegen.
+  - CSV-Trennzeichen wählen.
+  - Alle Daten löschen (via Modal mit Bestätigung).
+- **Validierung:**
+  - Prüfung von Pflichtfeldern, Zeiten, KM-Ständen.
+  - KM-Kontinuitätsprüfung pro Fahrzeug bei neuen Fahrten.
+  - Prüfung auf doppelte Kennzeichen.
 
-* **💾 Daten / Data:**
-    * **EN:** All data stored locally in the browser (`localStorage`).
-    * **EN:** Export trip list as a CSV file.
-    * **EN:** Backup all data (trips & cars) as a JSON file.
-    * **EN:** Restore data from a JSON backup file.
-    * **DE:** Speicherung aller Daten lokal im Browser (`localStorage`).
-    * **DE:** Export der Fahrtenliste als CSV-Datei.
-    * **DE:** Backup der gesamten Daten (Fahrten & Fahrzeuge) als JSON-Datei.
-    * **DE:** Wiederherstellung der Daten aus einer JSON-Backup-Datei.
-
-* **✔️ Validierung / Validation:**
-    * **EN:** Checks for required fields, times, and odometer readings (incl. **per-car continuity check** for new trips).
-    * **EN:** Checks for duplicate license plates when adding/editing vehicles.
-    * **DE:** Überprüfung von Pflichtfeldern, Zeiten und Kilometerständen (inkl. **Prüfung der Kontinuität pro Fahrzeug** bei neuen Fahrten).
-    * **DE:** Prüfung auf doppelte Kennzeichen beim Hinzufügen/Bearbeiten von Fahrzeugen.
-
-*(EN: More features may follow)*
-*(DE: Weitere Features können folgen)*
+_(Weitere Features können folgen)_

@@ -1,901 +1,1453 @@
 /* === style.css === */
-/* Stand: 2025-04-08, Komplett - Mit neuem Sidebar-Design & Modal */
+/* Stand: 2025-04-13, Refaktorisierung: Inline-Styles entfernt */
 
 /* === 1. CSS Variablen Definitionen === */
 /* =================================== */
 
 /* Standard-Theme (Light Mode) */
 :root {
-    /* Sidebar-Breiten */
-    --sidebar-width-expanded: 260px;
-    --sidebar-width-collapsed: 65px;
+  /* Layout */
+  --container-max-width: 1200px;
+  --grid-gap: 30px;
+  --grid-gap-sm: 25px;
+  /* Sidebar-Breiten */
+  --sidebar-width-expanded: 260px;
+  --sidebar-width-collapsed: 65px;
 
-    /* Hintergrundfarben */
-    --bg-main: #e9ecef;
-    --bg-card: #ffffff;
-    --bg-input: #fdfdff;
-    --bg-hover-light: #f8f9fa;
-    --bg-hover-menu: #f1f3f5;
+  /* Hintergrundfarben */
+  --bg-main: #e9ecef;
+  --bg-card: #ffffff;
+  --bg-input: #fdfdff;
+  --bg-hover-light: #f8f9fa;
+  --bg-hover-menu: #f1f3f5;
 
-    /* Textfarben */
-    --text-primary: #333d49;
-    --text-secondary: #5a6a7d;
-    --text-headings: #1c4b82;
-    --text-h1: #2a2f45;
-    --text-on-primary: #ffffff;
-    --text-on-dark: #ffffff;
+  /* Textfarben */
+  --text-primary: #333d49;
+  --text-secondary: #5a6a7d;
+  --text-headings: #1c4b82; /* Haupt-Überschriftenfarbe */
+  --text-h1: #2a2f45; /* Farbe für H1 im Header (falls abweichend) */
+  --text-on-primary: #ffffff; /* Text auf primären Buttons/Flächen */
+  --text-on-dark: #ffffff; /* Text auf dunklen Hintergründen (Header) */
+  --text-label: var(--text-secondary); /* Farbe für Labels */
 
-    /* Rahmenfarben */
-    --border-color-light: #e1e5eb;
-    --border-color-medium: #d3dbe3;
-    --border-color-subtle: #f1f3f5;
+  /* Rahmenfarben */
+  --border-color-light: #e1e5eb;
+  --border-color-medium: #d3dbe3;
+  --border-color-subtle: #f1f3f5;
 
-    /* Schattenfarbe */
-    --shadow-color: rgba(0, 0, 0, 0.07);
-    --shadow-color-hover: rgba(0, 0, 0, 0.1);
-    --shadow-badge: rgba(0, 0, 0, 0.15);
+  /* Schattenfarbe */
+  --shadow-color: rgba(0, 0, 0, 0.07);
+  --shadow-color-hover: rgba(0, 0, 0, 0.1);
+  --shadow-badge: rgba(0, 0, 0, 0.15);
 
-    /* Akzentfarben */
-    --primary-color: #0d6efd;
-    --primary-color-dark: #0a58ca;
-    --primary-color-hover-bg: #0b5ed7;
-    --primary-color-focus-shadow: rgba(13, 110, 253, 0.25);
-    --secondary-color: #6c757d;
-    --secondary-color-dark: #545b62;
-    --secondary-color-hover-bg: #5a6268;
-    --info-color: #17a2b8;
-    --info-color-dark: #117a8b;
-    --info-color-hover-bg: #17a2b8;
-    --warning-color: #ffca2c;
-    --warning-color-dark: #e0a800;
-    --warning-color-hover-bg: #ffc1071a;
-    --warning-text-dark: #333;
-    --danger-color: #e63946;
-    --danger-color-dark: #c82333;
-    --danger-color-hover-bg: #e639461a;
-    --primary-gradient: linear-gradient(180deg, #2e89ff 0%, #0d6efd 100%);
+  /* Akzentfarben */
+  --primary-color: #0d6efd;
+  --primary-color-dark: #0a58ca;
+  --primary-color-hover-bg: #0b5ed7;
+  --primary-color-focus-shadow: rgba(13, 110, 253, 0.25);
+  --secondary-color: #6c757d;
+  --secondary-color-dark: #545b62;
+  --secondary-color-hover-bg: #5a6268;
+  --info-color: #17a2b8;
+  --info-color-dark: #117a8b;
+  --info-color-hover-bg: #17a2b8;
+  --warning-color: #ffca2c;
+  --warning-color-dark: #e0a800;
+  --warning-color-hover-bg: #ffc1071a;
+  --warning-text-dark: #333; /* Text auf Warning-Hintergrund */
+  --danger-color: #e63946;
+  --danger-color-dark: #c82333;
+  --danger-color-hover-bg: #e639461a;
+  --danger-text-dark: #a94442; /* Text auf Danger-Hintergrund (Error-Msg) */
+  --primary-gradient: linear-gradient(180deg, #2e89ff 0%, #0d6efd 100%);
+
+  /* Success Farben */
+  --success-color: #5cb85c;
+  --success-color-dark: #449d44;
+  --success-bg-light: #dff0d8;
+  --success-text-dark: #3c763d;
+
+  /* Dark Mode Farben */
+  --bg-main-dm: #1a1d21;
+  --bg-card-dm: #2c303a;
+  --bg-input-dm: #353a45;
+  --bg-hover-light-dm: #353a45;
+  --bg-hover-menu-dm: #3a404d;
+  --text-primary-dm: #e1e5eb;
+  --text-secondary-dm: #adb5bd;
+  --text-headings-dm: #a8c5ff;
+  --text-h1-dm: #c0cfff;
+  --border-color-light-dm: #495057;
+  --border-color-medium-dm: #5a6268;
+  --border-color-subtle-dm: #404651;
+  --shadow-color-dm: rgba(0, 0, 0, 0.25);
+  --shadow-color-hover-dm: rgba(0, 0, 0, 0.35);
+  --shadow-badge-dm: rgba(0, 0, 0, 0.3);
+  --primary-color-dm: #4b8eff;
+  --primary-color-dark-dm: #2a7eff;
+  --primary-color-hover-bg-dm: #2a7eff;
+  --primary-color-focus-shadow-dm: rgba(75, 142, 255, 0.35);
+  --secondary-color-dm: #868e96;
+  --secondary-color-dark-dm: #6c757d;
+  --secondary-color-hover-bg-dm: #6c757d;
+  --info-color-dm: #28b8d2;
+  --info-color-dark-dm: #1da9c2;
+  --info-color-hover-bg-dm: #28b8d2;
+  --warning-color-dm: #ffdd70;
+  --warning-color-dark-dm: #ffca2c;
+  --warning-color-hover-bg-dm: #ffca2c2a;
+  --warning-text-dark-dm: #333;
+  --danger-color-dm: #ff6b78;
+  --danger-color-dark-dm: #e63946;
+  --danger-color-hover-bg-dm: #e639462a;
+  --danger-text-dark-dm: #f4a3a3; /* Hellerer Text für dunklen Hintergrund */
+  --primary-gradient-dm: linear-gradient(180deg, #5a9eff 0%, #4b8eff 100%);
+  --success-color-dm: #6fbf73;
+  --success-bg-light-dm: #2a3b2a;
+  --success-text-dark-dm: #a3d9a5;
 }
 
 /* Dark Mode Farb-Überschreibungen */
 body.dark-mode {
-    /* Hintergrundfarben */
-    --bg-main: #1a1d21; --bg-card: #2c303a; --bg-input: #353a45;
-    --bg-hover-light: #353a45; --bg-hover-menu: #3a404d;
-    /* Textfarben */
-    --text-primary: #e1e5eb; --text-secondary: #adb5bd; --text-headings: #a8c5ff;
-    --text-h1: #c0cfff; --text-on-primary: #ffffff; --text-on-dark: #ffffff;
-    /* Rahmenfarben */
-    --border-color-light: #495057; --border-color-medium: #5a6268; --border-color-subtle: #404651;
-    /* Schattenfarbe */
-    --shadow-color: rgba(0, 0, 0, 0.25); --shadow-color-hover: rgba(0, 0, 0, 0.35); --shadow-badge: rgba(0, 0, 0, 0.3);
-    /* Akzentfarben */
-    --primary-color: #4b8eff; --primary-color-dark: #2a7eff; --primary-color-hover-bg: #2a7eff; --primary-color-focus-shadow: rgba(75, 142, 255, 0.35);
-    --secondary-color: #868e96; --secondary-color-dark: #6c757d; --secondary-color-hover-bg: #6c757d;
-    --info-color: #28b8d2; --info-color-dark: #1da9c2; --info-color-hover-bg: #28b8d2;
-    --warning-color: #ffdd70; --warning-color-dark: #ffca2c; --warning-color-hover-bg: #ffca2c2a; --warning-text-dark: #333;
-    --danger-color: #ff6b78; --danger-color-dark: #e63946; --danger-color-hover-bg: #e639462a;
-    --primary-gradient: linear-gradient(180deg, #5a9eff 0%, #4b8eff 100%);
+  --bg-main: var(--bg-main-dm);
+  --bg-card: var(--bg-card-dm);
+  --bg-input: var(--bg-input-dm);
+  --bg-hover-light: var(--bg-hover-light-dm);
+  --bg-hover-menu: var(--bg-hover-menu-dm);
+  --text-primary: var(--text-primary-dm);
+  --text-secondary: var(--text-secondary-dm);
+  --text-headings: var(--text-headings-dm);
+  --text-h1: var(--text-h1-dm);
+  --text-label: var(--text-secondary-dm);
+  --border-color-light: var(--border-color-light-dm);
+  --border-color-medium: var(--border-color-medium-dm);
+  --border-color-subtle: var(--border-color-subtle-dm);
+  --shadow-color: var(--shadow-color-dm);
+  --shadow-color-hover: var(--shadow-color-hover-dm);
+  --shadow-badge: var(--shadow-badge-dm);
+  --primary-color: var(--primary-color-dm);
+  --primary-color-dark: var(--primary-color-dark-dm);
+  --primary-color-hover-bg: var(--primary-color-hover-bg-dm);
+  --primary-color-focus-shadow: var(--primary-color-focus-shadow-dm);
+  --secondary-color: var(--secondary-color-dm);
+  --secondary-color-dark: var(--secondary-color-dark-dm);
+  --secondary-color-hover-bg: var(--secondary-color-hover-bg-dm);
+  --info-color: var(--info-color-dm);
+  --info-color-dark: var(--info-color-dark-dm);
+  --info-color-hover-bg: var(--info-color-hover-bg-dm);
+  --warning-color: var(--warning-color-dm);
+  --warning-color-dark: var(--warning-color-dark-dm);
+  --warning-color-hover-bg: var(--warning-color-hover-bg-dm);
+  --warning-text-dark: var(--warning-text-dark-dm);
+  --danger-color: var(--danger-color-dm);
+  --danger-color-dark: var(--danger-color-dark-dm);
+  --danger-color-hover-bg: var(--danger-color-hover-bg-dm);
+  --danger-text-dark: var(--danger-text-dark-dm);
+  --primary-gradient: var(--primary-gradient-dm);
+  --success-color: var(--success-color-dm);
+  --success-bg-light: var(--success-bg-light-dm);
+  --success-text-dark: var(--success-text-light-dm);
 }
 
-/* === 2. Basis-Styling MIT VARIABLEN === */
-/* ===================================== */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* === 2. Basis-Styling === */
+/* ======================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 body {
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.6;
-    background-color: var(--bg-main);
-    color: var(--text-primary);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* === 3. LAYOUT CONTAINER & GRID === */
+/* === 3. Layout Container & Grid === */
 /* ================================ */
-.container { max-width: 1200px; margin: 25px auto; padding: 0 20px; }
+.container {
+  max-width: var(--container-max-width);
+  margin: 25px auto;
+  padding: 0 20px;
+}
 .main-grid {
-    display: grid;
-    grid-template-columns: var(--sidebar-width-expanded) 1fr auto ; /* Standard: Ausgeklappt */
-    gap: 30px;
-    transition: grid-template-columns 0.3s ease-in-out;
+  display: grid;
+  grid-template-columns: var(--sidebar-width-expanded) 1fr auto;
+  gap: var(--grid-gap);
+  transition: grid-template-columns 0.3s ease-in-out;
 }
 body.sidebar-collapsed .main-grid {
-    grid-template-columns: var(--sidebar-width-collapsed) 1fr auto ; /* Schmale erste Spalte */
+  grid-template-columns: var(--sidebar-width-collapsed) 1fr auto;
 }
 @media (max-width: 991.98px) {
-    .main-grid, body.sidebar-collapsed .main-grid {
-        grid-template-columns: 1fr;
-        gap: 25px;
-    }
-    h1 { font-size: 1.5rem; }
-    h2 { font-size: 1.2rem; }
+  .main-grid,
+  body.sidebar-collapsed .main-grid {
+    grid-template-columns: 1fr;
+    gap: var(--grid-gap-sm);
+  }
+  h1 {
+    font-size: 1.5rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+  }
 }
-.grid-column-left, .grid-column-middle, .grid-column-right { min-width: 0; }
+.grid-column-left,
+.grid-column-middle,
+.grid-column-right {
+  min-width: 0;
+}
 
-/* === 4. HEADER BAR === */
+/* === 4. Header Bar === */
 /* ===================== */
 .app-header {
-    background-color: var(--text-headings); color: var(--text-on-dark);
-    padding: 10px 20px; margin-bottom: 30px; border-radius: 8px;
-    box-shadow: 0 2px 4px var(--shadow-color);
-    display: flex; justify-content: space-between; align-items: center;
-    transition: background-color 0.3s ease;
+  background-color: var(--text-headings);
+  color: var(--text-on-dark);
+  padding: 10px 20px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
 }
-h1 { font-size: 1.4rem; color: inherit; font-weight: 600; margin: 0 15px; line-height: 1.3; white-space: nowrap; flex-grow: 1; text-align: center; } /* H1 zentriert */
-
-/* Theme Toggle im Header */
+.app-header h1 {
+  font-size: 1.4rem;
+  color: inherit;
+  font-weight: 600;
+  margin: 0 15px;
+  line-height: 1.3;
+  white-space: nowrap;
+  flex-grow: 1;
+  text-align: center;
+}
 #theme-toggle-btn {
-    background: none; border: none;
-    color: var(--text-on-dark); padding: 5px 8px; font-size: 1.2rem;
-    border-radius: 6px; cursor: pointer; transition: background-color 0.2s, color 0.2s;
-    line-height: 1;
+  background: none;
+  border: none;
+  color: var(--text-on-dark);
+  padding: 5px 8px;
+  font-size: 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  line-height: 1;
 }
-#theme-toggle-btn:hover { background-color: rgba(255,255,255,0.1); }
-#theme-toggle-btn i.fa-solid { margin-right: 0; vertical-align: middle; }
-body.dark-mode #theme-toggle-btn { color: var(--text-primary); }
-body.dark-mode #theme-toggle-btn:hover { background-color: rgba(255, 255, 255, 0.05); }
+#theme-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+#theme-toggle-btn i.fa-solid {
+  margin-right: 0;
+  vertical-align: middle;
+}
+body.dark-mode #theme-toggle-btn {
+  color: var(--text-primary);
+}
+body.dark-mode #theme-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
 
-/* === 5. CONTENT BOX BASIS === */
+/* === 5. Content Box Basis === */
 /* ============================ */
 .content-box {
-    background-color: var(--bg-card); padding: 20px; border-radius: 8px;
-    box-shadow: 0 3px 8px var(--shadow-color); height: fit-content;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  background-color: var(--bg-card);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px var(--shadow-color);
+  height: fit-content;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: var(--grid-gap); /* Standard-Abstand nach unten */
 }
-.content-box > h2 { margin-top: 0; }
+.content-box:last-child {
+  margin-bottom: 0; /* Letzte Box in einer Spalte hat keinen Abstand */
+}
+.grid-column-right .content-box {
+  /* Boxen in rechter Spalte brauchen ggf. oberen Abstand */
+  margin-top: 0; /* Standard */
+}
+.grid-column-right .content-box + .content-box {
+  /* Abstand zwischen Boxen rechts */
+  margin-top: var(--grid-gap);
+}
 
-/* === 6. ÜBERSCHRIFTEN (INNERHALB VON BOXEN) === */
-/* ========================================= */
+.content-box > h2:first-child,
+.content-box > h3:first-child {
+  margin-top: 0;
+}
+
+/* === 6. Allgemeine Überschriften === */
+/* ================================== */
 h2 {
-    font-size: 1.3rem; border-bottom: 1px solid var(--border-color-light);
-    padding-bottom: 0.6rem; margin-bottom: 1.2rem;
-    color: var(--text-headings); font-weight: 600;
-    transition: color 0.3s ease, border-color 0.3s ease;
+  font-size: 1.3rem;
+  border-bottom: 1px solid var(--border-color-light);
+  padding-bottom: 0.6rem;
+  margin-bottom: 1.2rem;
+  margin-top: 0;
+  color: var(--text-headings);
+  font-weight: 600;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.5rem;
+  margin-top: 0;
+  border-bottom: 1px solid var(--border-color-light);
 }
 
-
-/* === 7. LINKE SPALTE / SIDEBAR (NEUES DESIGN) === */
-/* ============================================== */
-
-/* Die Sidebar-Spalte selbst */
+/* === 7. Sidebar === */
+/* ================ */
 .grid-column-left.sidebar {
-     overflow: hidden;
-     padding: 0;
-     background-color: var(--bg-card);
-     box-shadow: 0 3px 8px var(--shadow-color);
-     border-radius: 8px;
-     display: flex;
-     flex-direction: column;
-     transition: background-color 0.3s ease, box-shadow 0.3s ease;
-     /* Verhindert das Strecken mit der mittleren Spalte */
-     align-self: start;
+  overflow: hidden;
+  padding: 0;
+  background-color: var(--bg-card);
+  box-shadow: 0 3px 8px var(--shadow-color);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0; /* Kein unterer Abstand für Sidebar */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  align-self: start;
 }
-
-/* Neuer Sidebar-Header */
 .sidebar-header {
-    display: flex;
-    align-items: center;
-    padding: 0 10px;
-    height: 55px;
-    border-bottom: 1px solid var(--border-color-light);
-    flex-shrink: 0;
-    transition: border-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  height: 55px;
+  border-bottom: 1px solid var(--border-color-light);
+  flex-shrink: 0;
+  transition: border-color 0.3s ease;
 }
-
-/* Neuer interner Toggle-Button */
 #sidebar-toggle-internal {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 1.4rem;
-    padding: 5px 8px;
-    margin-right: 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-    line-height: 1;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.4rem;
+  padding: 5px 8px;
+  margin-right: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  line-height: 1;
 }
 #sidebar-toggle-internal:hover {
-    background-color: var(--bg-hover-menu);
-    color: var(--text-headings);
+  background-color: var(--bg-hover-menu);
+  color: var(--text-headings);
 }
-
-/* Optionaler Titel im Sidebar-Header */
 .sidebar-app-title {
-    flex-grow: 1;
-    font-weight: 600;
-    color: var(--text-headings);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    opacity: 1;
-    transition: opacity 0.2s ease-in-out;
+  flex-grow: 1;
+  font-weight: 600;
+  color: var(--text-headings);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
 }
-
-/* Die .content-box *innerhalb* der Sidebar */
 .grid-column-left.sidebar .content-box {
-     padding: 15px;
-     box-shadow: none;
-     border-radius: 0;
-     border: none;
-     flex-grow: 1;
-     overflow-y: auto;
-     background-color: transparent;
-     transition: padding 0.3s ease-in-out;
+  /* Content-Box IN der Sidebar */
+  padding: 15px;
+  box-shadow: none;
+  border-radius: 0;
+  border: none;
+  flex-grow: 1;
+  overflow-y: auto;
+  background-color: transparent;
+  transition: padding 0.3s ease-in-out;
+  margin-bottom: 0; /* Kein Margin für innere Box */
 }
-
-/* Neue Menü-Abschnitte */
 .sidebar-section {
-    margin-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 .sidebar-section:last-child {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
-
-/* Abschnitts-Titel */
 .sidebar-section-title {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 10px 10px 5px 10px;
-    margin: 0 0 8px 0;
-    border-bottom: 1px solid var(--border-color-light);
-    white-space: nowrap;
-    overflow: hidden;
-    opacity: 1;
-    transition: opacity 0.2s ease-in-out, height 0.3s ease-in-out, padding 0.3s ease-in-out, margin 0.3s ease-in-out, border-color 0.3s ease-in-out;
+  /* H3 in Sidebar */
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 10px 10px 5px 10px;
+  margin: 0 0 8px 0;
+  border-bottom: 1px solid var(--border-color-light);
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out, height 0.3s ease-in-out,
+    padding 0.3s ease-in-out, margin 0.3s ease-in-out,
+    border-color 0.3s ease-in-out;
 }
-
-/* Das eigentliche Menü in einer Sektion */
-.action-menu { margin: 0; }
-
-/* Angepasste Menü-Buttons */
+.action-menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+} /* Sicherstellen, dass Menü keine Listenpunkte hat */
 .menu-button {
-    background: none !important;
-    border: none !important;
-    padding: 10px 10px !important;
-    margin: 0 0 4px 0;
-    width: 100%; display: flex; align-items: center; text-align: left;
-    color: var(--text-primary); font-weight: 500; font-size: 0.95rem;
-    border-radius: 6px; cursor: pointer;
-    transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-    box-shadow: none !important; background-image: none !important;
-    overflow: hidden; white-space: nowrap;
+  background: none !important;
+  border: none !important;
+  padding: 10px 10px !important;
+  margin: 0 0 4px 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+  box-shadow: none !important;
+  background-image: none !important;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .menu-button i.fa-solid {
-    margin-right: 15px;
-    color: var(--text-secondary);
-    width: 1.3em;
-    text-align: center; font-size: 1.1em;
-    transition: color 0.15s ease-in-out, margin 0.3s ease-in-out;
-    flex-shrink: 0;
+  margin-right: 15px;
+  color: var(--text-secondary);
+  width: 1.3em;
+  text-align: center;
+  font-size: 1.1em;
+  transition: color 0.15s ease-in-out, margin 0.3s ease-in-out;
+  flex-shrink: 0;
 }
 .menu-button span {
-    opacity: 1;
-    transition: opacity 0.2s 0.05s ease-in-out;
+  opacity: 1;
+  transition: opacity 0.2s 0.05s ease-in-out;
 }
-
-/* Angepasster Hover-Effekt */
 .menu-button:hover {
-    background-color: var(--bg-hover-menu) !important;
-    color: var(--text-headings);
+  background-color: var(--bg-hover-menu) !important;
+  color: var(--text-headings);
 }
-.menu-button:hover i.fa-solid { color: var(--text-headings); }
-
-/* Spezieller Stil für primären Button (Neue Fahrt) */
-button#add-new-btn.menu-button { color: var(--primary-color); font-weight: 600; }
-button#add-new-btn.menu-button i.fa-solid { color: var(--primary-color); }
-button#add-new-btn.menu-button:hover { background-color: var(--primary-color-focus-shadow) !important; color: var(--primary-color-dark); }
-button#add-new-btn.menu-button:hover i.fa-solid { color: var(--primary-color-dark); }
-
-
-/* --- Styles für EINGEKLAPPTE Sidebar --- */
-body.sidebar-collapsed .sidebar {
-    /* Breite wird durch Variable gesteuert */
+.menu-button:hover i.fa-solid {
+  color: var(--text-headings);
 }
-
-/* Eingeklappter Sidebar-Header */
+/* Spezielle Menu-Buttons */
+button#add-new-btn.menu-button {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+button#add-new-btn.menu-button i.fa-solid {
+  color: var(--primary-color);
+}
+button#add-new-btn.menu-button:hover {
+  background-color: var(--primary-color-focus-shadow) !important;
+  color: var(--primary-color-dark);
+}
+button#add-new-btn.menu-button:hover i.fa-solid {
+  color: var(--primary-color-dark);
+}
+/* Eingeklappte Sidebar */
 body.sidebar-collapsed .sidebar-header {
-    padding: 0;
-    justify-content: center;
-    height: 55px;
-    border-bottom-color: transparent;
+  padding: 0;
+  justify-content: center;
+  height: 55px;
+  border-bottom-color: transparent;
 }
 body.sidebar-collapsed #sidebar-toggle-internal {
-    margin-right: 0;
-    /* Fix für Zentrierung: Volle Breite & interne Zentrierung */
-    width: 100%;
-    display: flex;
-    justify-content: center;
+  margin-right: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 body.sidebar-collapsed .sidebar-app-title {
-    opacity: 0; width: 0;
+  opacity: 0;
+  width: 0;
 }
-
-/* Eingeklappte Content-Box */
 body.sidebar-collapsed .sidebar .content-box {
-    padding: 10px 0;
-    overflow-y: hidden;
+  padding: 10px 0;
+  overflow-y: hidden;
 }
-
-/* Eingeklappte Abschnitts-Titel */
 body.sidebar-collapsed .sidebar-section-title {
-    opacity: 0; height: 0; padding: 0; margin: 0; border: none;
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  border: none;
 }
-
-/* Eingeklappte Menü-Buttons */
 body.sidebar-collapsed .sidebar .menu-button {
-    justify-content: center;
-    padding: 12px 0 !important;
+  justify-content: center;
+  padding: 12px 0 !important;
 }
 body.sidebar-collapsed .sidebar .menu-button span {
-    opacity: 0; width: 0;
+  opacity: 0;
+  width: 0;
 }
 body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
-    margin-right: 0;
-    width: auto;
-    font-size: 1.5em;
+  margin-right: 0;
+  width: auto;
+  font-size: 1.5em;
 }
-/* --- ENDE Styles für EINGEKLAPPTE Sidebar --- */
 
-
-/* === 8. MITTLERE SPALTE: FORMULAR === */
-/* =================================== */
-/* Wichtig: Wieder die max-height Animation verwenden! */
+/* === 8. Hauptformular (Fahrten) === */
+/* ================================= */
 #fahrt-formular {
-    max-height: 0; /* Eingeklappt */
-    overflow: hidden;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-bottom: 0;
-    box-shadow: none;
-    border: 1px solid transparent; /* Transparenten Rand für Übergang */
-    background-color: transparent;
-    border-radius: 8px; /* Radius auch im geschlossenen Zustand */
-    transition: max-height 0.5s ease-out, padding 0.5s ease-out, margin-bottom 0.5s ease-out, border-color 0.3s ease-out, box-shadow 0.3s ease-out, background-color 0.3s ease;
+  /* Container für das Formular */
+  /* Erbt von .content-box */
+  max-height: 0;
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  border: 1px solid transparent;
+  background-color: transparent;
+  box-shadow: none;
+  transition: max-height 0.5s ease-out, padding 0.5s ease-out,
+    margin-bottom 0.5s ease-out, border-color 0.3s ease-out,
+    box-shadow 0.3s ease-out, background-color 0.3s ease, opacity 0.3s ease-out;
+  opacity: 0;
 }
 #fahrt-formular.form-visible {
-    max-height: 1500px; /* Ausgeklappt - genug Platz */
-    overflow-y: auto;
-    padding: 25px;
-    margin-bottom: 30px;
-    background-color: var(--bg-card);
-    box-shadow: 0 4px 12px var(--shadow-color);
-    border: 1px solid var(--border-color-light);
-    /* border-radius: 8px; */ /* Wird schon oben gesetzt */
+  max-height: 1500px;
+  padding: 25px;
+  margin-bottom: var(--grid-gap);
+  background-color: var(--bg-card);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  border: 1px solid var(--border-color-light);
+  opacity: 1;
+}
+/* Grid-Layout für Formularfelder */
+#trip-entry-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Zwei Spalten */
+  gap: 15px 20px; /* Abstand Vertikal Horizontal */
+  align-items: start;
+}
+#trip-entry-form > div {
+  /* Direkte Kinder (Label+Input Container) */
+  margin-bottom: 0; /* Grid Gap übernimmt Abstand */
+}
+/* Labels im Hauptformular */
+#trip-entry-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--text-label);
+  font-size: 0.95rem;
+}
+/* Inputs/Selects im Hauptformular */
+#trip-entry-form input[type="text"],
+#trip-entry-form input[type="date"],
+#trip-entry-form input[type="time"],
+#trip-entry-form input[type="number"],
+#trip-entry-form select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid var(--border-color-medium);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
+    background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+}
+#trip-entry-form input:focus,
+#trip-entry-form select:focus {
+  border-color: var(--primary-color);
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem var(--primary-color-focus-shadow);
+  background-color: var(--bg-card);
+}
+/* Button-Container im Hauptformular */
+.form-button-container {
+  grid-column: 1 / -1; /* Volle Breite */
+  margin-top: 10px;
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+/* Responsive Formular-Layout */
+@media (max-width: 599.98px) {
+  #trip-entry-form {
+    grid-template-columns: 1fr; /* Eine Spalte */
+    gap: 15px;
+  }
+  /* .form-button-container bleibt volle Breite */
 }
 
-#fahrt-formular > h2 { margin-top: 0; color: var(--text-headings); border-color: var(--border-color-light); }
-#trip-entry-form div:not(:last-child) { margin-bottom: 20px; }
-#trip-entry-form div:last-child { margin-bottom: 0; }
-label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary); font-size: 0.95rem; }
-/* Gilt für alle Inputs/Selects im Hauptbereich */
-input[type="text"], input[type="date"], input[type="time"], input[type="number"], select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid var(--border-color-medium);
-    border-radius: 8px;
-    font-size: 1rem;
-    font-family: inherit;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, background-color 0.15s ease-in-out, color 0.15s ease-in-out;
-    background-color: var(--bg-input);
-    color: var(--text-primary);
-}
-input:focus, select:focus {
-    border-color: var(--primary-color);
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem var(--primary-color-focus-shadow);
-    background-color: var(--bg-card); /* Hintergrund bei Fokus ändern? Optional */
+/* Fehleranzeige im Hauptformular */
+.form-error-box {
+  /* Erbt von .error-message */
+  margin-top: 0;
+  margin-bottom: 15px;
+  display: none; /* Standardmäßig versteckt */
 }
 
+/* === 9. Fahrtenliste & Filter === */
+/* =============================== */
+#fahrten-liste-container {
+} /* Container für Liste + Filter + Paginierung */
 
-/* === 9. MITTLERE SPALTE: FAHRTENLISTE === */
-/* ======================================= */
-#fahrten-liste-container {}
-#fahrten-liste-container > h2 { display: inline-block; background-color: var(--text-headings); color: var(--text-on-dark); padding: 8px 15px; border-radius: 6px; border-bottom: none; margin-bottom: 1.5rem; font-size: 1.2rem; box-shadow: 0 2px 5px var(--shadow-badge); text-align: left; transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease; }
-#fahrten-liste { margin-top: 0; }
+/* Header der Liste mit Überschrift & Toggle */
+.list-header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem; /* Abstand zur Filterbox/Liste */
+}
+.list-header-controls .list-heading {
+  /* Klasse für H2 */
+  /* Erbt H2-Stile */
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.toggle-filter-button {
+  /* Klasse für Button */
+  background: none;
+  border: 1px solid var(--border-color-medium);
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.toggle-filter-button:hover {
+  background-color: var(--bg-hover-light);
+  border-color: var(--border-color-medium);
+  color: var(--text-primary);
+}
+.toggle-filter-button i.fa-solid {
+  margin-right: 5px;
+}
 
-/* Einzelner Listeneintrag (Karte) */
-.fahrt-item { background-color: var(--bg-card); padding: 20px; border-radius: 8px; box-shadow: 0 3px 6px var(--shadow-color); margin-bottom: 15px; transition: box-shadow 0.2s ease-in-out, background-color 0.3s ease; position: relative; text-align: left; }
-.fahrt-item:last-child { margin-bottom: 0; }
-.fahrt-item:hover { box-shadow: 0 5px 15px var(--shadow-color-hover); }
+/* Filter-Box */
+.filter-box {
+  /* ID #filter-controls wird für JS verwendet */
+  /* Erbt von .content-box */
+  max-height: 0;
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  border: 1px solid transparent;
+  opacity: 0;
+  transition: max-height 0.4s ease-out, padding 0.4s ease-out,
+    margin-bottom 0.4s ease-out, border-color 0.3s ease-out,
+    opacity 0.3s ease-out;
+}
+.filter-box.filter-visible {
+  max-height: 500px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-color: var(--border-color-light);
+  opacity: 1;
+}
+.filter-box-heading {
+  /* Klasse für H3 */
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+}
+.filter-label {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  display: block;
+  color: var(--text-label);
+  font-weight: 500;
+}
+.filter-select,
+.filter-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color-medium);
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-family: inherit;
+}
+.filter-select:focus,
+.filter-input:focus {
+  border-color: var(--primary-color);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem var(--primary-color-focus-shadow);
+}
+.filter-button-container {
+  margin-top: 20px;
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
 
-/* Kopfzeile der Karte */
-.list-item-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border-color-subtle); margin-bottom: 15px; transition: border-color 0.3s ease;}
-.list-item-date-time { display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px 15px; flex-grow: 1; }
-.list-item-info { display: inline-flex; align-items: baseline; font-size: 0.9rem; color: var(--text-secondary); }
-.list-icon { margin-right: 6px; width: 1em; text-align: center; }
+/* Die Liste selbst */
+#fahrten-liste {
+  margin-top: 0;
+} /* Container für die .fahrt-item Elemente */
+.fahrt-item {
+  background-color: var(--bg-card);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 3px 6px var(--shadow-color);
+  margin-bottom: 15px;
+  transition: box-shadow 0.2s ease-in-out, background-color 0.3s ease;
+  position: relative;
+  text-align: left;
+}
+.fahrt-item:last-child {
+  margin-bottom: 0;
+}
+.fahrt-item:hover {
+  box-shadow: 0 5px 15px var(--shadow-color-hover);
+}
+.list-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color-subtle);
+  margin-bottom: 15px;
+  transition: border-color 0.3s ease;
+  gap: 10px; /* Gap hinzugefügt */
+}
+.list-item-date-time {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px 15px;
+  flex-grow: 1;
+}
+.list-item-info {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.list-icon {
+  margin-right: 6px;
+  width: 1em;
+  text-align: center;
+  flex-shrink: 0;
+}
+.list-item-info.car-info span {
+  max-width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+.list-item-details {
+  margin-top: 0;
+  overflow: hidden;
+  opacity: 1;
+  max-height: 500px;
+  transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out,
+    margin-top 0.4s ease-in-out;
+}
+.fahrt-item.details-collapsed .list-item-details {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+.list-item-details div {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.list-item-details div:last-child {
+  margin-bottom: 0;
+}
+span.list-label {
+  display: inline-block;
+  width: 110px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-right: 10px;
+  vertical-align: baseline;
+  font-size: 0.9rem;
+}
+/* Buttons in der Fahrtenliste */
+#fahrten-liste .buttons-container {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0; /* margin-left: 15px; entfernt, da Gap im Header */
+}
+#fahrten-liste .list-action-button {
+  /* Generische Klasse für Edit/Delete in Liste */
+  padding: 3px 6px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  line-height: 1;
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  transition: color 0.2s, background-color 0.2s;
+  cursor: pointer;
+}
+#fahrten-liste .list-action-button i.fa-solid {
+  margin-right: 0;
+}
+#fahrten-liste .edit-btn:hover {
+  background-color: var(--warning-color-hover-bg);
+  color: var(--warning-color-dark);
+}
+#fahrten-liste .delete-btn:hover {
+  background-color: var(--danger-color-hover-bg);
+  color: var(--danger-color-dark);
+}
+/* Toggle Details Button */
+.toggle-details-btn {
+  position: absolute;
+  bottom: 10px;
+  left: auto;
+  right: 15px;
+  padding: 2px 5px;
+  font-size: 0.8rem;
+  line-height: 1;
+  background-color: var(--bg-hover-light);
+  border: 1px solid var(--border-color-medium);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.toggle-details-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--text-on-primary);
+  border-color: var(--primary-color);
+}
+.toggle-details-btn i.fa-solid {
+  margin-right: 0;
+}
 
-/* Detail-Bereich */
-.list-item-details { margin-top: 0; overflow: hidden; opacity: 1; max-height: 500px; transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out, margin-top 0.4s ease-in-out; }
-.fahrt-item.details-collapsed .list-item-details { max-height: 0; opacity: 0; margin-top: 0; }
-.list-item-details div { margin-bottom: 8px; line-height: 1.5; }
-.list-item-details div:last-child { margin-bottom: 0; }
-span.list-label { display: inline-block; width: 110px; font-weight: 500; color: var(--text-secondary); margin-right: 10px; vertical-align: baseline; font-size: 0.9rem; }
+/* === 10. Paginierung === */
+/* ===================== */
+.pagination-controls {
+  margin-top: 20px;
+  padding: 10px 0;
+  text-align: center;
+  border-top: 1px solid var(--border-color-light);
+  display: none; /* Standardmäßig versteckt, JS zeigt es an */
+}
+.pagination-button {
+  /* Klasse für Prev/Next Buttons */
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color-medium);
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+.pagination-button:hover:not(:disabled) {
+  background-color: var(--bg-hover-light);
+  border-color: var(--border-color-medium);
+}
+.pagination-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background-color: var(--bg-hover-menu);
+}
+.page-info {
+  /* Klasse für "Seite X von Y" */
+  margin: 0 15px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  vertical-align: middle; /* Bessere Ausrichtung mit Buttons */
+}
 
-/* Buttons (Edit/Delete) in der Liste */
-#fahrten-liste .buttons-container { display: flex; gap: 8px; flex-shrink: 0; margin-left: 15px; }
-#fahrten-liste .edit-btn, #fahrten-liste .delete-btn { padding: 3px 6px; font-size: 0.8rem; border-radius: 6px; line-height: 1; background: none; border: 1px solid transparent; color: var(--text-secondary); transition: color .2s, background-color .2s; cursor: pointer; }
-#fahrten-liste .edit-btn:hover { background-color: var(--warning-color-hover-bg); color: var(--warning-color-dark); }
-#fahrten-liste .delete-btn:hover { background-color: var(--danger-color-hover-bg); color: var(--danger-color-dark); }
-#fahrten-liste button i.fa-solid { margin-right: 0; }
+/* === 11. Rechte Spalte (Zusammenfassung & Fahrzeuge) === */
+/* ===================================================== */
+#zusammenfassung {
+  /* Nutzt .content-box */
+}
+#zusammenfassung ul {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0.5rem;
+}
+#zusammenfassung li {
+  margin-bottom: 0.4rem;
+  color: var(--text-secondary);
+}
+#zusammenfassung li strong {
+  font-weight: 600;
+  color: var(--text-headings);
+}
 
-/* Toggle Button (Details) in der Liste */
-.toggle-details-btn { position: absolute; bottom: 10px; left: auto; right: 15px; padding: 2px 5px; font-size: 0.8rem; line-height: 1; background-color: var(--bg-hover-light); border: 1px solid var(--border-color-medium); color: var(--text-secondary); border-radius: 4px; cursor: pointer; transition: background-color 0.2s, color 0.2s, border-color 0.2s; }
-.toggle-details-btn:hover { background-color: var(--primary-color); color: var(--text-on-primary); border-color: var(--primary-color); }
-.toggle-details-btn i.fa-solid { margin-right: 0; }
-
-
-/* === 10. RECHTE SPALTE: ZUSAMMENFASSUNG & FAHRZEUGE === */
-/* =============================================== */
-#zusammenfassung { /* Nutzt .content-box */ }
-#zusammenfassung > h2 { margin-top: 0; }
-#zusammenfassung ul { list-style: none; padding-left: 0; margin-top: 0.5rem; }
-#zusammenfassung li { margin-bottom: 0.4rem; color: var(--text-secondary); }
-#zusammenfassung li strong { font-weight: 600; color: var(--text-headings); }
-
-#fahrzeug-verwaltung { /* Nutzt .content-box */ }
-#fahrzeug-verwaltung > h2 { margin-top: 0; }
-/* Altes Formular wurde entfernt */
-#fahrzeug-verwaltung #car-list-container {}
-/* Überschrift für Fahrzeugliste */
+#fahrzeug-verwaltung {
+  /* Nutzt .content-box */
+}
+#fahrzeug-verwaltung #car-list-container {
+}
 #fahrzeug-verwaltung #car-list-container h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 0.8rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border-color-light);
+  /* Überschrift IN der Box */
+  /* Erbt H3 Stile */
+  margin-top: 0; /* Sicherstellen */
 }
-#fahrzeug-verwaltung #car-list { list-style: none; padding-left: 0; margin-top: 1rem; border-top: none; padding-top: 0; } /* Kein doppelter Rand */
-#fahrzeug-verwaltung #car-list li { padding: 5px 0; border-bottom: 1px dashed var(--border-color-light); font-size: 0.95rem; transition: border-color 0.3s ease; }
-#fahrzeug-verwaltung #car-list li:last-child { border-bottom: none; }
-#fahrzeug-verwaltung #car-list strong { font-weight: 600; margin-left: 10px; display: inline-block; color: var(--text-secondary); }
-#fahrzeug-verwaltung #car-list .car-list-icon{display: flex; align-items: center;}
-
-
-/* === 11. ALLGEMEINE BUTTONS (NICHT MENÜ/LISTE/THEME) === */
-/* ================================================== */
-/* Gilt für Speichern/Abbrechen im Hauptformular etc. */
-button:not(.menu-button):not(#fahrten-liste button):not(#theme-toggle-btn):not(#sidebar-toggle-internal):not(.modal-close-button):not(.modal-footer button) {
-    padding: 12px 18px; border: 1px solid transparent; border-radius: 8px; cursor: pointer;
-    font-size: 0.95rem; font-weight: 600; line-height: 1.5; text-align: center;
-    text-decoration: none; vertical-align: middle; user-select: none;
-    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, transform 0.1s ease;
+#car-list {
+  /* UL für Fahrzeuge */
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1rem;
+  border-top: none;
+  padding-top: 0;
 }
-button:not(.menu-button):not(#fahrten-liste button):not(#theme-toggle-btn):not(#sidebar-toggle-internal):not(.modal-close-button):not(.modal-footer button):active { transform: scale(0.97); }
-button:not(.menu-button):not(#fahrten-liste button):not(#theme-toggle-btn):not(#sidebar-toggle-internal):not(.modal-close-button):not(.modal-footer button):focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
-button:not(.menu-button):not(#fahrten-liste button):not(#theme-toggle-btn):not(#sidebar-toggle-internal):not(.modal-close-button):not(.modal-footer button) i.fa-solid { margin-right: 8px; }
+.car-list-item {
+  /* Klasse für LI Elemente (wird von JS hinzugefügt) */
+  padding: 8px 5px;
+  border-bottom: 1px dashed var(--border-color-light);
+  font-size: 0.95rem;
+  transition: border-color 0.3s ease;
+  display: flex; /* Flexbox für Ausrichtung */
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px; /* Abstand zwischen Info und Aktionen */
+}
+.car-list-item:last-child {
+  border-bottom: none;
+}
+.car-list-info {
+  /* Span für Icon, Name, Kennzeichen */
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Abstand zw. Icon und Text */
+  flex-grow: 1; /* Nimmt verfügbaren Platz ein */
+  min-width: 0; /* Wichtig für Flexbox-Umbruch */
+}
+.car-list-info .car-name {
+  /* Span für den Namen */
+  /* Ggf. Stile für Umbruch etc. */
+}
+.car-list-info .car-plate {
+  /* Strong für das Kennzeichen */
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap; /* Verhindert Umbruch des Kennzeichens */
+}
+.car-list-actions {
+  /* Span für Buttons */
+  flex-shrink: 0; /* Buttons nicht schrumpfen */
+  display: flex;
+  gap: 4px; /* Kleiner Abstand zwischen Buttons */
+}
+.car-list-button {
+  /* Klasse für Edit/Delete Buttons in Fahrzeugliste */
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 3px 6px;
+  color: var(--text-secondary);
+  border-radius: 4px;
+  transition: color 0.2s, background-color 0.2s;
+  vertical-align: middle;
+  line-height: 1;
+}
+.car-list-button i.fa-solid {
+  margin-right: 0;
+}
+.car-list-button.edit-car-btn:hover {
+  background-color: var(--warning-color-hover-bg);
+  color: var(--warning-color-dark);
+}
+.car-list-button.delete-car-btn:hover {
+  background-color: var(--danger-color-hover-bg);
+  color: var(--danger-color-dark);
+}
 
-/* Spezifische Styles für Speichern/Abbrechen Buttons im Hauptformular */
-#speichern-btn { background-color: var(--primary-color); background-image: var(--primary-gradient); border-color: var(--primary-color); color: var(--text-on-primary); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075); }
-#speichern-btn:hover { background-color: var(--primary-color-hover-bg); background-image: none; border-color: var(--primary-color-dark); }
-#cancel-edit-btn { background-color: var(--secondary-color); border-color: var(--secondary-color); color: var(--text-on-primary); margin-left: 10px; }
-#cancel-edit-btn:hover { background-color: var(--secondary-color-hover-bg); border-color: var(--secondary-color-dark); }
+/* === 12. Allgemeine Button-Styles === */
+/* =================================== */
+/* Basis-Button (wird von spezifischeren Buttons geerbt/überschrieben) */
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+/* Haupt-Aktionsbuttons (Speichern im Formular) */
+#speichern-btn,
+#cancel-edit-btn {
+  padding: 12px 18px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  user-select: none;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
+    transform 0.1s ease;
+}
+#speichern-btn:active,
+#cancel-edit-btn:active {
+  transform: scale(0.97);
+}
+#speichern-btn:focus-visible,
+#cancel-edit-btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+#speichern-btn i.fa-solid,
+#cancel-edit-btn i.fa-solid {
+  margin-right: 8px;
+}
 
+/* Primär-Button Stil (Speichern) */
+#speichern-btn {
+  background-color: var(--primary-color);
+  background-image: var(--primary-gradient);
+  border-color: var(--primary-color);
+  color: var(--text-on-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 1px 1px rgba(0, 0, 0, 0.075);
+}
+#speichern-btn:hover {
+  background-color: var(--primary-color-hover-bg);
+  background-image: none;
+  border-color: var(--primary-color-dark);
+}
+/* Sekundär-Button Stil (Abbrechen) */
+#cancel-edit-btn {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: var(--text-on-primary);
+  /* margin-left: 10px; -> wird jetzt durch gap im Container gesteuert */
+}
+#cancel-edit-btn:hover {
+  background-color: var(--secondary-color-hover-bg);
+  border-color: var(--secondary-color-dark);
+}
 
-/* === 12. Modal-Dialog Styling (NEU) === */
-/* ====================================== */
+/* Kleine Buttons (z.B. Filter Anwenden/Reset) */
+.button-small {
+  padding: 8px 12px !important;
+  font-size: 0.9rem !important;
+}
+.button-small.button-primary {
+  /* Kombination für primären kleinen Button */
+  /* Erbt von #speichern-btn oder button-primary im Modal */
+}
+.button-small.button-secondary {
+  /* Kombination für sekundären kleinen Button */
+  /* Erbt von #cancel-edit-btn oder button-secondary im Modal */
+}
 
-/* Overlay (Hintergrund) */
+/* === 13. Modal-Dialog Styling === */
+/* ============================== */
 .modal-overlay {
-    visibility: hidden; /* Standardmäßig versteckt */
-    opacity: 0; /* Standardmäßig unsichtbar */
-    position: fixed; /* Bleibt beim Scrollen an fester Position */
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6); /* Halbtransparenter schwarzer Hintergrund */
-    display: flex; /* Um Inhalt zu zentrieren */
-    align-items: center; /* Vertikale Zentrierung */
-    justify-content: center; /* Horizontale Zentrierung */
-    z-index: 1000; /* Stellt sicher, dass es über allem anderen liegt */
-    transition: opacity 0.3s ease, visibility 0.3s ease; /* Sanfter Übergang */
-    backdrop-filter: blur(3px); /* Optional: Hintergrund leicht verschwimmen lassen */
+  visibility: hidden;
+  opacity: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  backdrop-filter: blur(3px);
 }
-
-/* Sichtbarer Zustand des Overlays */
 .modal-overlay.modal-visible {
-    visibility: visible;
-    opacity: 1;
+  visibility: visible;
+  opacity: 1;
+}
+/* Spezifischer z-index für Bestätigungs-Modal */
+#confirm-delete-modal.modal-overlay {
+  z-index: 1010;
 }
 
-/* Das eigentliche Modal-Fenster */
 .modal-content {
-    background-color: var(--bg-card); /* Nutzt Theme-Farbe */
-    padding: 25px 30px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    max-width: 500px; /* Maximale Breite */
-    width: 90%; /* Breite auf kleineren Schirmen */
-    position: relative;
-    transform: scale(0.95); /* Start für Animation */
-    transition: transform 0.3s ease;
-    max-height: 90vh; /* Maximale Höhe, falls Inhalt sehr lang */
-    display: flex; /* Flexbox für Header/Body/Footer */
-    flex-direction: column;
+  background-color: var(--bg-card);
+  padding: 25px 30px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  position: relative;
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  z-index: 1001; /* Inhalt über Overlay */
 }
+#confirm-delete-modal .modal-content {
+  z-index: 1011;
+} /* Inhalt des Bestätigungs-Modals noch höher */
 
-/* Sichtbarer Zustand: Fenster skaliert auf Normalgröße */
+/* Breiten für verschiedene Modals */
+.modal-content {
+  max-width: 500px;
+} /* Standard (z.B. Fahrzeug) */
+.modal-content-narrow {
+  max-width: 400px;
+} /* Für Bestätigung */
+.modal-content-medium {
+  max-width: 550px;
+} /* Für Einstellungen */
+
 .modal-overlay.modal-visible .modal-content {
-    transform: scale(1);
+  transform: scale(1);
 }
-
-/* Modal Header */
 .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color-light); /* Nutzt Theme-Farbe */
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    flex-shrink: 0; /* Verhindert Schrumpfen */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color-light);
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
 }
 .modal-header h2 {
-    margin: 0; /* Standard-Margin von h2 entfernen */
-    font-size: 1.4rem; /* Passende Größe */
-    color: var(--text-headings); /* Nutzt Theme-Farbe */
-    border-bottom: none; /* Keine doppelte Linie */
-    padding-bottom: 0;
+  /* H2 im Modal-Header */
+  margin: 0;
+  font-size: 1.4rem;
+  color: var(--text-headings);
+  border-bottom: none;
+  padding-bottom: 0;
 }
-
-/* Schließen-Button (X) */
 .modal-close-button {
-    background: none;
-    border: none;
-    font-size: 2rem; /* Großes X */
-    font-weight: 300;
-    line-height: 1;
-    color: var(--text-secondary); /* Nutzt Theme-Farbe */
-    cursor: pointer;
-    padding: 0 5px;
-    opacity: 0.7;
-    transition: opacity 0.2s ease, color 0.2s ease;
+  /* Klasse für alle X-Buttons */
+  background: none;
+  border: none;
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0 5px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, color 0.2s ease;
 }
 .modal-close-button:hover {
-    opacity: 1;
-    color: var(--danger-color); /* Nutzt Theme-Farbe */
+  opacity: 1;
+  color: var(--danger-color);
 }
-
-/* Modal Body (Inhaltsbereich) */
 .modal-body {
-    overflow-y: auto; /* Scrollbar, falls Inhalt zu hoch */
-    margin-bottom: 20px; /* Abstand zum Footer */
-    /* flex-grow: 1; */ /* Optional: Wenn Body flexibel wachsen soll */
+  overflow-y: auto;
+  margin-bottom: 20px;
 }
-
-/* Styling für Formulargruppen im Modal */
-#modal-car-form .form-group {
-    margin-bottom: 18px;
-}
-#modal-car-form .form-group label {
-    /* Nutzt globales Label-Styling, falls vorhanden */
-    display: block;
-    margin-bottom: 6px;
-    font-weight: 500;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-}
-#modal-car-form .form-group input[type="text"] {
-    /* Nutzt globales Input-Styling */
-    width: 100%;
-    padding: 10px 12px; /* Etwas kleineres Padding als Hauptformular */
-    border: 1px solid var(--border-color-medium);
-    border-radius: 6px;
-    font-size: 1rem;
-    font-family: inherit;
-    background-color: var(--bg-input);
-    color: var(--text-primary);
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-#modal-car-form .form-group input[type="text"]:focus {
-    border-color: var(--primary-color);
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem var(--primary-color-focus-shadow);
-}
-
-/* Styling für Fehlermeldungen im Modal */
-.modal-body .error-message {
-    color: var(--danger-color); /* Nutzt Theme-Farbe */
-    background-color: var(--danger-color-hover-bg); /* Leichter roter Hintergrund */
-    border: 1px solid var(--danger-color);
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 0.9rem;
-    margin-top: 10px;
-}
-
-
-/* Modal Footer */
 .modal-footer {
-    display: flex;
-    justify-content: flex-end; /* Buttons nach rechts */
-    gap: 10px; /* Abstand zwischen Buttons */
-    border-top: 1px solid var(--border-color-light); /* Nutzt Theme-Farbe */
-    padding-top: 15px;
-    margin-top: auto; /* Schiebt Footer nach unten */
-    flex-shrink: 0; /* Verhindert Schrumpfen */
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--border-color-light);
+  padding-top: 15px;
+  margin-top: auto;
+  flex-shrink: 0;
 }
-
-/* Styling für Buttons im Modal Footer */
+/* Allgemeine Stile für Buttons im Modal Footer */
 .modal-footer button {
-     /* Basis-Styling für alle Modal-Buttons */
-     padding: 10px 15px;
-     border: 1px solid transparent;
-     border-radius: 6px; /* Etwas kleinerer Radius als Hauptbuttons */
-     cursor: pointer;
-     font-size: 0.9rem;
-     line-height: 1.5;
-     text-decoration: none;
-     transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out, transform 0.1s ease;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-decoration: none;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
+    transform 0.1s ease;
 }
-.modal-footer button:active { transform: scale(0.97); }
-.modal-footer button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
-
+.modal-footer button:active {
+  transform: scale(0.97);
+}
+.modal-footer button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+/* Spezifische Button-Typen im Modal Footer */
 .modal-footer .button-secondary {
-    font-weight: 500;
-    background-color: var(--secondary-color);
-    border-color: var(--secondary-color);
-    color: var(--text-on-primary);
+  /* Abbrechen etc. */
+  font-weight: 500;
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: var(--text-on-primary);
 }
 .modal-footer .button-secondary:hover {
-    background-color: var(--secondary-color-hover-bg);
-    border-color: var(--secondary-color-dark);
+  background-color: var(--secondary-color-hover-bg);
+  border-color: var(--secondary-color-dark);
 }
-
 .modal-footer .button-primary {
-    font-weight: 600;
-     background-color: var(--primary-color);
-     background-image: var(--primary-gradient);
-     border-color: var(--primary-color);
-     color: var(--text-on-primary);
-     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
+  /* Speichern etc. */
+  font-weight: 600;
+  background-color: var(--primary-color);
+  background-image: var(--primary-gradient);
+  border-color: var(--primary-color);
+  color: var(--text-on-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 1px 1px rgba(0, 0, 0, 0.075);
 }
 .modal-footer .button-primary:hover {
-    background-color: var(--primary-color-hover-bg);
-    background-image: none;
-    border-color: var(--primary-color-dark);
+  background-color: var(--primary-color-hover-bg);
+  background-image: none;
+  border-color: var(--primary-color-dark);
 }
-/* === Styling für Fahrzeugliste Aktionen (NEU) === */
-#fahrzeug-verwaltung #car-list li {
-    /* Flexbox ist jetzt im JS inline gesetzt, kann hier aber überschrieben werden */
-    /* display: flex; */
-    /* justify-content: space-between; */
-    /* align-items: center; */
-    padding: 8px 5px; /* Etwas mehr Padding */
-}
-
-#fahrzeug-verwaltung #car-list .car-actions {
-    /* Container für die Buttons */
-    flex-shrink: 0; /* Verhindert, dass die Buttons schrumpfen */
-    margin-left: 10px; /* Kleiner Abstand zu den Infos */
-}
-
-#fahrzeug-verwaltung #car-list .edit-car-btn,
-#fahrzeug-verwaltung #car-list .delete-car-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 0.95rem; /* Etwas größer */
-    padding: 3px 6px; /* Konsistentes Padding */
-    color: var(--text-secondary);
-    border-radius: 4px; /* Abrundung */
-    transition: color 0.2s, background-color 0.2s;
-    vertical-align: middle; /* Icons besser ausrichten */
-    line-height: 1; /* Verhindert zu großen Zeilenabstand */
-}
-
-#fahrzeug-verwaltung #car-list .edit-car-btn {
-    margin-left: 8px; /* Abstand vom linken Button */
-}
-#fahrzeug-verwaltung #car-list .delete-car-btn {
-    margin-left: 4px; /* Abstand zwischen den Buttons */
-}
-
-/* Hover-Effekte (ähnlich wie bei Fahrtenliste) */
-#fahrzeug-verwaltung #car-list .edit-car-btn:hover {
-    background-color: var(--warning-color-hover-bg);
-    color: var(--warning-color-dark);
-}
-
-#fahrzeug-verwaltung #car-list .delete-car-btn:hover {
-    background-color: var(--danger-color-hover-bg);
-    color: var(--danger-color-dark);
-}
-
-#fahrzeug-verwaltung #car-list .edit-car-btn i.fa-solid,
-#fahrzeug-verwaltung #car-list .delete-car-btn i.fa-solid {
-    margin-right: 0; /* Kein extra Abstand für Icons in diesen kleinen Buttons */
-}
-/* Gilt für Modal-Fehler und jetzt auch Formular-Fehler */
-.error-message {
-    color: var(--danger-color-dark, #a94442); /* Dunklere Rot-Variante für Text */
-    background-color: var(--danger-color-hover-bg, #f2dede); /* Heller roter Hintergrund */
-    border: 1px solid var(--danger-color, #e63946);
-    border-radius: 6px; /* Abgerundete Ecken */
-    padding: 10px 15px; /* Innenabstand */
-    font-size: 0.9rem;
-    margin-top: 10px; /* Abstand nach oben (relevant im Modal) */
-    margin-bottom: 15px; /* Abstand nach unten (relevant im Formular) */
-    text-align: left; /* Text linksbündig */
-}
-
-/* Spezifisch für Dark Mode, falls nötig */
-body.dark-mode .error-message {
-    color: var(--danger-color, #ff6b78);
-    background-color: rgba(230, 57, 70, 0.15); /* Dunklerer, transparenter roter Hintergrund */
-    border-color: var(--danger-color, #ff6b78);
-}
-/* === 13. Styling für Bestätigungs-Modal (NEU) === */
-/* =============================================== */
-
-/* Die meisten Stile werden von den allgemeinen .modal-* Klassen geerbt. */
-/* Wir brauchen hauptsächlich den Stil für den roten Button. */
-
-/* Spezifischer Stil für den roten Bestätigen-Button im Modal Footer */
 .modal-footer .button-danger {
-    /* Erbt Basis-Styling von .modal-footer button */
-    font-weight: 600; /* Etwas fetter als sekundär */
-    background-color: var(--danger-color);
-    border-color: var(--danger-color);
-    color: var(--text-on-primary); /* Heller Text auf dunklem Button */
-    /* Optional: Leichter Schatten wie bei primärem Button */
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 1px rgba(0, 0, 0, 0.075);
-    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out; /* Übergang hinzufügen */
+  /* Löschen Bestätigen etc. */
+  font-weight: 600;
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+  color: var(--text-on-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 1px 1px rgba(0, 0, 0, 0.075);
 }
-
 .modal-footer .button-danger:hover {
-    background-color: var(--danger-color-dark); /* Dunklere Variante beim Hover */
-    border-color: var(--danger-color-dark);
-    color: var(--text-on-primary);
-    /* background-image: none; */ /* Falls ein Farbverlauf verwendet wird, hier entfernen */
+  background-color: var(--danger-color-dark);
+  border-color: var(--danger-color-dark);
 }
-
-/* Optional: Sicherstellen, dass der Fokus-Stil passt */
 .modal-footer .button-danger:focus-visible {
-    outline: 2px solid var(--danger-color);
-    outline-offset: 2px;
-    /* Leichter roter Fokus-Schatten, ähnlich wie bei primary */
-    box-shadow: 0 0 0 0.2rem var(--danger-color-hover-bg);
+  outline: 2px solid var(--danger-color);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 0.2rem var(--danger-color-hover-bg);
 }
 
-/* Optional: Sicherstellen, dass der Abstand zwischen den Buttons passt */
-#confirm-delete-modal .modal-footer {
-    gap: 10px; /* Stellt sicher, dass der Abstand konsistent ist */
+/* Formular-Elemente IN Modals (Fahrzeug & Einstellungen) */
+.modal-body .form-group {
+  margin-bottom: 18px;
+}
+.modal-body .form-group:last-child {
+  margin-bottom: 0;
+} /* Kein Abstand für letztes Element im Body */
+.modal-body .form-group label {
+  /* Gilt für Labels in Modals */
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--text-label);
+  font-size: 0.9rem;
+}
+.modal-body .form-group input[type="text"],
+.modal-body .form-group select {
+  /* Gilt für Text-Inputs & Selects in Modals */
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color-medium);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.modal-body .form-group input[type="text"]:focus,
+.modal-body .form-group select:focus {
+  border-color: var(--primary-color);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem var(--primary-color-focus-shadow);
+}
+/* Fehlermeldung im Modal */
+.modal-body .error-message {
+  color: var(--danger-text-dark);
+  background-color: var(--danger-color-hover-bg);
+  border: 1px solid var(--danger-color);
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  margin-top: 10px;
+  text-align: left;
 }
 
+/* Spezifische Stile für Einstellungen-Modal */
+.settings-fieldset {
+  border: 1px solid var(--border-color-light);
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+.settings-fieldset-danger {
+  border-color: var(--danger-color);
+}
+.settings-legend {
+  font-weight: 600;
+  padding: 0 10px;
+  margin-left: 5px;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+.settings-legend-danger {
+  color: var(--danger-color);
+}
+.settings-fieldset .form-group {
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+.settings-fieldset .form-group:last-child {
+  margin-bottom: 5px;
+}
+.settings-label {
+  /* Klasse für Labels in Einstellungen */
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+  display: block;
+  color: var(--text-label);
+  font-weight: 500;
+}
+.settings-select {
+  /* Klasse für Selects in Einstellungen */
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color-medium);
+  background-color: var(--bg-input);
+  color: var(--text-primary);
+  font-family: inherit;
+}
+.settings-select:focus {
+  border-color: var(--primary-color);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem var(--primary-color-focus-shadow);
+}
+.settings-radio-group {
+  display: flex;
+  gap: 20px;
+  margin-top: 5px;
+}
+.settings-radio-label {
+  font-weight: normal;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.settings-radio-label input[type="radio"] {
+  margin-right: 0;
+} /* Entferne Standard-Margin */
+.settings-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.settings-action-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
 
-/* === 14. Styling für Benachrichtigungen (Toasts) (NEU) === */
-/* ======================================================== */
-
-/* Container für alle Benachrichtigungen */
+/* === 14. Benachrichtigungen (Toasts) === */
+/* ====================================== */
 #notification-container {
-    position: fixed; /* Bleibt beim Scrollen an fester Position */
-    bottom: 20px;    /* Abstand vom unteren Rand */
-    right: 20px;     /* Abstand vom rechten Rand */
-    z-index: 1050;   /* Sollte über den meisten anderen Elementen liegen */
-    display: flex;
-    flex-direction: column; /* Nachrichten untereinander */
-    align-items: flex-end;  /* Nachrichten am rechten Rand ausrichten */
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
-
-/* Einzelne Benachrichtigungs-Box */
 .notification {
-    background-color: var(--bg-card, #fff);
-    color: var(--text-primary, #333);
-    padding: 12px 18px;
-    border-radius: 6px;
-    margin-top: 10px; /* Abstand zwischen Nachrichten */
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-    opacity: 0; /* Startet unsichtbar für Animation */
-    animation: fadeInOut 10s ease-in-out forwards; /* Animation anwenden */
-    min-width: 200px; /* Mindestbreite */
-    max-width: 350px; /* Maximalbreite */
-    font-size: 0.95rem;
-    border-left: 5px solid var(--info-color); /* Standard-Randfarbe (Info) */
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  padding: 12px 18px;
+  border-radius: 6px;
+  margin-top: 10px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  opacity: 0; /* Startet unsichtbar */
+  min-width: 200px;
+  max-width: 350px;
+  font-size: 0.95rem;
+  border-left: 5px solid var(--info-color); /* Standard: Info */
+  /* Animation entfernt, Steuerung über JS Klassen + Transition */
+  transform: translateX(20px); /* Startet leicht rechts */
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
-
-/* Spezifische Stile für Erfolgsmeldungen */
+.notification.notification-visible {
+  /* Klasse wird von JS hinzugefügt */
+  opacity: 1;
+  transform: translateX(0);
+}
+/* Typ-spezifische Stile */
 .notification.notification-success {
-    background-color: #dff0d8; /* Heller Grünton */
-    color: #3c763d;            /* Dunkler Grünton */
-    border-left-color: #5cb85c; /* Grüner Rand */
+  background-color: var(--success-bg-light);
+  color: var(--success-text-dark);
+  border-left-color: var(--success-color);
 }
-body.dark-mode .notification.notification-success {
-    background-color: #2a3b2a; /* Dunkler Grünton */
-    color: #a3d9a5;            /* Heller Grünton */
-    border-left-color: #6fbf73; /* Hellerer grüner Rand */
-}
-
-/* Spezifische Stile für Fehlermeldungen (optional, für später) */
 .notification.notification-error {
-    background-color: #f2dede; /* Heller Rotton */
-    color: #a94442;            /* Dunkler Rotton */
-    border-left-color: var(--danger-color, #e63946); /* Roter Rand */
+  background-color: var(--danger-color-hover-bg);
+  color: var(--danger-text-dark);
+  border-left-color: var(--danger-color);
 }
-body.dark-mode .notification.notification-error {
-    background-color: #3b2a2a; /* Dunkler Rotton */
-    color: #f4a3a3;            /* Heller Rotton */
-    border-left-color: var(--danger-color, #ff6b78); /* Hellerer roter Rand */
+.notification.notification-info {
+  /* Falls 'info' Typ verwendet wird */
+  background-color: #d9edf7;
+  color: #31708f;
+  border-left-color: var(--info-color);
 }
-
-
-/* Keyframe-Animation für Ein- und Ausblenden */
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translateX(100%); } /* Startet rechts außen, unsichtbar */
-  15% { opacity: 1; transform: translateX(0); }   /* Kommt rein, wird sichtbar */
-  85% { opacity: 1; transform: translateX(0); }   /* Bleibt sichtbar */
-  100% { opacity: 0; transform: translateX(100%); }/* Geht raus, wird unsichtbar */
+body.dark-mode .notification.notification-info {
+  background-color: #2a3b45;
+  color: #a1d9f7;
+  border-left-color: var(--info-color-dm);
 }
 
-/* === Ergänzung für Benachrichtigungs-Styling (Fortschrittsbalken) === */
-
-/* Container für den Fortschrittsbalken unter dem Text */
+/* Fortschrittsbalken in Notification */
 .notification .notification-progress-bar {
-    height: 4px; /* Höhe des Balkens */
-    width: 100%; /* Volle Breite der Notification-Box */
-    background-color: rgba(0, 0, 0, 0.1); /* Hintergrundfarbe des Containers */
-    border-radius: 2px; /* Abrundung */
-    margin-top: 8px; /* Abstand zum Text */
-    overflow: hidden; /* Stellt sicher, dass der innere Balken nicht überläuft */
+  height: 4px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
 }
 body.dark-mode .notification .notification-progress-bar {
-    background-color: rgba(255, 255, 255, 0.1); /* Angepasster Hintergrund für Dark Mode */
+  background-color: rgba(255, 255, 255, 0.1);
 }
-
-/* Innerer Balken, der animiert wird */
 .notification .notification-progress-bar-inner {
-    height: 100%;
-    width: 100%; /* Startet voll */
-    background-color: var(--primary-color); /* Standardfarbe (kann durch Typ überschrieben werden) */
-    border-radius: 2px; /* Abrundung passt zum Container */
-    transform-origin: left; /* Animation startet von links */
-    animation: progressBarShrink linear forwards; /* Keyframe-Animation anwenden */
-    /* Animationsdauer wird per Inline-Style im JS gesetzt */
+  height: 100%;
+  width: 100%;
+  background-color: var(--info-color); /* Default: Info */
+  border-radius: 2px;
+  transform-origin: left;
+  animation: progressBarShrink linear forwards; /* Animation anwenden */
+  /* animation-duration wird per JS gesetzt */
 }
-
-/* Keyframe-Animation für das Schrumpfen des Balkens */
-@keyframes progressBarShrink {
-  from { width: 100%; }
-  to { width: 0%; }
-}
-
-/* Farben für den inneren Balken je nach Typ */
+/* Farben für Fortschrittsbalken */
 .notification .progress-bar-success {
-    background-color: #5cb85c; /* Gleiches Grün wie Rand */
+  background-color: var(--success-color);
 }
-body.dark-mode .notification .progress-bar-success {
-    background-color: #6fbf73;
-}
-
 .notification .progress-bar-error {
-    background-color: var(--danger-color); /* Gleiches Rot wie Rand */
+  background-color: var(--danger-color);
 }
-body.dark-mode .notification .progress-bar-error {
-    background-color: var(--danger-color); /* Kann gleich bleiben oder angepasst werden */
-}
-
 .notification .progress-bar-info {
-    background-color: var(--info-color); /* Gleiches Info-Blau wie Rand */
-}
-body.dark-mode .notification .progress-bar-info {
-    background-color: var(--info-color);
+  background-color: var(--info-color);
 }
 
-/* Optional: Fade-Out Animation für die gesamte Notification (wird im JS getriggert) */
+/* Keyframe-Animation für Fortschrittsbalken */
+@keyframes progressBarShrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+/* Keyframe-Animation für Fade-Out (wird von JS getriggert) */
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; transform: translateX(10px); } /* Leicht nach rechts bewegen beim Ausblenden */
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
 }
 
-/* Hinweis: Die fadeInOut Animation für das Erscheinen/Verschwinden der Box
-   ist bereits im vorherigen CSS-Block definiert. Die fadeOut-Animation hier
-   kann verwendet werden, um das Verschwinden am Ende des Timeouts weicher zu machen,
-   wenn man es im JS aktiviert (siehe Kommentar in showNotification). */
-
-
-
-/* === ENDE Modal-Dialog Styling === */
+/* === ENDE === */
