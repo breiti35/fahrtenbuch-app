@@ -1,5 +1,5 @@
 // === script.js ===
-// Stand: 2025-04-11, Mit Filter-Funktion und Custom Confirm Modal
+// Stand: 2025-04-14, Mit Ausgaben-Erfassung, -Anzeige, -Edit, -Delete
 
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Fahrtenbuch App: DOM geladen.");
@@ -7,8 +7,17 @@ document.addEventListener("DOMContentLoaded", function () {
   // ========================================================================
   // === 1. Konstanten & Referenzen auf HTML-Elemente ===
   // ========================================================================
-  // Hauptformular (Fahrten)
+
+  // --- Haupt-Container in der mittleren Spalte ---
   const formularDiv = document.getElementById("fahrt-formular");
+  const fahrtenListeContainer = document.getElementById("fahrten-liste-container");
+  const ausgabenListeContainer = document.getElementById("ausgaben-liste-container");
+
+  // --- Inhaltsbereiche der Listen ---
+  const fahrtenListeDiv = document.getElementById("fahrten-liste");
+  const ausgabenListeDiv = document.getElementById("ausgaben-liste"); // Div für Ausgaben-Items
+
+  // --- Formular (Fahrten) ---
   const tripEntryForm = document.getElementById("trip-entry-form");
   const speichernButton = document.getElementById("speichern-btn");
   const cancelEditButton = document.getElementById("cancel-edit-btn");
@@ -20,98 +29,103 @@ document.addEventListener("DOMContentLoaded", function () {
   const kmStartInput = document.getElementById("km-start");
   const kmEndeInput = document.getElementById("km-ende");
   const distanzInput = document.getElementById("distanz");
-  const carSelect = document.getElementById("car-select"); // Hauptformular
+  const carSelect = document.getElementById("car-select");
   const zweckSelect = document.getElementById("zweck");
-  // Listen & Anzeigen
-  const fahrtenListeDiv = document.getElementById("fahrten-liste");
-  const zusammenfassungDiv = document.getElementById("zusammenfassung");
-  const carListUl = document.getElementById("car-list"); // Fahrzeugliste rechts
-  // Sidebar & Header Buttons
+  const formErrorDiv = document.getElementById("form-error-message");
+
+  // --- Sidebar & Header Buttons ---
+  const addNewButton = document.getElementById("add-new-btn");
+  const addCarMenuButton = document.getElementById("add-car-btn-menu");
+  const addExpenseMenuButton = document.getElementById("add-expense-btn-menu");
+  const showExpensesButton = document.getElementById("show-expenses-btn-menu");
+  const settingsMenuButton = document.getElementById("settings-menu-btn");
   const exportButton = document.getElementById("export-csv-btn");
   const exportJsonButton = document.getElementById("export-json-btn");
   const importJsonButton = document.getElementById("import-json-btn");
   const importJsonFileInput = document.getElementById("import-json-file");
-  const addNewButton = document.getElementById("add-new-btn"); // + Neue Fahrt
   const themeToggleButton = document.getElementById("theme-toggle-btn");
-  const sidebarToggleButton = document.getElementById(
-    "sidebar-toggle-internal"
-  ); // Sidebar-Toggle
-  const addCarMenuButton = document.getElementById("add-car-btn-menu"); // Neues Fahrzeug im Menü
-  // Fahrzeug Modal Elemente
+  const sidebarToggleButton = document.getElementById("sidebar-toggle-internal");
+
+  // --- Fahrzeug Modal Elemente ---
   const addCarModal = document.getElementById("add-car-modal");
-  const modalCloseButton = document.getElementById("modal-close-btn");
-  const modalCancelButton = document.getElementById("modal-cancel-car-btn");
-  const modalSaveButton = document.getElementById("modal-save-car-btn");
+  // Verwende eindeutige IDs für Schließen-Buttons, falls möglich, um Verwechslungen zu vermeiden
+  const modalCarCloseButton = document.getElementById("modal-close-btn"); // Geteilt? Prüfen!
+  const modalCancelCarButton = document.getElementById("modal-cancel-car-btn");
+  const modalSaveCarButton = document.getElementById("modal-save-car-btn");
   const modalCarForm = document.getElementById("modal-car-form");
   const modalCarNameInput = document.getElementById("modal-car-name");
   const modalCarPlateInput = document.getElementById("modal-car-plate");
   const modalCarError = document.getElementById("modal-car-error");
-  // Filter Elemente
+
+  // --- Ausgaben Modal Elemente ---
+  const addExpenseModal = document.getElementById("add-expense-modal");
+  const modalExpenseCloseButton = document.getElementById("modal-expense-close-btn");
+  const modalCancelExpenseButton = document.getElementById("modal-cancel-expense-btn");
+  const modalSaveExpenseButton = document.getElementById("modal-save-expense-btn");
+  const modalExpenseForm = document.getElementById("modal-expense-form");
+  const modalExpenseDateInput = document.getElementById("modal-expense-date");
+  const modalExpenseVehicleSelect = document.getElementById("modal-expense-vehicle");
+  const modalExpenseTypeSelect = document.getElementById("modal-expense-type");
+  const modalExpenseDescriptionInput = document.getElementById("modal-expense-description");
+  const modalExpenseAmountInput = document.getElementById("modal-expense-amount");
+  const modalExpenseOdometerInput = document.getElementById("modal-expense-odometer");
+  const modalExpenseError = document.getElementById("modal-expense-error");
+
+  // --- Filter Elemente ---
   const filterControlsDiv = document.getElementById("filter-controls");
-  const filterCarSelect = document.getElementById("filter-car"); // Filter-Dropdown
+  const filterCarSelect = document.getElementById("filter-car");
   const filterPurposeSelect = document.getElementById("filter-purpose");
   const filterDateStartInput = document.getElementById("filter-date-start");
   const filterDateEndInput = document.getElementById("filter-date-end");
   const applyFilterButton = document.getElementById("apply-filter-btn");
   const resetFilterButton = document.getElementById("reset-filter-btn");
   const toggleFilterButton = document.getElementById("toggle-filter-btn");
-  // NEU: Referenzen für Bestätigungs-Modal
+
+  // --- Bestätigungs-Modal ---
   const confirmModal = document.getElementById("confirm-delete-modal");
   const confirmModalMessage = document.getElementById("modal-confirm-message");
-  const confirmModalConfirmBtn = document.getElementById(
-    "modal-confirm-confirm-btn"
-  );
-  const confirmModalCancelBtn = document.getElementById(
-    "modal-confirm-cancel-btn"
-  );
-  const confirmModalCloseBtn = document.getElementById(
-    "modal-confirm-close-btn"
-  );
-  // NEU: Referenz für Formular-Fehler Div
-  const formErrorDiv = document.getElementById("form-error-message");
-  // NEU: Referenz für Notification Container
-  const notificationContainer = document.getElementById(
-    "notification-container"
-  );
-  // NEU: Referenzen für Einstellungen-Modal & Button
-  const settingsMenuButton = document.getElementById("settings-menu-btn");
+  const confirmModalConfirmBtn = document.getElementById("modal-confirm-confirm-btn");
+  const confirmModalCancelBtn = document.getElementById("modal-confirm-cancel-btn");
+  const confirmModalCloseBtn = document.getElementById("modal-confirm-close-btn");
+
+  // --- Einstellungs-Modal ---
   const settingsModal = document.getElementById("settings-modal");
-  const settingsModalCloseBtn = document.getElementById(
-    "settings-modal-close-btn"
-  );
-  const settingsModalCancelBtn = document.getElementById(
-    "settings-modal-cancel-btn"
-  );
-  const settingsModalSaveBtn = document.getElementById(
-    "settings-modal-save-btn"
-  );
+  const settingsModalCloseBtn = document.getElementById("settings-modal-close-btn");
+  const settingsModalCancelBtn = document.getElementById("settings-modal-cancel-btn");
+  const settingsModalSaveBtn = document.getElementById("settings-modal-save-btn");
   const settingsForm = document.getElementById("settings-form");
-  // Referenzen zu den Einstellungs-Feldern (werden später mehr genutzt)
-  const settingDefaultCarSelect = document.getElementById(
-    "setting-default-car"
-  );
-  const settingDefaultPurposeSelect = document.getElementById(
-    "setting-default-purpose"
-  );
+  const settingDefaultCarSelect = document.getElementById("setting-default-car");
+  const settingDefaultPurposeSelect = document.getElementById("setting-default-purpose");
   const settingDeleteAllBtn = document.getElementById("setting-delete-all-btn");
-  // Radio-Buttons für CSV-Delimiter (Name wird für Query benötigt)
   const csvDelimiterRadioName = "setting-csv-delimiter";
-  // NEU: Referenzen für Paginierung
+
+  // --- Paginierung (Fahrten) ---
   const paginationControls = document.getElementById("pagination-controls");
   const prevPageBtn = document.getElementById("prev-page-btn");
   const nextPageBtn = document.getElementById("next-page-btn");
   const pageInfoSpan = document.getElementById("page-info-span");
 
+  // --- Rechte Spalte ---
+  const zusammenfassungDiv = document.getElementById("zusammenfassung");
+  const carListUl = document.getElementById("car-list");
+
+  // --- Benachrichtigungen ---
+  const notificationContainer = document.getElementById("notification-container");
+
+
   // ========================================================================
   // === 2. Statusvariablen ===
   // ========================================================================
-  let editId = null; // ID der Fahrt, die bearbeitet wird (null = keine Bearbeitung)
-  let editCarId = null; // ID des Fahrzeugs, das bearbeitet wird (null = keine Bearbeitung)
+  let editId = null; // ID der Fahrt, die bearbeitet wird
+  let editCarId = null; // ID des Fahrzeugs, das bearbeitet wird
+  let editExpenseId = null; // ID der Ausgabe, die bearbeitet wird
   let cars = []; // Array für die Fahrzeugliste
-  let confirmModalCallback = null; // Speicher für die "Ja"-Aktion des Bestätigungs-Modals
-  let currentPage = 1; // Startet immer auf Seite 1
-  const itemsPerPage = 10; // Anzahl Fahrten pro Seite (kannst du anpassen)
-  let fullTripListForPagination = []; // Speichert die komplette Liste (gefiltert oder alle) für die Paginierung
+  let expenses = []; // Array für die Ausgabenliste
+  let confirmModalCallback = null; // Callback für Bestätigungs-Modal
+  let currentPage = 1; // Aktuelle Seite für Fahrten-Paginierung
+  const itemsPerPage = 10; // Einträge pro Seite (Fahrten)
+  let fullTripListForPagination = []; // Komplette (gefilterte) Fahrtenliste
+
 
   // ========================================================================
   // === 3. Hilfsfunktionen ===
@@ -136,101 +150,90 @@ document.addEventListener("DOMContentLoaded", function () {
     const day = now.getDate().toString().padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
-  // ========================================================================
-  // === Funktion zum Anzeigen von Benachrichtigungen ===
-  // ========================================================================
 
   /**
-   * Zeigt eine kurze Benachrichtigung (Toast) mit Fortschrittsbalken an.
-   * @param {string} message Die anzuzeigende Nachricht.
-   * @param {string} [type='success'] Typ der Nachricht ('success', 'error', 'info') - beeinflusst Styling.
-   * @param {number} [duration=10000] Anzeigedauer in Millisekunden (Standard: 10 Sekunden).
+   * Zeigt eine kurze Benachrichtigung (Toast) an.
+   * @param {string} message Nachricht.
+   * @param {string} [type='success'] Typ ('success', 'error', 'info').
+   * @param {number} [duration=5000] Dauer in ms.
    */
-  function showNotification(message, type = "success", duration = 10000) {
-    if (!notificationContainer) {
-      console.error("Notification-Container nicht gefunden!");
-      return;
-    }
-
-    // Neues Div für die gesamte Nachricht erstellen
+  function showNotification(message, type = "success", duration = 5000) {
+    if (!notificationContainer) return;
     const notificationDiv = document.createElement("div");
-    notificationDiv.classList.add("notification");
-    notificationDiv.classList.add(`notification-${type}`);
-
-    // Innere Elemente (Text, Fortschrittsbalken) erstellen
+    notificationDiv.classList.add("notification", `notification-${type}`);
     const messageElement = document.createElement("div");
     messageElement.textContent = message;
-
     const progressBarContainer = document.createElement("div");
     progressBarContainer.classList.add("notification-progress-bar");
-
     const progressBarInner = document.createElement("div");
-    progressBarInner.classList.add("notification-progress-bar-inner");
-    progressBarInner.classList.add(`progress-bar-${type}`);
-    progressBarInner.style.animationDuration = `${duration / 1000}s`; // Dauer für Balken-Animation
-
-    // Elemente zusammenbauen
+    progressBarInner.classList.add("notification-progress-bar-inner", `progress-bar-${type}`);
+    progressBarInner.style.animationDuration = `${duration / 1000}s`;
     progressBarContainer.appendChild(progressBarInner);
     notificationDiv.appendChild(messageElement);
     notificationDiv.appendChild(progressBarContainer);
-
-    // Zum DOM hinzufügen (ist noch unsichtbar wegen opacity: 0 in .notification CSS)
     notificationContainer.appendChild(notificationDiv);
-
-    // --- Fade-In auslösen ---
-    // Kurze Verzögerung (requestAnimationFrame), damit die Transition ausgelöst wird.
     requestAnimationFrame(() => {
       notificationDiv.classList.add("notification-visible");
     });
-
-    // --- Entfernen nach Ablauf der Dauer ---
-    // Dauer der Ausblend-Transition aus CSS (z.B. 0.5s = 500ms)
     const fadeOutTransitionDuration = 500;
-
-    // Haupt-Timeout für die Gesamtdauer
     setTimeout(() => {
-      // 1. Ausblend-Transition starten durch Entfernen der Klasse
       notificationDiv.classList.remove("notification-visible");
-
-      // 2. Element aus dem DOM entfernen, NACHDEM die Transition abgeschlossen ist
       setTimeout(() => {
-        // Sicherstellen, dass das Element noch existiert, bevor remove aufgerufen wird
         if (notificationDiv.parentNode === notificationContainer) {
           notificationContainer.removeChild(notificationDiv);
         }
-      }, fadeOutTransitionDuration); // Wartezeit = Transition-Dauer
-    }, duration); // Gesamte Anzeigedauer (z.B. 10000ms)
+      }, fadeOutTransitionDuration);
+    }, duration);
   }
 
   /**
-   * Aktualisiert die Paginierungs-Steuerelemente (Buttons, Seitenzahl).
-   * Blendet die Steuerung aus, wenn es nur eine Seite oder weniger gibt.
-   * @param {number} currentPage Aktuelle Seite.
-   * @param {number} totalPages Gesamtanzahl der Seiten.
+   * Aktualisiert die Paginierungs-Steuerelemente für Fahrten.
    */
   function updatePaginationControls(currentPage, totalPages) {
-    if (!paginationControls || !prevPageBtn || !nextPageBtn || !pageInfoSpan) {
-      console.error("Paginierungs-Steuerelemente nicht gefunden!");
-      return;
-    }
-
+    if (!paginationControls || !prevPageBtn || !nextPageBtn || !pageInfoSpan) return;
     if (totalPages <= 1) {
-      paginationControls.style.display = "none"; // Verstecken, wenn nicht benötigt
+      paginationControls.style.display = "none";
       return;
     }
-
-    paginationControls.style.display = "block"; // Anzeigen (oder 'flex', je nach Styling)
+    paginationControls.style.display = "block";
     pageInfoSpan.textContent = `Seite ${currentPage} von ${totalPages}`;
     prevPageBtn.disabled = currentPage <= 1;
     nextPageBtn.disabled = currentPage >= totalPages;
   }
+
+  /**
+   * Steuert die Sichtbarkeit der Haupt-Container in der mittleren Spalte.
+   * Blendet alle aus und zeigt nur den gewünschten an.
+   * @param {'formular' | 'fahrten' | 'ausgaben'} viewToShow - Die anzuzeigende Ansicht.
+   */
+  function showMiddleColumnView(viewToShow) {
+    console.log("Zeige mittlere Spaltenansicht:", viewToShow);
+    // Alle potentiellen Haupt-Container ausblenden
+    if (formularDiv) formularDiv.classList.remove('form-visible');
+    if (fahrtenListeContainer) fahrtenListeContainer.style.display = 'none';
+    if (ausgabenListeContainer) ausgabenListeContainer.style.display = 'none';
+
+    // Gewünschten Container einblenden
+    switch (viewToShow) {
+        case 'formular':
+            if (formularDiv) formularDiv.classList.add('form-visible');
+            break;
+        case 'fahrten':
+            if (fahrtenListeContainer) fahrtenListeContainer.style.display = 'block';
+            break;
+        case 'ausgaben':
+            if (ausgabenListeContainer) ausgabenListeContainer.style.display = 'block';
+            displayExpenses(); // Ausgaben laden und anzeigen
+            break;
+        default:
+            console.warn("Unbekannte Ansicht angefordert:", viewToShow);
+            if (fahrtenListeContainer) fahrtenListeContainer.style.display = 'block'; // Fallback zur Fahrtenliste
+    }
+  }
+
   // ========================================================================
   // === 4. Theme (Dark Mode) Funktionen ===
   // ========================================================================
-  /**
-   * Setzt das Theme (CSS-Klasse am Body und Icon im Button).
-   * @param {string} mode - 'light' oder 'dark'.
-   */
   function setTheme(mode) {
     const icon = themeToggleButton?.querySelector("i.fa-solid");
     if (mode === "dark") {
@@ -249,13 +252,9 @@ document.addEventListener("DOMContentLoaded", function () {
       themeToggleButton?.setAttribute("title", "Dark Mode aktivieren");
     }
     console.log("Theme gesetzt:", mode);
-  }
-
-  /**
-   * Handler für Klick auf den Theme-Toggle-Button.
-   */
+   }
   function handleThemeToggle() {
-    const isDarkMode = document.body.classList.contains("dark-mode");
+     const isDarkMode = document.body.classList.contains("dark-mode");
     const newMode = isDarkMode ? "light" : "dark";
     setTheme(newMode);
     try {
@@ -263,11 +262,7 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (e) {
       console.error("Fehler beim Speichern der Theme-Präferenz:", e);
     }
-  }
-
-  /**
-   * Lädt die Theme-Präferenz beim Start (localStorage oder System) und wendet sie an.
-   */
+   }
   function loadAndSetInitialTheme() {
     let preferredTheme = "light"; // Standard
     try {
@@ -281,15 +276,11 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Fehler beim Lesen der Theme-Präferenz:", e);
     }
     setTheme(preferredTheme);
-  }
+   }
 
   // ========================================================================
   // === 5. Sidebar Toggle Funktionen ===
   // ========================================================================
-  /**
-   * Setzt den Sidebar-Zustand (CSS-Klasse am Body und Icon im Button).
-   * @param {boolean} collapsed - true, wenn Sidebar eingeklappt sein soll.
-   */
   function setSidebarState(collapsed) {
     const icon = sidebarToggleButton?.querySelector("i.fa-solid");
     if (collapsed) {
@@ -307,11 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
       sidebarToggleButton?.setAttribute("title", "Menü schließen");
     }
-  }
-
-  /**
-   * Handler für Klick auf den Sidebar-Toggle-Button.
-   */
+   }
   function handleSidebarToggle() {
     const isCollapsed = document.body.classList.contains("sidebar-collapsed");
     setSidebarState(!isCollapsed); // Zustand umschalten
@@ -320,13 +307,9 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (e) {
       console.error("Fehler beim Speichern des Sidebar-Zustands:", e);
     }
-  }
-
-  /**
-   * Lädt den Sidebar-Zustand beim Start (localStorage) und wendet ihn an.
-   */
+   }
   function loadAndSetInitialSidebarState() {
-    let collapsed = false; // Standard: ausgeklappt
+     let collapsed = false; // Standard: ausgeklappt
     try {
       const savedState = localStorage.getItem("sidebarCollapsed");
       if (savedState === "true") {
@@ -336,16 +319,13 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Fehler beim Laden des Sidebar-Zustands:", e);
     }
     setSidebarState(collapsed);
-  }
+   }
 
   // ========================================================================
   // === 6. Fahrzeug-Verwaltungsfunktionen ===
   // ========================================================================
-  /**
-   * Lädt die Fahrzeugliste aus dem localStorage.
-   */
   function loadCars() {
-    const storedCars = localStorage.getItem("fahrtenbuchCars");
+     const storedCars = localStorage.getItem("fahrtenbuchCars");
     try {
       const parsedCars = storedCars ? JSON.parse(storedCars) : [];
       cars = Array.isArray(parsedCars) ? parsedCars : [];
@@ -354,624 +334,656 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Fehler beim Laden der Fahrzeuge:", e);
       cars = [];
     }
+    // Ensure IDs exist (for older data potentially without IDs)
     cars.forEach((car) => {
       if (!car.id) {
         car.id = Date.now() + Math.random().toString(16).slice(2);
       }
     });
-  }
-
-  /**
-   * Speichert das aktuelle 'cars'-Array im localStorage.
-   */
+   }
   function saveCars() {
     try {
       localStorage.setItem("fahrtenbuchCars", JSON.stringify(cars));
       console.log("Fahrzeuge gespeichert.");
     } catch (e) {
       console.error("Fehler beim Speichern der Fahrzeuge:", e);
-      alert("Fehler beim Speichern der Fahrzeuge!");
+      showNotification("Fehler beim Speichern der Fahrzeuge!", "error");
     }
-  }
-
-  /**
-   * Zeigt die Liste der angelegten Fahrzeuge im HTML (rechte Spalte) an.
-   * (Angepasst: Nutzt CSS Klassen statt Inline-Styles für Buttons/Layout)
-   */
+   }
   function displayCarList() {
-    if (!carListUl) {
-      console.error("Element für Fahrzeugliste (UL) nicht gefunden!");
-      return;
-    }
-    carListUl.innerHTML = ""; // Liste leeren
+    if (!carListUl) return;
+    carListUl.innerHTML = "";
     if (cars.length === 0) {
-      // Optional: Klasse für leere Liste hinzufügen, falls spezifisches Styling gewünscht
-      carListUl.innerHTML =
-        '<li class="car-list-item-empty">Keine Fahrzeuge angelegt.</li>';
+      carListUl.innerHTML = '<li class="car-list-item-empty">Keine Fahrzeuge angelegt.</li>';
     } else {
-      cars.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-      cars.forEach((car) => {
+      // Sort cars by name before displaying
+      const sortedCars = [...cars].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+      sortedCars.forEach((car) => {
         const li = document.createElement("li");
-        li.classList.add("car-list-item"); // Klasse für LI
+        li.classList.add("car-list-item");
         li.setAttribute("data-car-id", car.id);
-
         const carNameText = car.name || "Unbenannt";
         const carPlateText = car.plate ? ` (${car.plate})` : "";
-
-        // Span für Info-Teil (Icon, Name, Kennzeichen)
         const carInfoSpan = document.createElement("span");
-        carInfoSpan.classList.add("car-list-info"); // Klasse für Info-Span
-        // Verwende list-icon Klasse für das Icon
+        carInfoSpan.classList.add("car-list-info");
         carInfoSpan.innerHTML = `
-                <i class="fa-solid fa-car-side fa-fw list-icon"></i>
-                <span class="car-name">${carNameText}</span>
-                <strong class="car-plate">${carPlateText}</strong>
-            `;
-
-        // Span für Aktions-Buttons
+          <i class="fa-solid fa-car-side fa-fw list-icon"></i>
+          <span class="car-name">${carNameText}</span>
+          <strong class="car-plate">${carPlateText}</strong>`;
         const carActionsSpan = document.createElement("span");
-        carActionsSpan.classList.add("car-list-actions"); // Klasse für Action-Span
-
-        // Edit Button erstellen und Klassen hinzufügen
+        carActionsSpan.classList.add("car-list-actions");
         const editBtn = document.createElement("button");
-        editBtn.type = "button";
-        editBtn.title = "Fahrzeug bearbeiten";
-        editBtn.dataset.carId = car.id;
-        editBtn.classList.add("car-list-button", "edit-car-btn"); // Basis-Klasse + spezifische Klasse
-        editBtn.innerHTML = '<i class="fa-solid fa-pencil"></i>';
-
-        // Delete Button erstellen und Klassen hinzufügen
+        editBtn.type = "button"; editBtn.title = "Fahrzeug bearbeiten"; editBtn.dataset.carId = car.id;
+        editBtn.classList.add("car-list-button", "edit-car-btn"); editBtn.innerHTML = '<i class="fa-solid fa-pencil"></i>';
         const deleteBtn = document.createElement("button");
-        deleteBtn.type = "button";
-        deleteBtn.title = "Fahrzeug löschen";
-        deleteBtn.dataset.carId = car.id;
-        deleteBtn.classList.add("car-list-button", "delete-car-btn"); // Basis-Klasse + spezifische Klasse
-        deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
-
-        // Buttons zum Action-Span hinzufügen
-        carActionsSpan.appendChild(editBtn);
-        carActionsSpan.appendChild(deleteBtn);
-
-        // Spans zum LI hinzufügen
-        li.appendChild(carInfoSpan);
-        li.appendChild(carActionsSpan);
-
-        // LI zur UL hinzufügen
+        deleteBtn.type = "button"; deleteBtn.title = "Fahrzeug löschen"; deleteBtn.dataset.carId = car.id;
+        deleteBtn.classList.add("car-list-button", "delete-car-btn"); deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+        carActionsSpan.appendChild(editBtn); carActionsSpan.appendChild(deleteBtn);
+        li.appendChild(carInfoSpan); li.appendChild(carActionsSpan);
         carListUl.appendChild(li);
       });
     }
-  }
-
-  /**
-   * Füllt das Dropdown-Menü im Hauptformular (Fahrten) mit den Fahrzeugen.
-   */
+   }
   function populateCarDropdown() {
-    if (!carSelect) {
-      console.error("Fahrzeugauswahl-Dropdown nicht gefunden!");
-      return;
-    }
+    if (!carSelect) return;
     const aktuellerWert = carSelect.value;
-    while (carSelect.options.length > 1) {
-      carSelect.remove(1);
-    }
-    cars.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-    cars.forEach((car) => {
+    while (carSelect.options.length > 1) carSelect.remove(1);
+    const sortedCars = [...cars].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    sortedCars.forEach((car) => {
       const option = document.createElement("option");
       option.value = car.id;
-      option.textContent = `${car.name || "Unbenannt"}${
-        car.plate ? ` (${car.plate})` : ""
-      }`;
+      option.textContent = `${car.name || "Unbenannt"}${car.plate ? ` (${car.plate})` : ""}`;
       carSelect.appendChild(option);
     });
     carSelect.value = aktuellerWert;
-  }
-
-  /**
-   * Füllt das Dropdown-Menü im Filterbereich mit den Fahrzeugen.
-   */
+   }
   function populateFilterCarDropdown() {
-    if (!filterCarSelect) {
-      console.error("Fahrzeugauswahl-Dropdown im Filter nicht gefunden!");
-      return;
-    }
+    if (!filterCarSelect) return;
     const aktuellerWert = filterCarSelect.value;
-    while (filterCarSelect.options.length > 1) {
-      filterCarSelect.remove(1);
-    }
-    cars.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-    cars.forEach((car) => {
+    while (filterCarSelect.options.length > 1) filterCarSelect.remove(1);
+    const sortedCars = [...cars].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    sortedCars.forEach((car) => {
       const option = document.createElement("option");
       option.value = car.id;
-      option.textContent = `${car.name || "Unbenannt"}${
-        car.plate ? ` (${car.plate})` : ""
-      }`;
+      option.textContent = `${car.name || "Unbenannt"}${car.plate ? ` (${car.plate})` : ""}`;
       filterCarSelect.appendChild(option);
     });
     filterCarSelect.value = aktuellerWert;
     console.log("Filter-Fahrzeug-Dropdown befüllt.");
-  }
-
-  // --- Modal-Funktionen für Fahrzeuge ---
-  /**
-   * Öffnet den Modal-Dialog zum Hinzufügen eines Fahrzeugs.
-   */
+   }
   function openAddCarModal() {
     if (!addCarModal || !modalCarForm) return;
     console.log("Öffne Fahrzeug-Modal zum Hinzufügen...");
-    editCarId = null; // Sicherstellen, dass wir im Hinzufügen-Modus sind
+    editCarId = null;
     modalCarForm.reset();
-    if (modalCarError) {
-      modalCarError.textContent = "";
-      modalCarError.style.display = "none";
-    }
-    // Titel und Button auf Standard setzen
+    if (modalCarError) { modalCarError.textContent = ""; modalCarError.style.display = "none"; }
     const modalTitle = addCarModal.querySelector(".modal-header h2");
     if (modalTitle) modalTitle.textContent = "Neues Fahrzeug hinzufügen";
-    if (modalSaveButton) modalSaveButton.textContent = "Fahrzeug speichern";
-
-    addCarModal.classList.add("modal-visible"); // Klasse nutzen
-    setTimeout(() => {
-      modalCarNameInput?.focus();
-    }, 50);
-  }
-
-  /**
-   * Öffnet den Modal-Dialog zum Bearbeiten eines vorhandenen Fahrzeugs.
-   * @param {string|number} carId Die ID des zu bearbeitenden Fahrzeugs.
-   */
+    if (modalSaveCarButton) modalSaveCarButton.textContent = "Fahrzeug speichern";
+    addCarModal.classList.add("modal-visible");
+    setTimeout(() => { modalCarNameInput?.focus(); }, 50);
+   }
   function openEditCarModal(carId) {
-    if (!addCarModal || !modalCarForm) return;
+     if (!addCarModal || !modalCarForm) return;
     console.log("Öffne Fahrzeug-Modal zum Bearbeiten für ID:", carId);
-
-    const carToEdit = cars.find(
-      (car) => car.id.toString() === carId.toString()
-    );
+    const carToEdit = cars.find((car) => car.id.toString() === carId.toString());
     if (!carToEdit) {
       console.error("Zu bearbeitendes Fahrzeug nicht gefunden, ID:", carId);
-      alert("Fehler: Zu bearbeitendes Fahrzeug nicht gefunden.");
+      showNotification("Fehler: Zu bearbeitendes Fahrzeug nicht gefunden.", "error");
       return;
     }
-
-    editCarId = carId; // Globale Variable setzen
-
+    editCarId = carId;
     modalCarNameInput.value = carToEdit.name;
     modalCarPlateInput.value = carToEdit.plate;
-
-    if (modalCarError) {
-      modalCarError.textContent = "";
-      modalCarError.style.display = "none";
-    }
-
+    if (modalCarError) { modalCarError.textContent = ""; modalCarError.style.display = "none"; }
     const modalTitle = addCarModal.querySelector(".modal-header h2");
     if (modalTitle) modalTitle.textContent = "Fahrzeug bearbeiten";
-    if (modalSaveButton) modalSaveButton.textContent = "Änderungen speichern";
-
-    addCarModal.classList.add("modal-visible"); // Klasse nutzen
-    setTimeout(() => {
-      modalCarNameInput?.focus();
-    }, 50);
-  }
-
-  /**
-   * Schließt den Modal-Dialog zum Hinzufügen/Bearbeiten eines Fahrzeugs
-   * und setzt den Bearbeitungsstatus zurück.
-   */
+    if (modalSaveCarButton) modalSaveCarButton.textContent = "Änderungen speichern";
+    addCarModal.classList.add("modal-visible");
+    setTimeout(() => { modalCarNameInput?.focus(); }, 50);
+   }
   function closeAddCarModal() {
     if (!addCarModal) return;
-    addCarModal.classList.remove("modal-visible"); // Klasse nutzen
-
-    editCarId = null; // Bearbeitungsstatus zurücksetzen
-
-    // Titel und Button-Text auf Standard zurücksetzen (wird in openAdd/Edit gesetzt)
-    // const modalTitle = addCarModal.querySelector('.modal-header h2');
-    // if (modalTitle) modalTitle.textContent = 'Neues Fahrzeug hinzufügen';
-    // if (modalSaveButton) modalSaveButton.textContent = 'Fahrzeug speichern';
-
+    addCarModal.classList.remove("modal-visible");
+    editCarId = null;
     console.log("Fahrzeug-Modal geschlossen, Edit-Status zurückgesetzt.");
-  }
-
-  /**
-   * Verarbeitet das Speichern aus dem Modal-Dialog (Fahrzeug).
-   * Unterscheidet zwischen Hinzufügen und Aktualisieren.
-   */
+   }
   function handleModalSaveCar() {
     const name = modalCarNameInput?.value.trim();
     const plate = modalCarPlateInput?.value.trim();
-
     if (!name || !plate) {
-      showModalError("Bitte Name/Modell und Kennzeichen eingeben.");
-      return;
+      showModalError("Bitte Name/Modell und Kennzeichen eingeben."); return;
     }
-
-    if (editCarId !== null) {
-      // BEARBEITEN-MODUS
+    if (editCarId !== null) { // BEARBEITEN
       console.log("Speichere Änderungen für Fahrzeug-ID:", editCarId);
-      const otherCarHasSamePlate = cars.some(
-        (car) =>
-          car.id.toString() !== editCarId.toString() &&
-          car.plate.toLowerCase() === plate.toLowerCase()
-      );
+      const otherCarHasSamePlate = cars.some(car => car.id.toString() !== editCarId.toString() && car.plate.toLowerCase() === plate.toLowerCase());
       if (otherCarHasSamePlate) {
-        showModalError(
-          `Ein anderes Fahrzeug (${
-            cars.find((c) => c.plate.toLowerCase() === plate.toLowerCase())
-              ?.name || "?"
-          }) hat bereits das Kennzeichen "${plate}".`
-        );
-        return;
+        showModalError(`Ein anderes Fahrzeug (${cars.find(c => c.plate.toLowerCase() === plate.toLowerCase())?.name || "?"}) hat bereits das Kennzeichen "${plate}".`); return;
       }
-      const carToUpdate = cars.find(
-        (car) => car.id.toString() === editCarId.toString()
-      );
+      const carToUpdate = cars.find(car => car.id.toString() === editCarId.toString());
       if (carToUpdate) {
-        carToUpdate.name = name;
-        carToUpdate.plate = plate;
-        saveCars();
-        displayCarList();
-        populateCarDropdown();
-        populateFilterCarDropdown(); // Filter auch aktualisieren
+        carToUpdate.name = name; carToUpdate.plate = plate;
+        saveCars(); displayCarList(); populateCarDropdown(); populateFilterCarDropdown(); populateExpenseVehicleDropdown(); // Update expense dropdown too
         console.log("Fahrzeug erfolgreich aktualisiert:", carToUpdate);
+        showNotification("Fahrzeug erfolgreich aktualisiert.", "success");
         closeAddCarModal();
       } else {
-        console.error(
-          "Fehler beim Speichern: Zu bearbeitendes Fahrzeug nicht mehr im Array gefunden, ID:",
-          editCarId
-        );
-        alert(
-          "Fehler: Das zu bearbeitende Fahrzeug konnte nicht gefunden werden."
-        );
+        console.error("Fehler beim Speichern: Zu bearbeitendes Fahrzeug nicht mehr gefunden, ID:", editCarId);
+        showNotification("Fehler: Das zu bearbeitende Fahrzeug konnte nicht gefunden werden.", "error");
         closeAddCarModal();
       }
-    } else {
-      // HINZUFÜGEN-MODUS
+    } else { // HINZUFÜGEN
       console.log("Speichere neues Fahrzeug...");
-      if (cars.some((car) => car.plate.toLowerCase() === plate.toLowerCase())) {
-        showModalError(
-          `Fehler: Ein Fahrzeug mit dem Kennzeichen "${plate}" existiert bereits.`
-        );
-        return; // Hinzufügen verhindern
+      if (cars.some(car => car.plate.toLowerCase() === plate.toLowerCase())) {
+        showModalError(`Fehler: Ein Fahrzeug mit dem Kennzeichen "${plate}" existiert bereits.`); return;
       } else {
-        if (modalCarError) {
-          modalCarError.textContent = "";
-          modalCarError.style.display = "none";
-        }
+        if (modalCarError) { modalCarError.textContent = ""; modalCarError.style.display = "none"; }
       }
-      const newCar = {
-        id: Date.now() + Math.random().toString(16).slice(2),
-        name: name,
-        plate: plate,
-      };
+      const newCar = { id: Date.now() + Math.random().toString(16).slice(2), name: name, plate: plate };
       cars.push(newCar);
-      saveCars();
-      displayCarList();
-      populateCarDropdown();
-      populateFilterCarDropdown(); // Filter auch aktualisieren
+      saveCars(); displayCarList(); populateCarDropdown(); populateFilterCarDropdown(); populateExpenseVehicleDropdown(); // Update expense dropdown too
       console.log("Neues Fahrzeug gespeichert (via Modal):", newCar);
+      showNotification("Neues Fahrzeug erfolgreich hinzugefügt.", "success");
       closeAddCarModal();
     }
-  }
-  /**
-   * Zeigt eine Fehlermeldung im Fahrzeug-Modal an.
-   * @param {string} message - Die anzuzeigende Fehlermeldung.
-   */
+   }
   function showModalError(message) {
     if (!modalCarError) return;
     modalCarError.textContent = message;
     modalCarError.style.display = "block";
-  }
-  // NEU: Funktion zum Füllen des Fahrzeug-Dropdowns im Einstellungs-Modal
-  /**
-   * Füllt das Dropdown-Menü für das Standard-Fahrzeug im Einstellungs-Modal.
-   */
+   }
   function populateSettingsCarDropdown() {
-    if (!settingDefaultCarSelect) {
-      console.error(
-        "Dropdown für Standard-Fahrzeug in Einstellungen nicht gefunden!"
-      );
-      return;
-    }
-    // Aktuellen Wert merken (wird beim Laden der Einstellungen wichtig)
+    if (!settingDefaultCarSelect) return;
     const aktuellerWert = settingDefaultCarSelect.value;
-
-    // Alle Optionen außer der ersten ("-- Kein Standard --") entfernen
-    while (settingDefaultCarSelect.options.length > 1) {
-      settingDefaultCarSelect.remove(1);
-    }
-    // Sortierte Fahrzeuge hinzufügen
-    cars.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-    cars.forEach((car) => {
+    while (settingDefaultCarSelect.options.length > 1) settingDefaultCarSelect.remove(1);
+    const sortedCars = [...cars].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    sortedCars.forEach((car) => {
       const option = document.createElement("option");
-      option.value = car.id; // ID als Wert
-      option.textContent = `${car.name || "Unbenannt"}${
-        car.plate ? ` (${car.plate})` : ""
-      }`;
+      option.value = car.id;
+      option.textContent = `${car.name || "Unbenannt"}${car.plate ? ` (${car.plate})` : ""}`;
       settingDefaultCarSelect.appendChild(option);
     });
-    // Versuchen, den alten Wert wieder auszuwählen
-    // (Dieser Teil wird relevanter, wenn wir das Laden implementieren)
     settingDefaultCarSelect.value = aktuellerWert;
     console.log("Einstellungen: Standard-Fahrzeug-Dropdown befüllt.");
-  }
+   }
+
   // ========================================================================
-  // === NEU: Funktionen für Bestätigungs-Modal ===
+  // === 7. Ausgaben-Verwaltungsfunktionen ===
   // ========================================================================
 
   /**
-   * Öffnet das Bestätigungs-Modal mit einer Nachricht und speichert die Callback-Funktion.
-   * (Mit zusätzlichem Debugging für Element-Referenzen)
-   * @param {string} message Die Nachricht, die im Modal angezeigt werden soll.
-   * @param {function} onConfirm Die Funktion, die ausgeführt wird, wenn "Bestätigen" geklickt wird.
+   * Lädt die Ausgabenliste aus dem localStorage.
    */
+  function loadExpenses() {
+    const storedExpenses = localStorage.getItem("fahrtenbuchExpenses");
+    try {
+      const parsedExpenses = storedExpenses ? JSON.parse(storedExpenses) : [];
+      expenses = Array.isArray(parsedExpenses) ? parsedExpenses : [];
+      console.log(`${expenses.length} Ausgaben geladen.`);
+      // Ensure IDs exist
+      expenses.forEach((exp) => {
+        if (!exp.id) {
+          exp.id = Date.now() + Math.random().toString(16).slice(2);
+        }
+      });
+    } catch (e) {
+      console.error("Fehler beim Laden der Ausgaben:", e);
+      expenses = [];
+    }
+  }
+
+  /**
+   * Speichert das aktuelle 'expenses'-Array (sortiert nach Datum) im localStorage.
+   */
+  function saveExpenses() {
+    try {
+      // Sortieren nach Datum absteigend (neueste zuerst)
+      expenses.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+      localStorage.setItem("fahrtenbuchExpenses", JSON.stringify(expenses));
+      console.log("Ausgaben gespeichert.");
+    } catch (e) {
+      console.error("Fehler beim Speichern der Ausgaben:", e);
+      showNotification("Fehler beim Speichern der Ausgaben!", "error");
+    }
+  }
+
+  /**
+   * Füllt das Fahrzeug-Dropdown im Ausgaben-Modal.
+   */
+  function populateExpenseVehicleDropdown() {
+    if (!modalExpenseVehicleSelect) {
+        console.error("Fahrzeugauswahl-Dropdown im Ausgaben-Modal nicht gefunden!");
+        return;
+    }
+    const aktuellerWert = modalExpenseVehicleSelect.value;
+    while (modalExpenseVehicleSelect.options.length > 1) {
+        modalExpenseVehicleSelect.remove(1);
+    }
+    const sortedCars = [...cars].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    sortedCars.forEach((car) => {
+        const option = document.createElement("option");
+        option.value = car.id;
+        option.textContent = `${car.name || "Unbenannt"}${car.plate ? ` (${car.plate})` : ""}`;
+        modalExpenseVehicleSelect.appendChild(option);
+    });
+    modalExpenseVehicleSelect.value = aktuellerWert;
+    console.log("Ausgaben-Modal: Fahrzeug-Dropdown befüllt.");
+  }
+
+  /**
+   * Öffnet den Modal-Dialog zum Hinzufügen einer Ausgabe.
+   */
+  function openAddExpenseModal() {
+    if (!addExpenseModal || !modalExpenseForm) return;
+    console.log("Öffne Ausgaben-Modal zum Hinzufügen...");
+    editExpenseId = null; // Sicherstellen, dass wir im Hinzufügen-Modus sind
+    modalExpenseForm.reset();
+    populateExpenseVehicleDropdown();
+    modalExpenseDateInput.value = getDatumString();
+
+    const modalTitle = addExpenseModal.querySelector(".modal-header h2");
+    if(modalTitle) modalTitle.textContent = "Neue Ausgabe erfassen";
+    if(modalSaveExpenseButton) modalSaveExpenseButton.textContent = "Ausgabe speichern";
+
+    if (modalExpenseError) {
+      modalExpenseError.textContent = "";
+      modalExpenseError.style.display = "none";
+    }
+    addExpenseModal.classList.add("modal-visible");
+    setTimeout(() => { modalExpenseDateInput?.focus(); }, 50);
+  }
+
+   /**
+   * Startet den Bearbeitungsmodus für eine Ausgabe.
+   * @param {string|number} expenseId Die ID der zu bearbeitenden Ausgabe.
+   */
+  function startEditExpenseMode(expenseId) {
+    if (!addExpenseModal || !modalExpenseForm) return;
+    console.log("Starte Edit-Modus für Ausgabe-ID:", expenseId);
+
+    const expenseToEdit = expenses.find(exp => exp.id.toString() === expenseId.toString());
+    if (!expenseToEdit) {
+        showNotification("Fehler: Zu bearbeitende Ausgabe nicht gefunden!", "error");
+        return;
+    }
+
+    editExpenseId = expenseId; // Globale Variable setzen
+
+    // Formular mit vorhandenen Daten füllen
+    populateExpenseVehicleDropdown(); // Dropdown füllen, bevor Wert gesetzt wird
+    modalExpenseDateInput.value = expenseToEdit.date || "";
+    modalExpenseVehicleSelect.value = expenseToEdit.vehicleId || "";
+    modalExpenseTypeSelect.value = expenseToEdit.type || "";
+    modalExpenseDescriptionInput.value = expenseToEdit.description || "";
+    modalExpenseAmountInput.value = expenseToEdit.amount || "";
+    modalExpenseOdometerInput.value = expenseToEdit.odometer !== null ? expenseToEdit.odometer : ""; // Leeren String, wenn null
+
+    // Titel und Button für "Bearbeiten"-Modus anpassen
+    const modalTitle = addExpenseModal.querySelector(".modal-header h2");
+    if(modalTitle) modalTitle.textContent = "Ausgabe bearbeiten";
+    if(modalSaveExpenseButton) modalSaveExpenseButton.textContent = "Änderungen speichern";
+
+    if (modalExpenseError) { // Fehler ggf. löschen
+      modalExpenseError.textContent = "";
+      modalExpenseError.style.display = "none";
+    }
+
+    addExpenseModal.classList.add("modal-visible"); // Modal anzeigen
+    setTimeout(() => { modalExpenseDateInput?.focus(); }, 50); // Fokus setzen
+  }
+
+  /**
+   * Schließt den Modal-Dialog (Ausgaben) und setzt den Edit-Status zurück.
+   */
+  function closeAddExpenseModal() {
+    if (!addExpenseModal) return;
+    addExpenseModal.classList.remove("modal-visible");
+    editExpenseId = null; // WICHTIG: Edit-Status immer zurücksetzen
+    console.log("Ausgaben-Modal geschlossen, Edit-Status zurückgesetzt.");
+  }
+
+  /**
+   * Zeigt eine Fehlermeldung im Ausgaben-Modal an.
+   */
+  function showExpenseModalError(message) {
+      if (!modalExpenseError) return;
+      modalExpenseError.textContent = message;
+      modalExpenseError.style.display = "block";
+  }
+
+  /**
+   * Validiert die Eingaben im Ausgaben-Modal.
+   * @returns {object|null} Das validierte Ausgabenobjekt oder null bei Fehlern.
+   */
+  function validateAndGetExpenseData() {
+      const expenseData = {
+          date: modalExpenseDateInput.value,
+          vehicleId: modalExpenseVehicleSelect.value,
+          type: modalExpenseTypeSelect.value,
+          description: modalExpenseDescriptionInput.value.trim(),
+          amount: modalExpenseAmountInput.value,
+          odometer: modalExpenseOdometerInput.value.trim()
+      };
+      const errors = [];
+      if (!expenseData.date) errors.push("Bitte Datum eingeben.");
+      if (!expenseData.vehicleId) errors.push("Bitte Fahrzeug auswählen.");
+      if (!expenseData.type) errors.push("Bitte Art der Ausgabe auswählen.");
+      if (!expenseData.amount || isNaN(parseFloat(expenseData.amount)) || parseFloat(expenseData.amount) <= 0) {
+          errors.push("Bitte einen gültigen, positiven Betrag eingeben.");
+      }
+      if (expenseData.odometer !== "" && (isNaN(parseInt(expenseData.odometer, 10)) || parseInt(expenseData.odometer, 10) < 0)) {
+           errors.push("Bitte einen gültigen, nicht-negativen Kilometerstand eingeben oder das Feld leer lassen.");
+      }
+      if (errors.length > 0) {
+          showExpenseModalError(errors.join("\n")); return null;
+      }
+      if (modalExpenseError) { modalExpenseError.textContent = ""; modalExpenseError.style.display = "none"; }
+      expenseData.amount = parseFloat(expenseData.amount);
+      expenseData.odometer = expenseData.odometer !== "" ? parseInt(expenseData.odometer, 10) : null;
+      return expenseData;
+  }
+
+  /**
+   * Verarbeitet das Speichern aus dem Modal-Dialog (Ausgabe).
+   * Unterscheidet jetzt zwischen Hinzufügen und Bearbeiten.
+   */
+  function handleSaveExpense() {
+    console.log("Speichern-Button im Ausgaben-Modal geklickt. Edit-ID:", editExpenseId);
+    const validatedData = validateAndGetExpenseData();
+    if (!validatedData) {
+        console.warn("Validierung der Ausgabe fehlgeschlagen.");
+        return; // Abbruch bei Validierungsfehler
+    }
+
+    if (editExpenseId !== null) {
+        // --- BEARBEITEN-MODUS ---
+        const index = expenses.findIndex(exp => exp.id.toString() === editExpenseId.toString());
+        if (index !== -1) {
+            expenses[index] = { ...expenses[index], ...validatedData }; // Update mit Beibehaltung der ID
+            saveExpenses();
+            console.log("Ausgabe erfolgreich aktualisiert:", expenses[index]);
+            showNotification("Änderung erfolgreich gespeichert!", "success");
+            closeAddExpenseModal(); // Schließt Modal und setzt editExpenseId zurück
+            displayExpenses(); // Liste neu anzeigen
+        } else {
+            console.error("Fehler beim Update: Zu bearbeitende Ausgabe nicht gefunden, ID:", editExpenseId);
+            showNotification("Fehler: Ausgabe beim Speichern nicht gefunden!", "error");
+            closeAddExpenseModal();
+        }
+    } else {
+        // --- HINZUFÜGEN-MODUS ---
+        const newExpense = { id: Date.now() + Math.random().toString(16).slice(2), ...validatedData };
+        expenses.push(newExpense);
+        saveExpenses();
+        console.log("Neue Ausgabe gespeichert:", newExpense);
+        showNotification("Ausgabe erfolgreich gespeichert!", "success");
+        closeAddExpenseModal();
+        // Nur Liste neu zeichnen, wenn sie gerade sichtbar ist
+        if (ausgabenListeContainer?.style.display === 'block') {
+            displayExpenses();
+        }
+    }
+  }
+
+  /**
+   * Löscht eine Ausgabe nach Bestätigung.
+   * @param {string|number} expenseId Die ID der zu löschenden Ausgabe.
+   */
+  function deleteExpense(expenseId) {
+    console.log("Lösche Ausgabe mit ID:", expenseId);
+
+    const deleteAction = () => {
+      console.log("Bestätigung erhalten, lösche Ausgabe:", expenseId);
+      const initialLength = expenses.length;
+      expenses = expenses.filter(exp => exp.id.toString() !== expenseId.toString()); // Filtern
+
+      if (expenses.length < initialLength) {
+        saveExpenses(); // Geändertes Array speichern
+        console.log(`Ausgabe mit ID ${expenseId} erfolgreich gelöscht.`);
+        showNotification("Ausgabe erfolgreich gelöscht.", "success");
+        displayExpenses(); // Anzeige aktualisieren
+
+        // Falls die gelöschte Ausgabe gerade bearbeitet wurde, Modal schließen
+        if (editExpenseId && editExpenseId.toString() === expenseId.toString()) {
+          closeAddExpenseModal();
+        }
+      } else {
+        console.warn("Zu löschende Ausgabe-ID nicht gefunden:", expenseId);
+        showNotification("Fehler: Zu löschende Ausgabe nicht gefunden!", "error");
+      }
+    };
+
+    // Bestätigungs-Modal anzeigen
+    openConfirmModal("Soll diese Ausgabe wirklich gelöscht werden?", deleteAction);
+  }
+
+
+  // ========================================================================
+  // === 8. Funktionen zur Anzeige der Ausgabenliste ===
+  // ========================================================================
+
+  /**
+   * Zeigt die Liste der gespeicherten Ausgaben im HTML an.
+   */
+  function displayExpenses() {
+      if (!ausgabenListeDiv) { console.error("FEHLER: Div für Ausgabenliste nicht gefunden!"); return; }
+      console.log(`Zeige ${expenses.length} Ausgaben an.`);
+      expenses.sort((a, b) => (b.date || "").localeCompare(a.date || "")); // Neueste zuerst
+      ausgabenListeDiv.innerHTML = ""; // Liste leeren
+      if (expenses.length === 0) {
+          ausgabenListeDiv.innerHTML = "<p>Noch keine Ausgaben erfasst.</p>";
+      } else {
+          expenses.forEach(expense => {
+              ausgabeZurListeHinzufuegen(expense); // Item hinzufügen
+          });
+      }
+      // TODO: Paginierung für Ausgaben
+  }
+
+  /**
+   * Erzeugt das HTML für einen einzelnen Ausgaben-Listeneintrag und fügt ihn hinzu.
+   * Verwendet jetzt Event Delegation (Listener wird in setupEventListeners hinzugefügt).
+   * @param {object} expense - Das Ausgaben-Objekt.
+   */
+  function ausgabeZurListeHinzufuegen(expense) {
+      if (!ausgabenListeDiv) return;
+
+      const listItem = document.createElement("div");
+      listItem.classList.add("expense-item");
+      listItem.setAttribute("data-expense-id", expense.id); // ID für Klick-Handler
+
+      const vehicle = cars.find(c => c.id.toString() === (expense.vehicleId || "").toString());
+      const vehicleDisplay = vehicle
+          ? `${vehicle.name || "Unbenannt"}${vehicle.plate ? ` (${vehicle.plate})` : ""}`
+          : "Unbekanntes Fahrzeug";
+      const datumFormatiert = formatDateDE(expense.date);
+      const typeDisplay = expense.type.charAt(0).toUpperCase() + expense.type.slice(1);
+
+      // Buttons sind jetzt standardmäßig sichtbar (kein style="display: none;")
+      listItem.innerHTML = `
+          <div class="expense-item-header">
+              <div class="expense-item-meta">
+                  <span class="expense-item-info date-info">
+                      <i class="fa-solid fa-calendar-days fa-fw list-icon"></i> ${datumFormatiert}
+                  </span>
+                  <span class="expense-item-info type-info">
+                      <i class="fa-solid fa-tag fa-fw list-icon"></i> ${typeDisplay}
+                  </span>
+                  <span class="expense-item-info car-info" title="${vehicleDisplay}">
+                      <i class="fa-solid fa-car fa-fw list-icon"></i> ${vehicleDisplay}
+                  </span>
+              </div>
+              <div class="expense-item-amount">
+                  ${expense.amount.toFixed(2)} €
+              </div>
+          </div>
+          <div class="expense-item-details">
+              ${expense.description ? `<span class="description">${expense.description}</span>` : ''}
+              ${expense.odometer !== null ? `<span class="odometer-reading"><i class="fa-solid fa-road fa-fw list-icon"></i> bei ${expense.odometer} km</span>` : ''}
+          </div>
+          <div class="expense-item-actions">
+              <button type="button" title="Bearbeiten" class="list-action-button edit-expense-btn">
+                  <i class="fa-solid fa-pencil"></i>
+              </button>
+              <button type="button" title="Löschen" class="list-action-button delete-expense-btn">
+                  <i class="fa-solid fa-trash-can"></i>
+              </button>
+          </div>
+      `;
+
+      ausgabenListeDiv.appendChild(listItem);
+  }
+
+
+  // ========================================================================
+  // === 9. Bestätigungs-Modal Funktionen ===
+  // ========================================================================
   function openConfirmModal(message, onConfirm) {
     if (!confirmModal || !confirmModalMessage) {
-      console.error("Bestätigungs-Modal Elemente NICHT gefunden!");
-      return;
+      console.error("Bestätigungs-Modal Elemente NICHT gefunden!"); return;
     }
     confirmModalMessage.textContent = message;
     confirmModalCallback = onConfirm;
-    // Nur Klasse hinzufügen:
     confirmModal.classList.add("modal-visible");
-  }
-
-  /**
-   * Schließt das Bestätigungs-Modal und setzt den Callback zurück.
-   * (Finale, saubere Version)
-   */
+   }
   function closeConfirmModal() {
-    if (!confirmModal) {
-      console.error("Modal Element in closeConfirmModal NICHT gefunden!");
-      return;
-    }
-    // Nur Klasse entfernen:
+    if (!confirmModal) return;
     confirmModal.classList.remove("modal-visible");
     confirmModalCallback = null;
-  }
-  // ========================================================================
-  // === NEU: Funktionen für Einstellungs-Modal ===
-  // ========================================================================
+   }
 
-  /**
-   * Lädt die Einstellungen aus dem Local Storage.
-   * Gibt ein Objekt mit Standardwerten zurück, falls nichts gespeichert ist.
-   * @returns {object} Das Einstellungs-Objekt.
-   */
+  // ========================================================================
+  // === 10. Einstellungs-Modal Funktionen ===
+  // ========================================================================
   function loadSettings() {
-    const defaultSettings = {
-      defaultCar: "",
-      defaultPurpose: "",
-      csvDelimiter: ";", // Standard-Trennzeichen
-    };
+    const defaultSettings = { defaultCar: "", defaultPurpose: "", csvDelimiter: ";" };
     try {
       const storedSettings = localStorage.getItem("fahrtenbuchAppSettings");
       if (storedSettings) {
         const parsedSettings = JSON.parse(storedSettings);
-        // Stelle sicher, dass alle Schlüssel vorhanden sind, füge ggf. Defaults hinzu
         return { ...defaultSettings, ...parsedSettings };
-      } else {
-        return defaultSettings; // Keine Einstellungen gespeichert, Defaults nutzen
-      }
+      } else { return defaultSettings; }
     } catch (error) {
-      console.error("Fehler beim Laden der Einstellungen:", error);
-      return defaultSettings; // Bei Fehler Defaults nutzen
+      console.error("Fehler beim Laden der Einstellungen:", error); return defaultSettings;
     }
-  }
-
-  /**
-   * Speichert das übergebene Einstellungs-Objekt im Local Storage.
-   * @param {object} settings Das zu speichernde Einstellungs-Objekt.
-   */
+   }
   function saveSettings(settings) {
     try {
       localStorage.setItem("fahrtenbuchAppSettings", JSON.stringify(settings));
       console.log("Einstellungen gespeichert:", settings);
     } catch (error) {
       console.error("Fehler beim Speichern der Einstellungen:", error);
-      showNotification(
-        "Fehler beim Speichern der Einstellungen!",
-        "error",
-        5000
-      );
+      showNotification("Fehler beim Speichern der Einstellungen!", "error");
     }
-  }
-
-  /**
-   * Öffnet das Einstellungs-Modal und befüllt die Felder mit gespeicherten Werten.
-   */
+   }
   function openSettingsModal() {
     if (!settingsModal) return;
     console.log("Öffne Einstellungs-Modal...");
-
-    // Dropdown für Standard-Fahrzeug füllen (muss vor dem Setzen des Wertes geschehen)
-    populateSettingsCarDropdown();
-
-    // Gespeicherte Einstellungen laden
+    populateSettingsCarDropdown(); // Muss vor Wertsetzung passieren
     const currentSettings = loadSettings();
     console.log("Geladene Einstellungen:", currentSettings);
-
-    // Formularfelder mit geladenen Werten befüllen
     settingDefaultCarSelect.value = currentSettings.defaultCar || "";
     settingDefaultPurposeSelect.value = currentSettings.defaultPurpose || "";
-
-    // Korrekten Radio-Button für CSV-Trennzeichen auswählen
-    const delimiterValue = currentSettings.csvDelimiter || ";"; // Fallback auf Semikolon
+    const delimiterValue = currentSettings.csvDelimiter || ";";
     try {
-      const selectedRadio = document.querySelector(
-        `input[name="${csvDelimiterRadioName}"][value="${delimiterValue}"]`
-      );
-      if (selectedRadio) {
-        selectedRadio.checked = true;
-      } else {
-        // Fallback, falls gespeicherter Wert ungültig ist -> Standard auswählen
-        document.querySelector(
-          `input[name="${csvDelimiterRadioName}"][value=";"]`
-        ).checked = true;
-      }
+      const selectedRadio = document.querySelector(`input[name="${csvDelimiterRadioName}"][value="${delimiterValue}"]`);
+      if (selectedRadio) { selectedRadio.checked = true; }
+      else { document.querySelector(`input[name="${csvDelimiterRadioName}"][value=";"]`).checked = true; }
     } catch (e) {
       console.error("Fehler beim Setzen des CSV-Delimiters:", e);
-      // Fallback im Fehlerfall
-      document.querySelector(
-        `input[name="${csvDelimiterRadioName}"][value=";"]`
-      ).checked = true;
+      document.querySelector(`input[name="${csvDelimiterRadioName}"][value=";"]`).checked = true;
     }
-
-    settingsModal.classList.add("modal-visible"); // Modal anzeigen
-  }
-
-  /**
-   * Schließt das Einstellungs-Modal.
-   */
+    settingsModal.classList.add("modal-visible");
+   }
   function closeSettingsModal() {
     if (!settingsModal) return;
-    settingsModal.classList.remove("modal-visible"); // Modal verstecken
+    settingsModal.classList.remove("modal-visible");
     console.log("Einstellungs-Modal geschlossen.");
-  }
-
-  /**
-   * Handler für das Speichern der Einstellungen.
-   */
+   }
   function handleSaveSettings() {
     console.log("Speichere Einstellungen...");
-
-    // Werte aus dem Formular lesen
     const selectedCar = settingDefaultCarSelect.value;
     const selectedPurpose = settingDefaultPurposeSelect.value;
-    let selectedDelimiter = ";"; // Default
+    let selectedDelimiter = ";";
     try {
-      const checkedRadio = document.querySelector(
-        `input[name="${csvDelimiterRadioName}"]:checked`
-      );
-      if (checkedRadio) {
-        selectedDelimiter = checkedRadio.value;
-      }
-    } catch (e) {
-      console.error(
-        "Fehler beim Lesen des CSV-Delimiters, verwende Standard ';'",
-        e
-      );
-    }
-
-    // Neues Einstellungs-Objekt erstellen
-    const newSettings = {
-      defaultCar: selectedCar,
-      defaultPurpose: selectedPurpose,
-      csvDelimiter: selectedDelimiter,
-    };
-
-    // Einstellungen speichern
+      const checkedRadio = document.querySelector(`input[name="${csvDelimiterRadioName}"]:checked`);
+      if (checkedRadio) { selectedDelimiter = checkedRadio.value; }
+    } catch (e) { console.error("Fehler beim Lesen des CSV-Delimiters, verwende Standard ';'", e); }
+    const newSettings = { defaultCar: selectedCar, defaultPurpose: selectedPurpose, csvDelimiter: selectedDelimiter };
     saveSettings(newSettings);
-
-    // Modal schließen
     closeSettingsModal();
-
-    // Erfolgsmeldung anzeigen
     showNotification("Einstellungen erfolgreich gespeichert.", "success");
-  }
-  /**
-   * NEU: Handler für Klick auf "Alle Daten löschen".
-   */
+   }
   function handleDeleteAllData() {
-    console.log("Button 'Alle Daten löschen' geklickt.");
-
-    const deleteAllAction = () => {
-      console.log("Bestätigung erhalten, lösche alle Daten...");
-      try {
-        // Alle relevanten Daten aus localStorage entfernen
-        localStorage.removeItem("fahrtenbuchEintraege");
-        localStorage.removeItem("fahrtenbuchCars");
-        localStorage.removeItem("fahrtenbuchAppSettings");
-        // Ggf. auch Theme und Sidebar-Status zurücksetzen? Optional.
-        // localStorage.removeItem('theme');
-        // localStorage.removeItem('sidebarCollapsed');
-
-        // Lokale Variablen zurücksetzen
-        cars = [];
-        editId = null;
-        editCarId = null;
-        // confirmModalCallback wird in closeConfirmModal zurückgesetzt
-
-        // UI komplett neu initialisieren, um leeren Zustand anzuzeigen
-        initialisiereApp(); // Einfachster Weg, alles zurückzusetzen
-
-        // Erfolgsmeldung anzeigen (nachdem Modal geschlossen wurde)
-        // Wird jetzt in initialisiereApp indirekt gemacht, aber hier nochmal explizit?
-        // Besser nach dem Schließen des Settings-Modals
-        // showNotification("Alle Anwendungsdaten wurden gelöscht.", "success", 5000);
-      } catch (error) {
-        console.error("Fehler beim Löschen aller Daten:", error);
-        showNotification("Fehler beim Löschen der Daten!", "error", 5000);
-      } finally {
-        // Schließe das Einstellungs-Modal, NACHDEM die Aktion ausgeführt wurde
-        // (oder bevor initialisiereApp alles neu baut)
-        closeSettingsModal();
-        // Zeige Meldung erst nach dem Schließen, damit sie sichtbar ist
-        setTimeout(
-          () =>
-            showNotification(
-              "Alle Anwendungsdaten wurden gelöscht.",
-              "success",
-              5000
-            ),
-          100
-        );
-      }
-    };
-
-    // Bestätigungs-Modal anzeigen
-    openConfirmModal(
-      "ACHTUNG!\nSollen wirklich ALLE Fahrten, ALLE Fahrzeuge und ALLE Einstellungen unwiderruflich gelöscht werden?",
-      deleteAllAction
-    );
+      console.log("Button 'Alle Daten löschen' geklickt.");
+      const deleteAllAction = () => {
+          console.log("Bestätigung erhalten, lösche alle Daten...");
+          try {
+              localStorage.removeItem("fahrtenbuchEintraege");
+              localStorage.removeItem("fahrtenbuchCars");
+              localStorage.removeItem("fahrtenbuchExpenses"); // Auch Ausgaben löschen
+              localStorage.removeItem("fahrtenbuchAppSettings");
+              cars = []; expenses = []; editId = null; editCarId = null; editExpenseId = null;
+              initialisiereApp(); // Setzt alles zurück
+          } catch (error) {
+              console.error("Fehler beim Löschen aller Daten:", error);
+              showNotification("Fehler beim Löschen der Daten!", "error");
+          } finally {
+              closeSettingsModal();
+              setTimeout(() => showNotification("Alle Anwendungsdaten wurden gelöscht.", "success", 5000), 100);
+          }
+      };
+      openConfirmModal("ACHTUNG!\nSollen wirklich ALLE Fahrten, ALLE Fahrzeuge, ALLE Ausgaben und ALLE Einstellungen unwiderruflich gelöscht werden?", deleteAllAction);
   }
 
   // ========================================================================
-  // === 7. Kernfunktionen (Fahrten: Speichern, Update, Edit-Modus) ===
+  // === 11. Kernfunktionen (Fahrten: Speichern, Update, Edit-Modus) ===
   // ========================================================================
-  /**
-   * Bereitet die Formularfelder für die Eingabe einer neuen Fahrt vor.
-   */
   function felderFuerNeueFahrtVorbereiten() {
-    if (editId !== null) return;
+    if (editId !== null) return; // Nur ausführen, wenn nicht im Edit-Modus
     console.log("Bereite Felder für neue Fahrt vor...");
-    // Gespeicherte Einstellungen laden
-    const settings = loadSettings(); // <<< NEU
-
+    const settings = loadSettings();
     try {
       const alleFahrten = ladeFahrtenAusLocalStorage();
-      if (alleFahrten.length > 0) {
-        const letzteFahrt = alleFahrten[alleFahrten.length - 1];
-        if (letzteFahrt) {
-          startOrtInput.value = letzteFahrt.zielOrt || "";
-          kmStartInput.value = letzteFahrt.kmEnde || "";
-        } else {
-          startOrtInput.value = "";
-          kmStartInput.value = "";
-        }
-      } else {
-        startOrtInput.value = "";
-        kmStartInput.value = "";
+      let letzterKM = "";
+      let letzterZielOrt = "";
+      // Finde den letzten Eintrag des Standard-Fahrzeugs, falls eines gewählt ist
+      if (settings.defaultCar) {
+          const letzteFahrtDesAutos = alleFahrten
+              .filter(f => f.carId === settings.defaultCar)
+              .sort((a, b) => (b.datum + "T" + b.endTime).localeCompare(a.datum + "T" + a.endTime))
+              [0]; // Neueste Fahrt dieses Autos
+          if (letzteFahrtDesAutos) {
+              letzterKM = letzteFahrtDesAutos.kmEnde || "";
+              letzterZielOrt = letzteFahrtDesAutos.zielOrt || "";
+          }
+      } else if (alleFahrten.length > 0) {
+          // Fallback: Letzte Fahrt überhaupt, wenn kein Standard-Auto gesetzt
+          const letzteFahrtGesamt = alleFahrten
+              .sort((a, b) => (b.datum + "T" + b.endTime).localeCompare(a.datum + "T" + a.endTime))
+              [0]; // Neueste Fahrt gesamt
+          if (letzteFahrtGesamt) {
+              letzterKM = letzteFahrtGesamt.kmEnde || "";
+              letzterZielOrt = letzteFahrtGesamt.zielOrt || "";
+          }
       }
-      datumInput.value = getDatumString();
+
+      startOrtInput.value = letzterZielOrt;
+      kmStartInput.value = letzterKM;
       zielOrtInput.value = "";
       distanzInput.value = "";
       startTimeInput.value = "";
       endTimeInput.value = "";
-      zweckSelect.value = "geschaeftlich";
-      carSelect.value = settings.defaultCar || ""; // Leerer String, falls kein Default
-      zweckSelect.value = settings.defaultPurpose || "geschaeftlich"; // Fallback auf 'geschaeftlich'
-      // Fehler-Div leeren
-      if (formErrorDiv) {
-        formErrorDiv.innerHTML = "";
-        formErrorDiv.style.display = "none";
-      }
+      datumInput.value = getDatumString();
+      carSelect.value = settings.defaultCar || "";
+      zweckSelect.value = settings.defaultPurpose || "geschaeftlich";
+
+      if (formErrorDiv) { formErrorDiv.innerHTML = ""; formErrorDiv.style.display = "none"; }
       berechneUndZeigeDistanz();
     } catch (e) {
       console.error("Fehler beim Vorbelegen der Felder für neue Fahrt:", e);
     }
-  }
-
-  /**
-   * Handler für Klick auf "Fahrt speichern" / "Änderung speichern".
-   */
+   }
   function handleFormularSpeichern() {
     console.log("Speichern/Update Button geklickt. Edit ID:", editId);
     let erfolg = false;
@@ -980,28 +992,19 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
       erfolg = fahrtSpeichern();
     }
-    if (erfolg && formularDiv) {
-      formularDiv.classList.remove("form-visible");
-      console.log("Formular nach erfolgreichem Speichern/Update geschlossen.");
+    if (erfolg) { // Wenn speichern/update erfolgreich war
+        showMiddleColumnView('fahrten'); // Fahrtenliste anzeigen
+        console.log("Formular nach erfolgreichem Speichern/Update geschlossen, zeige Fahrtenliste.");
     } else {
-      console.log(
-        "Speichern/Update nicht erfolgreich oder Formular nicht gefunden."
-      );
+        // Bei Fehler bleibt das Formular offen
+        console.log("Speichern/Update nicht erfolgreich.");
     }
-  }
-
-  /**
-   * Startet den Bearbeitungsmodus für eine Fahrt.
-   */
+   }
   function starteEditModus(fahrtId) {
     console.log("Starte Edit-Modus für ID:", fahrtId);
     const fahrten = ladeFahrtenAusLocalStorage();
     const fahrt = fahrten.find((f) => f.id.toString() === fahrtId.toString());
-
-    if (!fahrt) {
-      alert("Fehler: Zu bearbeitender Eintrag nicht gefunden!"); // Hier evtl. auch ersetzen?
-      return;
-    }
+    if (!fahrt) { showNotification("Fehler: Zu bearbeitender Eintrag nicht gefunden!", "error"); return; }
 
     datumInput.value = fahrt.datum || "";
     startTimeInput.value = fahrt.startTime || "";
@@ -1013,161 +1016,77 @@ document.addEventListener("DOMContentLoaded", function () {
     distanzInput.value = fahrt.distanz || "";
     carSelect.value = fahrt.carId || "";
     zweckSelect.value = fahrt.zweck || "geschaeftlich";
-
     editId = fahrtId;
     speichernButton.textContent = "Änderung speichern";
     cancelEditButton?.style.setProperty("display", "inline-block");
+    if (formErrorDiv) { formErrorDiv.innerHTML = ""; formErrorDiv.style.display = "none"; }
 
-    // Fehler-Div leeren beim Starten des Edits
-    if (formErrorDiv) {
-      formErrorDiv.innerHTML = "";
-      formErrorDiv.style.display = "none";
-    }
-
-    if (formularDiv) {
-      formularDiv.classList.add("form-visible");
-      formularDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
+    showMiddleColumnView('formular'); // Zeige das Formular
+    formularDiv.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
     datumInput?.focus();
-  }
-
-  /**
-   * Bricht den Edit-Modus ab oder setzt das Formular zurück.
-   */
+   }
   function abbrechenEditModus(doScroll = true) {
     console.log("Breche Edit ab / Setze Formular zurück.");
     editId = null;
-    if (tripEntryForm) {
-      tripEntryForm.reset();
-    } else {
-      console.error("tripEntryForm nicht gefunden zum Zurücksetzen!");
-    }
-    if (formularDiv) {
-      formularDiv.classList.remove("form-visible");
-    }
+    if (tripEntryForm) tripEntryForm.reset();
     if (speichernButton) speichernButton.textContent = "Fahrt speichern";
     if (cancelEditButton) cancelEditButton.style.display = "none";
-    // Fehler-Div leeren
-    if (formErrorDiv) {
-      formErrorDiv.innerHTML = "";
-      formErrorDiv.style.display = "none";
-    }
-    felderFuerNeueFahrtVorbereiten();
-    console.log("Edit abgebrochen / Formular zurückgesetzt.");
-  }
+    if (formErrorDiv) { formErrorDiv.innerHTML = ""; formErrorDiv.style.display = "none"; }
 
-  /**
-   * Aktualisiert eine vorhandene Fahrt im Speicher und in der Anzeige.
-   * @param {string|number} id - Die ID der zu aktualisierenden Fahrt.
-   * @returns {boolean} - true bei Erfolg, false bei Fehler.
-   */
+    felderFuerNeueFahrtVorbereiten(); // Felder neu befüllen (mit Defaults)
+    showMiddleColumnView('fahrten'); // Fahrtenliste anzeigen
+    console.log("Edit abgebrochen / Formular zurückgesetzt, zeige Fahrtenliste.");
+   }
   function fahrtAktualisieren(id) {
     console.log("Aktualisiere Fahrt mit ID:", id);
     const fahrtData = {
-      id: id,
-      datum: datumInput.value,
-      startTime: startTimeInput.value,
-      endTime: endTimeInput.value,
-      startOrt: startOrtInput.value,
-      zielOrt: zielOrtInput.value,
-      kmStart: kmStartInput.value,
-      kmEnde: kmEndeInput.value,
-      distanz: distanzInput.value,
-      carId: carSelect.value,
-      zweck: zweckSelect.value,
+      id: id, datum: datumInput.value, startTime: startTimeInput.value, endTime: endTimeInput.value,
+      startOrt: startOrtInput.value, zielOrt: zielOrtInput.value, kmStart: kmStartInput.value,
+      kmEnde: kmEndeInput.value, distanz: distanzInput.value, carId: carSelect.value, zweck: zweckSelect.value,
     };
-
-    if (!validateFahrt(fahrtData, false)) {
-      return false;
-    }
+    if (!validateFahrt(fahrtData, false)) return false; // Validierung
 
     let fahrten = ladeFahrtenAusLocalStorage();
     const index = fahrten.findIndex((f) => f.id.toString() === id.toString());
-
     if (index !== -1) {
       fahrten[index] = fahrtData;
       speichereAlleFahrten(fahrten);
       console.log("Fahrt erfolgreich aktualisiert.");
-      currentPage = 1;
-      // NEU: Erfolgsmeldung anzeigen
       showNotification("Änderungen erfolgreich gespeichert!", "success");
-
-      handleApplyFilter(); // Anzeige aktualisieren
-      abbrechenEditModus(false);
+      handleApplyFilter(); // Filter anwenden, um Liste neu zu zeichnen (inkl. Paginierung Reset)
       return true;
     } else {
-      // alert("Fehler beim Update: Eintrag nicht gefunden."); // Ersetzt durch Notification?
-      showNotification("Fehler: Eintrag beim Update nicht gefunden!", "error"); // Optional: Fehlermeldung
-      abbrechenEditModus(false);
+      showNotification("Fehler: Eintrag beim Update nicht gefunden!", "error");
       return false;
     }
-  }
-
-  /**
-   * Speichert eine komplett neue Fahrt.
-   * @returns {boolean} - true bei Erfolg, false bei Fehler.
-   */
+   }
   function fahrtSpeichern() {
     console.log("Speichere neue Fahrt...");
     const neueFahrt = {
-      id: Date.now(),
-      datum: datumInput.value,
-      startTime: startTimeInput.value,
-      endTime: endTimeInput.value,
-      startOrt: startOrtInput.value,
-      zielOrt: zielOrtInput.value,
-      kmStart: kmStartInput.value,
-      kmEnde: kmEndeInput.value,
-      distanz: distanzInput.value,
-      carId: carSelect.value,
-      zweck: zweckSelect.value,
+      id: Date.now(), datum: datumInput.value, startTime: startTimeInput.value, endTime: endTimeInput.value,
+      startOrt: startOrtInput.value, zielOrt: zielOrtInput.value, kmStart: kmStartInput.value,
+      kmEnde: kmEndeInput.value, distanz: distanzInput.value, carId: carSelect.value, zweck: zweckSelect.value,
     };
-
-    if (!validateFahrt(neueFahrt, true)) {
-      return false;
-    }
+    if (!validateFahrt(neueFahrt, true)) return false; // Validierung
 
     console.log("Neue Fahrt validiert:", neueFahrt);
     speichereNeueFahrtImLocalStorage(neueFahrt);
-    currentPage = 1;
-    // NEU: Erfolgsmeldung anzeigen
     showNotification("Fahrt erfolgreich gespeichert!", "success");
-
-    handleApplyFilter(); // Anzeige aktualisieren
-    felderFuerNeueFahrtVorbereiten();
-    // zielOrtInput?.focus(); // Fokus vielleicht nicht ideal, wenn Meldung erscheint
+    felderFuerNeueFahrtVorbereiten(); // Felder für nächste Eingabe vorbereiten
+    handleApplyFilter(); // Filter anwenden, um Liste neu zu zeichnen (inkl. Paginierung Reset)
     return true;
-  }
+   }
 
   // ========================================================================
-  // === 8. Validierungsfunktion (Fahrten) ===
+  // === 12. Validierungsfunktion (Fahrten) ===
   // ========================================================================
-  /**
-   * Prüft ein Fahrt-Objekt auf Gültigkeit und zeigt Fehler gesammelt an.
-   * @param {object} fahrt - Das zu prüfende Fahrt-Objekt.
-   * @param {boolean} checkKmContinuity - Soll die KM-Kontinuität geprüft werden?
-   * @returns {boolean} true, wenn valide, sonst false.
-   */
   function validateFahrt(fahrt, checkKmContinuity) {
-    console.log(
-      "Validiere Fahrt:",
-      fahrt,
-      "Kontinuität prüfen:",
-      checkKmContinuity
-    );
-    const errorMessages = []; // Array zum Sammeln von Fehlermeldungen
-    // const errorDiv = document.getElementById('form-error-message'); // Globale Variable nutzen: formErrorDiv
-    if (!formErrorDiv) {
-      console.error("Fehler-Div #form-error-message nicht gefunden!");
-      alert(
-        "Interner Fehler: Fehleranzeige-Element nicht gefunden. Validierung nicht möglich."
-      );
-      return false;
-    }
-    formErrorDiv.innerHTML = "";
-    formErrorDiv.style.display = "none";
+    console.log("Validiere Fahrt:", fahrt, "Kontinuität prüfen:", checkKmContinuity);
+    const errorMessages = [];
+    if (!formErrorDiv) { console.error("Fehler-Div #form-error-message nicht gefunden!"); return false; }
+    formErrorDiv.innerHTML = ""; formErrorDiv.style.display = "none";
 
-    // --- Pflichtfelder prüfen ---
+    // Pflichtfelder
     if (!fahrt.datum) errorMessages.push("Bitte Datum eingeben.");
     if (!fahrt.startTime) errorMessages.push("Bitte Startzeit eingeben.");
     if (!fahrt.endTime) errorMessages.push("Bitte Endzeit eingeben.");
@@ -1176,266 +1095,165 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!fahrt.carId) errorMessages.push("Bitte Fahrzeug auswählen.");
     if (!fahrt.zweck) errorMessages.push("Bitte Zweck auswählen.");
 
-    // --- KM prüfen ---
-    const s = parseFloat(fahrt.kmStart);
-    const e = parseFloat(fahrt.kmEnde);
-    if (fahrt.kmStart === "" || isNaN(s)) {
-      errorMessages.push("Bitte gültigen Start-Kilometerstand eingeben.");
-    }
-    if (fahrt.kmEnde === "" || isNaN(e)) {
-      errorMessages.push("Bitte gültigen End-Kilometerstand eingeben.");
-    }
-    if (!isNaN(s) && !isNaN(e) && e < s) {
-      errorMessages.push(
-        "End-Kilometerstand muss größer oder gleich dem Start-Kilometerstand sein."
-      );
-    }
+    // KM
+    const s = parseFloat(fahrt.kmStart); const e = parseFloat(fahrt.kmEnde);
+    if (fahrt.kmStart === "" || isNaN(s)) errorMessages.push("Bitte gültigen Start-Kilometerstand eingeben.");
+    if (fahrt.kmEnde === "" || isNaN(e)) errorMessages.push("Bitte gültigen End-Kilometerstand eingeben.");
+    if (!isNaN(s) && !isNaN(e) && e < s) errorMessages.push("End-Kilometerstand muss größer oder gleich dem Start-Kilometerstand sein.");
 
-    // --- Zeit prüfen ---
-    if (fahrt.startTime && fahrt.endTime && fahrt.endTime < fahrt.startTime) {
-      errorMessages.push("Endzeit darf nicht vor der Startzeit liegen.");
-    }
+    // Zeit
+    if (fahrt.startTime && fahrt.endTime && fahrt.endTime < fahrt.startTime) errorMessages.push("Endzeit darf nicht vor der Startzeit liegen.");
 
-    // --- KM Kontinuität prüfen (nur bei NEUER Fahrt und wenn bisher keine Fehler) ---
-    if (
-      errorMessages.length === 0 &&
-      checkKmContinuity &&
-      fahrt.carId &&
-      !isNaN(s)
-    ) {
+    // KM Kontinuität (nur bei NEUER Fahrt und wenn bisher keine Fehler)
+    if (errorMessages.length === 0 && checkKmContinuity && fahrt.carId && !isNaN(s)) {
       const alleFahrten = ladeFahrtenAusLocalStorage();
       let letzteFahrtDesAutos = null;
-      for (let i = alleFahrten.length - 1; i >= 0; i--) {
-        if (alleFahrten[i].carId === fahrt.carId) {
-          letzteFahrtDesAutos = alleFahrten[i];
-          break;
-        }
+      const fahrtenDesAutos = alleFahrten
+          .filter(f => f.carId === fahrt.carId)
+          .sort((a, b) => (b.datum + "T" + (b.endTime || b.startTime || "00:00")).localeCompare(a.datum + "T" + (a.endTime || a.startTime || "00:00"))); // Neueste zuerst (Endzeit oder Startzeit)
+      if (fahrtenDesAutos.length > 0) {
+          letzteFahrtDesAutos = fahrtenDesAutos[0];
+          const letzterKM = parseFloat(letzteFahrtDesAutos.kmEnde);
+          if (!isNaN(letzterKM) && s < letzterKM) {
+              const carName = cars.find(c => c.id.toString() === fahrt.carId.toString())?.name || "Unbekannt";
+              errorMessages.push(`Kontinuitätsfehler für "${carName}": Start-KM (${s}) ist niedriger als letzter End-KM (${letzterKM}).`);
+          }
       }
-      if (letzteFahrtDesAutos) {
-        const letzterKM = parseFloat(letzteFahrtDesAutos.kmEnde);
-        if (!isNaN(letzterKM) && s < letzterKM) {
-          const carName =
-            cars.find((c) => c.id.toString() === fahrt.carId.toString())
-              ?.name || "Unbekannt";
-          errorMessages.push(
-            `Kontinuitätsfehler für Fahrzeug "${carName}": Der Start-KM (${s}) ist niedriger als der letzte End-KM (${letzterKM}) dieses Fahrzeugs.`
-          );
-        }
-      }
-    } // Ende KM Kontinuitätsprüfung
+    }
 
-    // --- Ergebnis der Validierung ---
+    // Ergebnis
     if (errorMessages.length > 0) {
       formErrorDiv.innerHTML = errorMessages.join("<br>");
       formErrorDiv.style.display = "block";
-      formErrorDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      formErrorDiv.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
       console.warn("Validierung fehlgeschlagen:", errorMessages);
       return false;
     }
-
     console.log("Fahrt-Validierung erfolgreich.");
     return true;
-  }
+   }
 
   // ========================================================================
-  // === 9. Speicher / Ladefunktionen (localStorage) ===
+  // === 13. Speicher / Ladefunktionen (localStorage) ===
   // ========================================================================
-  /**
-   * Speichert das komplette (sortierte!) Fahrten-Array im localStorage.
-   */
   function speichereAlleFahrten(fahrtenArray) {
-    // Sortieren nach Datum, dann Startzeit, dann KM-Start
-    if (!Array.isArray(fahrtenArray)) {
-      console.error(
-        "speichereAlleFahrten wurde kein Array übergeben!",
-        fahrtenArray
-      );
-      return;
-    }
+    if (!Array.isArray(fahrtenArray)) { console.error("speichereAlleFahrten wurde kein Array übergeben!", fahrtenArray); return; }
+    // Sortieren nach Datum, dann Startzeit, dann KM-Start (aufsteigend für konsistente Reihenfolge)
     fahrtenArray.sort((a, b) => {
       const dtA = (a.datum || "") + "T" + (a.startTime || "00:00");
       const dtB = (b.datum || "") + "T" + (b.startTime || "00:00");
-      if (dtA < dtB) return -1;
-      if (dtA > dtB) return 1;
+      if (dtA < dtB) return -1; if (dtA > dtB) return 1;
       return parseFloat(a.kmStart || 0) - parseFloat(b.kmStart || 0);
     });
     try {
-      localStorage.setItem(
-        "fahrtenbuchEintraege",
-        JSON.stringify(fahrtenArray)
-      );
-      console.log(
-        `${fahrtenArray.length} Fahrten im localStorage gespeichert.`
-      );
+      localStorage.setItem("fahrtenbuchEintraege", JSON.stringify(fahrtenArray));
+      console.log(`${fahrtenArray.length} Fahrten im localStorage gespeichert.`);
     } catch (e) {
       console.error("Fehler beim Speichern der Fahrten im localStorage:", e);
-      alert("Fehler beim Speichern der Fahrten!"); // Hier evtl. auch ersetzen?
+      showNotification("Fehler beim Speichern der Fahrten!", "error");
     }
-  }
-
-  /**
-   * Fügt eine neue Fahrt hinzu und speichert das Array.
-   */
+   }
   function speichereNeueFahrtImLocalStorage(neueFahrt) {
     let fahrten = ladeFahrtenAusLocalStorage();
     if (!fahrten.some((f) => f.id === neueFahrt.id)) {
       fahrten.push(neueFahrt);
-      speichereAlleFahrten(fahrten);
+      speichereAlleFahrten(fahrten); // Ruft Speichern mit Sortierung auf
     } else {
-      console.warn(
-        "Versuch, Fahrt mit bereits existierender ID zu speichern:",
-        neueFahrt.id
-      );
+      console.warn("Versuch, Fahrt mit bereits existierender ID zu speichern:", neueFahrt.id);
     }
-  }
-
-  /**
-   * Lädt alle Fahrten aus dem localStorage.
-   * Gibt immer ein Array zurück (ggf. leer).
-   */
+   }
   function ladeFahrtenAusLocalStorage() {
     const rawData = localStorage.getItem("fahrtenbuchEintraege");
     try {
       const parsedData = rawData ? JSON.parse(rawData) : [];
       const result = Array.isArray(parsedData) ? parsedData : [];
+      // Ensure IDs exist (for older data potentially without IDs)
+      result.forEach(fahrt => {
+          if (!fahrt.id) {
+              fahrt.id = Date.now() + Math.random().toString(16).slice(2);
+          }
+      });
       return result;
     } catch (e) {
       console.error("Fehler beim Parsen der Fahrten aus localStorage:", e);
       return [];
     }
-  }
+   }
 
   // ========================================================================
-  // === 10. Löschfunktion (Fahrten) ===
+  // === 14. Löschfunktion (Fahrten) ===
   // ========================================================================
-  /**
-   * Löscht eine Fahrt anhand ihrer ID (jetzt mit Bestätigungs-Modal).
-   * @param {string|number} fahrtId - Die ID der zu löschenden Fahrt.
-   */
   function fahrtLoeschen(fahrtId) {
     console.log("Lösche Fahrt mit ID:", fahrtId);
     const deleteAction = () => {
       console.log("Bestätigung erhalten, lösche Fahrt:", fahrtId);
       let fahrten = ladeFahrtenAusLocalStorage();
       const anzahlVorher = fahrten.length;
-      const aktualisierteFahrten = fahrten.filter(
-        (f) => f.id.toString() !== fahrtId.toString()
-      );
-
+      const aktualisierteFahrten = fahrten.filter((f) => f.id.toString() !== fahrtId.toString());
       if (anzahlVorher !== aktualisierteFahrten.length) {
         speichereAlleFahrten(aktualisierteFahrten);
-        currentPage = 1;
-        handleApplyFilter(); // Anzeige aktualisieren
+        handleApplyFilter(); // Anzeige aktualisieren (setzt auch Paginierung zurück)
         console.log(`Fahrt mit ID ${fahrtId} erfolgreich gelöscht.`);
-        // NEU: Erfolgsmeldung anzeigen
-        showNotification("Fahrt erfolgreich gelöscht.", "success"); // Oder 'info'
+        showNotification("Fahrt erfolgreich gelöscht.", "success");
         if (editId && editId.toString() === fahrtId.toString()) {
-          abbrechenEditModus(false);
+          abbrechenEditModus(false); // Formular schließen, falls die gelöschte Fahrt bearbeitet wurde
         }
       } else {
         console.warn("Zu löschende Fahrt-ID nicht gefunden:", fahrtId);
-        showNotification("Fehler: Zu löschende Fahrt nicht gefunden!", "error"); // Optional
+        showNotification("Fehler: Zu löschende Fahrt nicht gefunden!", "error");
       }
     };
-    openConfirmModal(
-      "Soll dieser Fahrteintrag wirklich gelöscht werden?",
-      deleteAction
-    );
-  }
+    openConfirmModal("Soll dieser Fahrteintrag wirklich gelöscht werden?", deleteAction);
+   }
 
   // ========================================================================
-  // === 11. Anzeige-Funktionen (Fahrtenliste, Zusammenfassung, Distanz) ===
+  // === 15. Anzeige-Funktionen (Fahrtenliste, Zusammenfassung, Distanz) ===
   // ========================================================================
-  /**
-   * Zeigt eine übergebene Liste von Fahrten im HTML an,
-   * berücksichtigt dabei die Paginierung und sortiert korrekt (Neueste zuerst).
-   * @param {Array} tripsToDisplay - Das Array ALLER Fahrten, die potenziell angezeigt werden sollen (gefiltert oder alle).
-   */
   function displayTrips(tripsToDisplay) {
-    if (!fahrtenListeDiv) {
-      console.error(
-        "FEHLER: Div für Fahrtenliste ('fahrten-liste') nicht gefunden!"
-      );
-      return;
-    }
+    if (!fahrtenListeDiv) { console.error("FEHLER: Div für Fahrtenliste ('fahrten-liste') nicht gefunden!"); return; }
 
-    // 1. Komplette Liste zuerst sortieren (Neueste zuerst)
+    // Komplette Liste sortieren (Neueste zuerst für Anzeige)
     tripsToDisplay.sort((a, b) => {
       const dtA = (a.datum || "") + "T" + (a.startTime || "00:00");
       const dtB = (b.datum || "") + "T" + (b.startTime || "00:00");
-      // Vergleiche B mit A für absteigende Reihenfolge (neueste zuerst)
-      if (dtB < dtA) return -1;
-      if (dtB > dtA) return 1;
-      // Sekundäre Sortierung bei gleicher Startzeit (bleibt aufsteigend nach KM)
+      if (dtB < dtA) return -1; if (dtB > dtA) return 1;
       return parseFloat(a.kmStart || 0) - parseFloat(b.kmStart || 0);
     });
+    fullTripListForPagination = tripsToDisplay; // Für Paginierungs-Buttons speichern
 
-    // 2. Sortierte komplette Liste speichern (für Paginierungs-Buttons)
-    fullTripListForPagination = tripsToDisplay;
-
-    // 3. Berechnungen für Paginierung (basierend auf der sortierten Liste)
+    // Paginierungsberechnung
     const totalItems = fullTripListForPagination.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
-    currentPage = Math.max(
-      1,
-      Math.min(currentPage, totalPages === 0 ? 1 : totalPages)
-    );
+    currentPage = Math.max(1, Math.min(currentPage, totalPages === 0 ? 1 : totalPages));
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-
-    // 4. Slice aus der SORTIERTEN Liste erstellen
     const pageTrips = fullTripListForPagination.slice(startIndex, endIndex);
+    console.log(`Zeige Seite ${currentPage}/${totalPages} an (${pageTrips.length} von ${totalItems} Fahrten)`);
 
-    console.log(
-      `Zeige Seite ${currentPage}/${totalPages} an (${pageTrips.length} von ${totalItems} Fahrten)`
-    );
-
-    // 5. Liste leeren und Fahrten der aktuellen Seite anzeigen (ohne erneutes Sortieren!)
+    // Liste leeren und Fahrten der aktuellen Seite anzeigen
     fahrtenListeDiv.innerHTML = "";
     if (pageTrips.length === 0 && totalItems === 0) {
       fahrtenListeDiv.innerHTML = "<p>Noch keine Fahrten gespeichert.</p>";
     } else if (pageTrips.length === 0 && totalItems > 0) {
-      // Dieser Fall sollte seltener auftreten, da wir currentPage anpassen
       fahrtenListeDiv.innerHTML = "<p>Keine Fahrten auf dieser Seite.</p>";
     } else {
-      // Die pageTrips sind bereits korrekt sortiert (als Teil der großen Liste)
       pageTrips.forEach((fahrt) => {
         fahrtZurListeHinzufuegen(fahrt, true); // An Liste anhängen
       });
     }
-
-    // 6. Paginierungs-Steuerung aktualisieren
-    updatePaginationControls(currentPage, totalPages);
-  }
-
-  /**
-   * Lädt alle gespeicherten Fahrten aus dem localStorage und zeigt sie an.
-   * Wird hauptsächlich für Initialisierung und Reset benötigt.
-   */
+    updatePaginationControls(currentPage, totalPages); // Paginierung aktualisieren
+   }
   function ladeGespeicherteFahrten() {
-    // Diese Funktion wird jetzt weniger direkt genutzt
     const alleFahrten = ladeFahrtenAusLocalStorage();
     if (!Array.isArray(alleFahrten)) {
-      console.error(
-        "FEHLER: ladeFahrtenAusLocalStorage hat kein Array zurückgegeben!",
-        alleFahrten
-      );
-      return;
+      console.error("FEHLER: ladeFahrtenAusLocalStorage hat kein Array zurückgegeben!", alleFahrten);
+      displayTrips([]); updateZusammenfassung([]); return;
     }
+    // Paginierung auf Seite 1 zurücksetzen, wenn alle Fahrten neu geladen werden
+    currentPage = 1;
     displayTrips(alleFahrten);
-  }
-
-  /**
-   * Erzeugt das HTML für einen einzelnen Listeneintrag und fügt ihn hinzu.
-   * @param {object} fahrt - Das Fahrt-Objekt.
-   * @param {boolean} [append=true] - true: unten anhängen.
-   */
-  /**
-   * Erzeugt das HTML für einen einzelnen Listeneintrag (Fahrt) und fügt ihn hinzu.
-   * (Angepasst: Nutzt CSS Klassen statt Inline-Styles)
-   * @param {object} fahrt - Das Fahrt-Objekt.
-   * @param {boolean} [append=true] - true: unten anhängen.
-   */
+    updateZusammenfassung(alleFahrten);
+   }
   function fahrtZurListeHinzufuegen(fahrt, append = true) {
     if (!fahrtenListeDiv) return;
     const placeholder = fahrtenListeDiv.querySelector("p");
@@ -1446,70 +1264,31 @@ document.addEventListener("DOMContentLoaded", function () {
     listItem.setAttribute("data-fahrt-id", fahrt.id);
 
     // Daten vorbereiten
-    const kmStart = fahrt.kmStart || "0";
-    const kmEnde = fahrt.kmEnde || "0";
+    const kmStart = fahrt.kmStart || "0"; const kmEnde = fahrt.kmEnde || "0";
     const distanz = parseFloat(fahrt.distanz || "0").toFixed(1);
     const datumFormatiert = formatDateDE(fahrt.datum);
-    const startTime = fahrt.startTime || "--:--";
-    const endTime = fahrt.endTime || "--:--";
-    const startOrt = fahrt.startOrt || "-";
-    const zielOrt = fahrt.zielOrt || "-";
+    const startTime = fahrt.startTime || "--:--"; const endTime = fahrt.endTime || "--:--";
+    const startOrt = fahrt.startOrt || "-"; const zielOrt = fahrt.zielOrt || "-";
     const zweck = fahrt.zweck || "-";
-    const car = cars.find(
-      (c) => c.id.toString() === (fahrt.carId || "").toString()
-    );
+    const car = cars.find(c => c.id.toString() === (fahrt.carId || "").toString());
     const carDisplay = car ? car.name || "Unbenannt" : "Unbekannt";
-    const carTitle = car
-      ? `${car.name || "Unbenannt"}${car.plate ? ` (${car.plate})` : ""}`
-      : "Unbekanntes Fahrzeug";
+    const carTitle = car ? `${car.name || "Unbenannt"}${car.plate ? ` (${car.plate})` : ""}` : "Unbekanntes Fahrzeug";
 
-    // HTML-Struktur mit Klassen erstellen, statt innerHTML mit viel Markup
-    const headerDiv = document.createElement("div");
-    headerDiv.classList.add("list-item-header");
+    // HTML-Struktur mit Klassen
+    const headerDiv = document.createElement("div"); headerDiv.classList.add("list-item-header");
+    const dateTimeDiv = document.createElement("div"); dateTimeDiv.classList.add("list-item-date-time");
+    const dateSpan = document.createElement("span"); dateSpan.classList.add("list-item-info", "date-info"); dateSpan.innerHTML = `<i class="fa-solid fa-calendar-days fa-fw list-icon"></i> ${datumFormatiert}`;
+    const timeSpan = document.createElement("span"); timeSpan.classList.add("list-item-info", "time-info"); timeSpan.innerHTML = `<i class="fa-solid fa-clock fa-fw list-icon"></i> (${startTime} - ${endTime} Uhr)`;
+    const carSpan = document.createElement("span"); carSpan.classList.add("list-item-info", "car-info"); carSpan.title = carTitle; carSpan.innerHTML = `<i class="fa-solid fa-car fa-fw list-icon"></i> <span>${carDisplay}</span>`;
+    dateTimeDiv.appendChild(dateSpan); dateTimeDiv.appendChild(timeSpan); dateTimeDiv.appendChild(carSpan);
 
-    const dateTimeDiv = document.createElement("div");
-    dateTimeDiv.classList.add("list-item-date-time");
-    // Erstelle die Info-Spans einzeln, um Klassen besser zu setzen
-    const dateSpan = document.createElement("span");
-    dateSpan.classList.add("list-item-info", "date-info");
-    dateSpan.innerHTML = `<i class="fa-solid fa-calendar-days fa-fw list-icon"></i> ${datumFormatiert}`;
-    const timeSpan = document.createElement("span");
-    timeSpan.classList.add("list-item-info", "time-info");
-    timeSpan.innerHTML = `<i class="fa-solid fa-clock fa-fw list-icon"></i> (${startTime} - ${endTime} Uhr)`;
-    const carSpan = document.createElement("span");
-    carSpan.classList.add("list-item-info", "car-info");
-    carSpan.title = carTitle;
-    carSpan.innerHTML = `<i class="fa-solid fa-car fa-fw list-icon"></i> <span>${carDisplay}</span>`;
+    const buttonsContainer = document.createElement("div"); buttonsContainer.classList.add("buttons-container");
+    const editBtn = document.createElement("button"); editBtn.type = "button"; editBtn.title = "Bearbeiten"; editBtn.classList.add("list-action-button", "edit-btn"); editBtn.innerHTML = '<i class="fa-solid fa-pencil"></i>';
+    const deleteBtn = document.createElement("button"); deleteBtn.type = "button"; deleteBtn.title = "Löschen"; deleteBtn.classList.add("list-action-button", "delete-btn"); deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
+    buttonsContainer.appendChild(editBtn); buttonsContainer.appendChild(deleteBtn);
+    headerDiv.appendChild(dateTimeDiv); headerDiv.appendChild(buttonsContainer);
 
-    dateTimeDiv.appendChild(dateSpan);
-    dateTimeDiv.appendChild(timeSpan);
-    dateTimeDiv.appendChild(carSpan);
-
-    // Container und Buttons für Aktionen
-    const buttonsContainer = document.createElement("div");
-    buttonsContainer.classList.add("buttons-container");
-
-    const editBtn = document.createElement("button");
-    editBtn.type = "button";
-    editBtn.title = "Bearbeiten";
-    editBtn.classList.add("list-action-button", "edit-btn"); // Basis-Klasse + spezifische Klasse
-    editBtn.innerHTML = '<i class="fa-solid fa-pencil"></i>';
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.type = "button";
-    deleteBtn.title = "Löschen";
-    deleteBtn.classList.add("list-action-button", "delete-btn"); // Basis-Klasse + spezifische Klasse
-    deleteBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
-
-    buttonsContainer.appendChild(editBtn);
-    buttonsContainer.appendChild(deleteBtn);
-
-    headerDiv.appendChild(dateTimeDiv);
-    headerDiv.appendChild(buttonsContainer);
-
-    // Details-Bereich
-    const detailsDiv = document.createElement("div");
-    detailsDiv.classList.add("list-item-details");
+    const detailsDiv = document.createElement("div"); detailsDiv.classList.add("list-item-details");
     detailsDiv.innerHTML = `
         <div><span class="list-label">Von:</span>${startOrt}</div>
         <div><span class="list-label">Nach:</span>${zielOrt}</div>
@@ -1518,65 +1297,28 @@ document.addEventListener("DOMContentLoaded", function () {
         <div><span class="list-label">Distanz:</span>${distanz} km</div>
         <div><span class="list-label">Zweck:</span>${zweck}</div>`;
 
-    // Toggle-Button für Details
-    const toggleBtn = document.createElement("button");
-    toggleBtn.type = "button";
-    toggleBtn.classList.add("toggle-details-btn");
-    toggleBtn.title = "Details ausblenden";
-    toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
+    const toggleBtn = document.createElement("button"); toggleBtn.type = "button"; toggleBtn.classList.add("toggle-details-btn"); toggleBtn.title = "Details ausblenden"; toggleBtn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
 
-    // Alles zum Listenelement hinzufügen
-    listItem.appendChild(headerDiv);
-    listItem.appendChild(detailsDiv);
-    listItem.appendChild(toggleBtn);
+    listItem.appendChild(headerDiv); listItem.appendChild(detailsDiv); listItem.appendChild(toggleBtn);
 
-    // Listenelement zur Liste hinzufügen
-    if (append) {
-      fahrtenListeDiv.appendChild(listItem);
-    } else {
-      fahrtenListeDiv.insertBefore(listItem, fahrtenListeDiv.firstChild);
-    }
-  }
-
-  /**
-   * Aktualisiert die Kilometer-Zusammenfassung für die übergebene Liste von Fahrten.
-   * @param {Array} fahrten - Das Array der Fahrten, die berücksichtigt werden sollen.
-   */
+    if (append) { fahrtenListeDiv.appendChild(listItem); }
+    else { fahrtenListeDiv.insertBefore(listItem, fahrtenListeDiv.firstChild); }
+   }
   function updateZusammenfassung(fahrten) {
-    if (!zusammenfassungDiv) {
-      console.error("Zusammenfassungs-Div nicht gefunden!");
-      return;
-    }
+    if (!zusammenfassungDiv) return;
     if (!Array.isArray(fahrten)) {
-      console.error(
-        "Fehler: updateZusammenfassung wurde ohne gültiges Array aufgerufen.",
-        fahrten
-      );
-      zusammenfassungDiv.innerHTML = `
-                <h2>Zusammenfassung</h2>
-                <p>Fehler bei der Berechnung.</p>
-                <ul><li>-</li><li>-</li><li>-</li></ul>`;
-      return;
+      console.error("Fehler: updateZusammenfassung ohne gültiges Array.", fahrten);
+      zusammenfassungDiv.innerHTML = `<h2>Zusammenfassung</h2><p>Fehler.</p><ul><li>-</li></ul>`; return;
     }
-
-    let totalKm = 0,
-      geschaeftlichKm = 0,
-      privatKm = 0,
-      arbeitswegKm = 0;
+    let totalKm = 0, geschaeftlichKm = 0, privatKm = 0, arbeitswegKm = 0;
     fahrten.forEach((fahrt) => {
       const dist = parseFloat(fahrt.distanz);
       if (!isNaN(dist)) {
         totalKm += dist;
         switch (fahrt.zweck) {
-          case "geschaeftlich":
-            geschaeftlichKm += dist;
-            break;
-          case "privat":
-            privatKm += dist;
-            break;
-          case "arbeitsweg":
-            arbeitswegKm += dist;
-            break;
+          case "geschaeftlich": geschaeftlichKm += dist; break;
+          case "privat": privatKm += dist; break;
+          case "arbeitsweg": arbeitswegKm += dist; break;
         }
       }
     });
@@ -1589,139 +1331,68 @@ document.addEventListener("DOMContentLoaded", function () {
                 <li>Arbeitsweg: ${arbeitswegKm.toFixed(1)} km</li>
             </ul>`;
     console.log("Zusammenfassung aktualisiert für angezeigte Fahrten.");
-  }
-
-  /**
-   * Funktion zur Live-Berechnung der Distanz im Formular.
-   */
+   }
   function berechneUndZeigeDistanz() {
-    const startVal = kmStartInput?.value || "";
-    const endVal = kmEndeInput?.value || "";
-    const startKm = parseFloat(startVal);
-    const endKm = parseFloat(endVal);
-
+    const startVal = kmStartInput?.value || ""; const endVal = kmEndeInput?.value || "";
+    const startKm = parseFloat(startVal); const endKm = parseFloat(endVal);
     if (!isNaN(startKm) && !isNaN(endKm) && endKm >= startKm) {
       const dist = (endKm - startKm).toFixed(1);
       if (distanzInput) distanzInput.value = dist;
     } else {
       if (distanzInput) distanzInput.value = "";
     }
-  }
+   }
 
   // ========================================================================
-  // === 12. Export/Import Funktionen ===
+  // === 16. Export/Import Funktionen ===
   // ========================================================================
-  /**
-   * Exportiert die Daten als CSV-Datei.
-   */
   function exportiereAlsCsv() {
     console.log("CSV Export wird gestartet...");
-    // WICHTIG: Immer ALLE Fahrten exportieren, nicht nur die gefilterten!
     const fahrten = ladeFahrtenAusLocalStorage();
-    if (fahrten.length === 0) {
-      alert("Keine Fahrten zum Exportieren vorhanden."); // Hier evtl. auch ersetzen?
-      return;
-    }
-    // Einstellung für Trennzeichen laden <<< NEU
-    const settings = loadSettings();
-    const delimiter = settings.csvDelimiter || ";"; // Fallback auf Semikolon
+    if (fahrten.length === 0) { showNotification("Keine Fahrten zum Exportieren vorhanden.", "info"); return; }
+    const settings = loadSettings(); const delimiter = settings.csvDelimiter || ";";
     console.log(`CSV Export mit Trennzeichen: "${delimiter}"`);
-
-    const header = [
-      "Datum",
-      "Startzeit",
-      "Endzeit",
-      "Start-Ort",
-      "Ziel-Ort",
-      "KM-Start",
-      "KM-Ende",
-      "Distanz (km)",
-      "Zweck",
-      "Fahrzeug ID",
-      "Fahrzeug Name",
-      "Fahrzeug Kennzeichen",
-    ];
+    const header = [ "Datum", "Startzeit", "Endzeit", "Start-Ort", "Ziel-Ort", "KM-Start", "KM-Ende", "Distanz (km)", "Zweck", "Fahrzeug ID", "Fahrzeug Name", "Fahrzeug Kennzeichen" ];
     const escapeCsvField = (field) => {
-      const stringField = String(field == null ? "" : field);
-      if (
-        stringField.includes(";") ||
-        stringField.includes('"') ||
-        stringField.includes("\n")
-      ) {
-        return `"${stringField.replace(/"/g, '""')}"`;
-      }
-      return stringField;
+        const stringField = String(field == null ? "" : field);
+        const needsQuotes = (delimiter === ',' && stringField.includes(',')) ||
+                            stringField.includes('"') || stringField.includes('\n') || stringField.includes(';');
+        if (needsQuotes) {
+            return `"${stringField.replace(/"/g, '""')}"`;
+        }
+        return stringField;
     };
-
-    // Verwende das geladene Trennzeichen <<< NEU
-    let csvContent = header.join(delimiter) + "\n";
+    let csvContent = header.map(escapeCsvField).join(delimiter) + "\n"; // Header mit Escaping
     fahrten.forEach((fahrt) => {
-      const car = cars.find(
-        (c) => c.id.toString() === (fahrt.carId || "").toString()
-      );
-      const carName = car ? car.name : "";
-      const carPlate = car ? car.plate : "";
-      const row = [
-        fahrt.datum,
-        fahrt.startTime || "",
-        fahrt.endTime || "",
-        fahrt.startOrt,
-        fahrt.zielOrt,
-        fahrt.kmStart,
-        fahrt.kmEnde,
-        fahrt.distanz,
-        fahrt.zweck,
-        fahrt.carId || "",
-        carName,
-        carPlate,
-      ];
-      // Verwende das geladene Trennzeichen <<< NEU
+      const car = cars.find(c => c.id.toString() === (fahrt.carId || "").toString());
+      const carName = car ? car.name : ""; const carPlate = car ? car.plate : "";
+      const row = [ fahrt.datum, fahrt.startTime || "", fahrt.endTime || "", fahrt.startOrt, fahrt.zielOrt, fahrt.kmStart, fahrt.kmEnde, fahrt.distanz, fahrt.zweck, fahrt.carId || "", carName, carPlate ];
       csvContent += row.map(escapeCsvField).join(delimiter) + "\n";
     });
-
-    triggerDownload(
-      csvContent,
-      "text/csv;charset=utf-8;",
-      `fahrtenbuch_${getDatumString()}.csv`
-    );
-  }
-
-  /**
-   * Exportiert alle Daten (Fahrten & Fahrzeuge) als JSON-Datei (Backup).
-   */
+    triggerDownload(csvContent, "text/csv;charset=utf-8;", `fahrtenbuch_${getDatumString()}.csv`);
+   }
   function exportiereAlsJson() {
     console.log("JSON Backup wird gestartet...");
     try {
-      const fahrten = ladeFahrtenAusLocalStorage(); // Immer alle exportieren
+      const fahrten = ladeFahrtenAusLocalStorage();
       const backupData = {
+        version: 2, // Version hinzufügen für zukünftige Migrationen
         fahrten: fahrten,
         autos: cars,
+        ausgaben: expenses // NEU: Ausgaben hinzufügen
       };
       const jsonString = JSON.stringify(backupData, null, 2);
-      triggerDownload(
-        jsonString,
-        "application/json;charset=utf-8;",
-        `fahrtenbuch_backup_${getDatumString()}.json`
-      );
+      triggerDownload(jsonString, "application/json;charset=utf-8;", `fahrtenbuch_backup_v2_${getDatumString()}.json`);
     } catch (e) {
       console.error("Fehler beim Erstellen des JSON Backups:", e);
-      alert("Fehler beim Erstellen des Backups."); // Hier evtl. auch ersetzen?
+      showNotification("Fehler beim Erstellen des Backups.", "error");
     }
-  }
-
-  /**
-   * Importiert Daten aus einer JSON-Datei (Restore).
-   * @param {Event} event - Das Change-Event des File-Input-Elements.
-   */
+   }
   function importiereAusJson(event) {
     console.log("JSON Restore wird gestartet...");
-    const file = event.target.files[0];
-    if (!file) {
-      return; // Keine Datei ausgewählt
-    }
-    const fileInput = event.target; // Referenz auf das Input-Element speichern
+    const file = event.target.files[0]; if (!file) return;
+    const fileInput = event.target;
 
-    // Definiere die Aktion, die bei Bestätigung ausgeführt werden soll
     const performImport = () => {
       console.log("Bestätigung für Import erhalten.");
       const reader = new FileReader();
@@ -1729,201 +1400,118 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
           const jsonContent = e.target.result;
           const importData = JSON.parse(jsonContent);
+          if (!importData || typeof importData !== "object") throw new Error("Ungültiges Format: Kein Objekt.");
 
-          if (!importData || typeof importData !== "object") {
-            throw new Error(
-              "Ungültiges Format: Importierte Daten sind kein Objekt."
-            );
-          }
           const hasFahrten = Array.isArray(importData.fahrten);
           const hasAutos = Array.isArray(importData.autos);
+          const hasAusgaben = Array.isArray(importData.ausgaben); // NEU: Prüfen auf Ausgaben
 
-          if (!hasFahrten && !hasAutos) {
-            throw new Error(
-              "Ungültiges Backup-Format: Weder 'fahrten' noch 'autos' Array gefunden."
-            );
-          }
+          if (!hasFahrten && !hasAutos && !hasAusgaben) throw new Error("Formatfehler: Weder 'fahrten', 'autos' noch 'ausgaben' gefunden.");
 
           if (hasAutos) {
-            cars = importData.autos;
-            saveCars(); // Speichert neue Fahrzeuge (ggf. mit Fehler-Notification)
-            console.log(`Import: ${cars.length} Fahrzeuge geladen.`);
-          } else {
-            console.log(
-              "Import: Kein 'autos'-Array in der Datei gefunden, Fahrzeuge nicht überschrieben."
-            );
-          }
+            cars = importData.autos; saveCars(); console.log(`Import: ${cars.length} Fahrzeuge geladen.`);
+          } else { console.log("Import: Kein 'autos'-Array gefunden."); }
 
           if (hasFahrten) {
-            speichereAlleFahrten(importData.fahrten); // Speichert neue Fahrten (ggf. mit Fehler-Notification)
-            console.log(
-              `Import: ${importData.fahrten.length} Fahrten geladen.`
-            );
-          } else {
-            console.log(
-              "Import: Kein 'fahrten'-Array in der Datei gefunden, Fahrten nicht überschrieben."
-            );
-          }
+            speichereAlleFahrten(importData.fahrten); console.log(`Import: ${importData.fahrten.length} Fahrten geladen.`);
+          } else { console.log("Import: Kein 'fahrten'-Array gefunden."); }
 
-          // UI komplett neu initialisieren
-          initialisiereApp(); // Lädt alles neu
+          // NEU: Ausgaben importieren
+          if (hasAusgaben) {
+            expenses = importData.ausgaben; saveExpenses(); console.log(`Import: ${expenses.length} Ausgaben geladen.`);
+          } else { console.log("Import: Kein 'ausgaben'-Array gefunden."); expenses = []; saveExpenses(); } // Leere Ausgaben speichern, falls nicht vorhanden
 
-          showNotification("Import erfolgreich abgeschlossen!", "success"); // Erfolgsmeldung
+          initialisiereApp(); // UI komplett neu initialisieren
+          showNotification("Import erfolgreich abgeschlossen!", "success");
+
         } catch (err) {
           console.error("Fehler beim JSON Import:", err);
-          // Zeige Fehler als Notification statt alert
-          showNotification(
-            `Import fehlgeschlagen: ${err.message}`,
-            "error",
-            5000
-          ); // Längere Anzeige für Fehler
-        } finally {
-          // File Input immer zurücksetzen (jetzt über gespeicherte Referenz)
-          if (fileInput) {
-            fileInput.value = null;
-          }
-        }
+          showNotification(`Import fehlgeschlagen: ${err.message}`, "error", 8000);
+        } finally { if (fileInput) fileInput.value = null; }
       };
       reader.onerror = function () {
         console.error("Fehler beim Lesen der Datei:", reader.error);
-        // Zeige Fehler als Notification statt alert
-        showNotification(
-          "Fehler beim Lesen der ausgewählten Datei.",
-          "error",
-          5000
-        );
-        if (fileInput) {
-          fileInput.value = null; // File Input zurücksetzen
-        }
+        showNotification("Fehler beim Lesen der ausgewählten Datei.", "error");
+        if (fileInput) fileInput.value = null;
       };
       reader.readAsText(file);
     };
-
-    // Öffne das Bestätigungs-Modal statt confirm()
-    openConfirmModal(
-      `ACHTUNG:\nAlle aktuell gespeicherten Fahrten UND Fahrzeuge werden durch den Inhalt der Datei "${file.name}" ersetzt.\n\nFortfahren?`,
-      performImport
-    );
-
-    // Wichtig: File Input sofort zurücksetzen, falls Nutzer im Modal abbricht
-    if (fileInput) {
-      fileInput.value = null;
-    }
-  }
-
-  /**
-   * Hilfsfunktion, um den Download einer Datei im Browser anzustoßen.
-   */
+    openConfirmModal(`ACHTUNG:\nAlle aktuell gespeicherten Daten (Fahrten, Fahrzeuge, Ausgaben) werden durch den Inhalt der Datei "${file.name}" ersetzt.\n\nFortfahren?`, performImport);
+   }
   function triggerDownload(content, mimeType, filename) {
     const BOM = mimeType.includes("csv") ? "\uFEFF" : "";
     const blob = new Blob([BOM + content], { type: mimeType });
     const link = document.createElement("a");
-
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", filename);
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      link.setAttribute("href", url); link.setAttribute("download", filename);
+      link.style.visibility = "hidden"; document.body.appendChild(link);
+      link.click(); document.body.removeChild(link); URL.revokeObjectURL(url);
       console.log(`Download für ${filename} angeboten.`);
     } else {
-      alert("Automatischer Download wird von Ihrem Browser nicht unterstützt."); // Hier evtl. auch ersetzen?
+      showNotification("Automatischer Download wird von Ihrem Browser nicht unterstützt.", "info");
     }
-  }
+   }
 
   // ========================================================================
-  // === 13. Event Listener Setup ===
+  // === 17. Event Listener Setup ===
   // ========================================================================
-  /**
-   * Hängt alle notwendigen Event Listener an die HTML-Elemente.
-   */
   function setupEventListeners() {
     console.log("Initialisiere Event Listeners...");
 
-    // Fahrten-Formular Listener
-    addNewButton?.addEventListener("click", handleAddNewClick);
+    // --- Formular (Fahrten) ---
     speichernButton?.addEventListener("click", handleFormularSpeichern);
     cancelEditButton?.addEventListener("click", () => abbrechenEditModus(true));
-
-    // Fahrten-Liste Listener (für Edit/Delete/Toggle)
-    fahrtenListeDiv?.addEventListener("click", handleListClick);
-
-    // Listener für Fahrzeugliste (Edit/Delete)
-    carListUl?.addEventListener("click", handleCarListClick);
-
-    // Listener für Filter-Buttons
-    applyFilterButton?.addEventListener("click", handleApplyFilter);
-    resetFilterButton?.addEventListener("click", handleResetFilter);
-
-    // Export/Import Listener
-    exportButton?.addEventListener("click", exportiereAlsCsv);
-    exportJsonButton?.addEventListener("click", exportiereAlsJson);
-    importJsonButton?.addEventListener("click", () =>
-      importJsonFileInput?.click()
-    );
-    importJsonFileInput?.addEventListener("change", importiereAusJson);
-
-    // Theme & Sidebar Listener
-    themeToggleButton?.addEventListener("click", handleThemeToggle);
-    sidebarToggleButton?.addEventListener("click", handleSidebarToggle);
-
-    // Live Distanz Listener
     kmStartInput?.addEventListener("input", berechneUndZeigeDistanz);
     kmEndeInput?.addEventListener("input", berechneUndZeigeDistanz);
 
-    // Listener für das Fahrzeug-Modal
-    addCarMenuButton?.addEventListener("click", openAddCarModal);
-    modalCloseButton?.addEventListener("click", closeAddCarModal);
-    modalCancelButton?.addEventListener("click", closeAddCarModal);
-    modalSaveButton?.addEventListener("click", handleModalSaveCar);
-    addCarModal?.addEventListener("click", (event) => {
-      if (event.target === addCarModal) {
-        closeAddCarModal();
-      }
-    });
+    // --- Listen (Event Delegation) ---
+    fahrtenListeDiv?.addEventListener("click", handleListClick); // Fahrtenliste
+    carListUl?.addEventListener("click", handleCarListClick); // Fahrzeugliste (rechte Spalte)
+    ausgabenListeDiv?.addEventListener("click", handleExpenseListClick); // NEU: Ausgabenliste
 
-    // Listener für das Bestätigungs-Modal
-    confirmModalConfirmBtn?.addEventListener("click", () => {
-      console.log("Listener: Confirm Button geklickt."); // DEBUG Log
-      if (typeof confirmModalCallback === "function") {
-        confirmModalCallback();
-      }
-      closeConfirmModal(); // Ruft closeConfirmModal auf
-    });
-    confirmModalCancelBtn?.addEventListener("click", () => {
-      console.log("Listener: Cancel Button geklickt."); // DEBUG Log
-      closeConfirmModal(); // Ruft closeConfirmModal auf
-    });
-    confirmModalCloseBtn?.addEventListener("click", () => {
-      console.log("Listener: Close (X) Button geklickt."); // DEBUG Log
-      closeConfirmModal(); // Ruft closeConfirmModal auf
-    });
-    confirmModal?.addEventListener("click", (event) => {
-      if (event.target === confirmModal) {
-        console.log("Listener: Overlay geklickt."); // DEBUG Log
-        closeConfirmModal(); // Ruft closeConfirmModal auf
-      }
-    });
-    // Listener für Einstellungen-Modal öffnen/schließen
-    settingsMenuButton?.addEventListener("click", openSettingsModal);
+    // --- Filter ---
+    applyFilterButton?.addEventListener("click", handleApplyFilter);
+    resetFilterButton?.addEventListener("click", handleResetFilter);
+    toggleFilterButton?.addEventListener("click", handleToggleFilterBox);
+
+    // --- Sidebar & Header ---
+    themeToggleButton?.addEventListener("click", handleThemeToggle);
+    sidebarToggleButton?.addEventListener("click", handleSidebarToggle);
+    addNewButton?.addEventListener("click", handleAddNewClick); // "+ Neue Fahrt"
+    addCarMenuButton?.addEventListener("click", openAddCarModal); // "+ Neues Fahrzeug"
+    addExpenseMenuButton?.addEventListener("click", openAddExpenseModal); // "+ Neue Ausgabe"
+    showExpensesButton?.addEventListener("click", handleShowExpenses); // "Ausgaben anzeigen"
+    settingsMenuButton?.addEventListener("click", openSettingsModal); // "Einstellungen"
+    exportButton?.addEventListener("click", exportiereAlsCsv); // "CSV Export"
+    exportJsonButton?.addEventListener("click", exportiereAlsJson); // "Backup"
+    importJsonButton?.addEventListener("click", () => importJsonFileInput?.click()); // "Restore"
+    importJsonFileInput?.addEventListener("change", importiereAusJson);
+
+    // --- Modals ---
+    // Fahrzeug-Modal
+    modalCarCloseButton?.addEventListener("click", closeAddCarModal);
+    modalCancelCarButton?.addEventListener("click", closeAddCarModal);
+    modalSaveCarButton?.addEventListener("click", handleModalSaveCar);
+    addCarModal?.addEventListener("click", (event) => { if (event.target === addCarModal) closeAddCarModal(); });
+    // Ausgaben-Modal
+    modalExpenseCloseButton?.addEventListener("click", closeAddExpenseModal);
+    modalCancelExpenseButton?.addEventListener("click", closeAddExpenseModal);
+    modalSaveExpenseButton?.addEventListener("click", handleSaveExpense);
+    addExpenseModal?.addEventListener("click", (event) => { if (event.target === addExpenseModal) closeAddExpenseModal(); });
+    // Bestätigungs-Modal
+    confirmModalConfirmBtn?.addEventListener("click", () => { if (typeof confirmModalCallback === "function") confirmModalCallback(); closeConfirmModal(); });
+    confirmModalCancelBtn?.addEventListener("click", closeConfirmModal);
+    confirmModalCloseBtn?.addEventListener("click", closeConfirmModal);
+    confirmModal?.addEventListener("click", (event) => { if (event.target === confirmModal) closeConfirmModal(); });
+    // Einstellungs-Modal
     settingsModalCloseBtn?.addEventListener("click", closeSettingsModal);
     settingsModalCancelBtn?.addEventListener("click", closeSettingsModal);
-    settingsModal?.addEventListener("click", (event) => {
-      if (event.target === settingsModal) {
-        closeSettingsModal();
-      }
-    });
-
-    // NEU: Listener für Speichern-Button im Einstellungs-Modal
     settingsModalSaveBtn?.addEventListener("click", handleSaveSettings);
-
-    // Listener für "Alle löschen" kommt später hinzu
     settingDeleteAllBtn?.addEventListener("click", handleDeleteAllData);
-    toggleFilterButton?.addEventListener("click", handleToggleFilterBox);
-    // NEU: Listener für Paginierungs-Buttons
+    settingsModal?.addEventListener("click", (event) => { if (event.target === settingsModal) closeSettingsModal(); });
+
+    // --- Paginierung (Fahrten) ---
     prevPageBtn?.addEventListener("click", handlePrevPage);
     nextPageBtn?.addEventListener("click", handleNextPage);
 
@@ -1931,367 +1519,202 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ========================================================================
-  // === 14. Handlers für UI-Aktionen ===
+  // === 18. Handlers für UI-Aktionen ===
   // ========================================================================
-  /**
-   * Handler für Klick auf "+ Neue Fahrt hinzufügen". Klappt das Formular ein/aus.
-   */
   function handleAddNewClick() {
     console.log("Button '+ Neue Fahrt' geklickt.");
-    if (!formularDiv) {
-      console.error("FEHLER: formularDiv ist null in handleAddNewClick!");
-      return;
-    }
+    if (!formularDiv) return;
     if (formularDiv.classList.contains("form-visible") && editId === null) {
-      formularDiv.classList.remove("form-visible");
-      console.log("Fahrten-Formular geschlossen.");
+      showMiddleColumnView('fahrten');
+      console.log("Fahrten-Formular geschlossen, zeige Fahrtenliste.");
     } else {
       abbrechenEditModus(false);
-      formularDiv.classList.add("form-visible");
+      showMiddleColumnView('formular');
       console.log("Fahrten-Formular für neue Fahrt geöffnet.");
       datumInput?.focus();
-      formularDiv.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      formularDiv.scrollIntoView?.({ behavior: "smooth", block: "nearest" });
     }
-  }
-
-  /**
-   * Handler für Klicks innerhalb der Fahrtenliste (delegiert an Buttons).
-   * @param {Event} event - Das Klick-Event.
-   */
+   }
   function handleListClick(event) {
-    const fahrtElement = event.target.closest("[data-fahrt-id]");
-    if (!fahrtElement) return;
+    const fahrtElement = event.target.closest("[data-fahrt-id]"); if (!fahrtElement) return;
     const fahrtId = fahrtElement.getAttribute("data-fahrt-id");
-
-    if (event.target.closest(".edit-btn")) {
-      starteEditModus(fahrtId);
-      return;
-    }
-    if (event.target.closest(".delete-btn")) {
-      fahrtLoeschen(fahrtId); // Ruft jetzt Funktion auf, die Modal öffnet
-      return;
-    }
+    if (event.target.closest(".edit-btn")) { starteEditModus(fahrtId); return; }
+    if (event.target.closest(".delete-btn")) { fahrtLoeschen(fahrtId); return; }
     const toggleButton = event.target.closest(".toggle-details-btn");
     if (toggleButton) {
       fahrtElement.classList.toggle("details-collapsed");
       const icon = toggleButton.querySelector("i.fa-solid");
       if (icon) {
         if (fahrtElement.classList.contains("details-collapsed")) {
-          icon.classList.replace("fa-chevron-up", "fa-chevron-down");
-          toggleButton.setAttribute("title", "Details anzeigen");
+          icon.classList.replace("fa-chevron-up", "fa-chevron-down"); toggleButton.setAttribute("title", "Details anzeigen");
         } else {
-          icon.classList.replace("fa-chevron-down", "fa-chevron-up");
-          toggleButton.setAttribute("title", "Details ausblenden");
+          icon.classList.replace("fa-chevron-down", "fa-chevron-up"); toggleButton.setAttribute("title", "Details ausblenden");
         }
+      } return;
+    }
+   }
+  function handleCarListClick(event) {
+      const deleteButton = event.target.closest(".delete-car-btn");
+      if (deleteButton) {
+          const carIdToDelete = deleteButton.dataset.carId;
+          console.log("Prüfe, ob Fahrzeug gelöscht werden kann, ID:", carIdToDelete);
+          const fahrten = ladeFahrtenAusLocalStorage();
+          const isCarUsedInTrips = fahrten.some((fahrt) => fahrt.carId === carIdToDelete);
+          const isCarUsedInExpenses = expenses.some((expense) => expense.vehicleId === carIdToDelete); // Prüfung hinzugefügt
+          if (isCarUsedInTrips || isCarUsedInExpenses) {
+              console.warn("Löschen verhindert: Fahrzeug wird noch verwendet.");
+              let message = "Fahrzeug kann nicht gelöscht werden, da es noch in ";
+              if (isCarUsedInTrips && isCarUsedInExpenses) message += "Fahrten und Ausgaben";
+              else if (isCarUsedInTrips) message += "Fahrten";
+              else message += "Ausgaben";
+              message += " verwendet wird.";
+              showNotification(message, "error", 6000);
+          } else {
+              console.log("Fahrzeug wird nicht verwendet, zeige Bestätigungs-Modal.");
+              const deleteCarAction = () => {
+                  // --- Tatsächliche Löschlogik ---
+                  console.log("Bestätigung erhalten, lösche Fahrzeug:", carIdToDelete);
+                  const index = cars.findIndex(car => car.id.toString() === carIdToDelete.toString());
+                  if (index !== -1) {
+                      if (editCarId && editCarId.toString() === carIdToDelete.toString()) { editCarId = null; closeAddCarModal(); }
+                      cars.splice(index, 1);
+                      saveCars(); displayCarList(); populateCarDropdown(); populateFilterCarDropdown(); populateExpenseVehicleDropdown();
+                      console.log("Fahrzeug erfolgreich gelöscht und UI aktualisiert.");
+                      showNotification("Fahrzeug erfolgreich gelöscht.", "success");
+                  } else {
+                      console.warn("Zu löschendes Fahrzeug nicht im Array gefunden:", carIdToDelete);
+                      showNotification("Fehler: Zu löschendes Fahrzeug nicht gefunden!", "error");
+                  }
+                  // --- Ende Löschlogik ---
+              };
+              openConfirmModal("Soll dieses Fahrzeug wirklich endgültig gelöscht werden?", deleteCarAction);
+          } return;
       }
+      const editButton = event.target.closest(".edit-car-btn");
+      if (editButton) { openEditCarModal(editButton.dataset.carId); return; }
+  }
+
+  /**
+   * NEU: Handler für Klicks innerhalb der Ausgabenliste (delegiert an Buttons).
+   * @param {Event} event - Das Klick-Event.
+   */
+  function handleExpenseListClick(event) {
+    const expenseElement = event.target.closest("[data-expense-id]");
+    if (!expenseElement) return; // Klick war nicht innerhalb eines Items
+
+    const expenseId = expenseElement.getAttribute("data-expense-id");
+
+    // Prüfen, ob auf Edit-Button geklickt wurde
+    if (event.target.closest(".edit-expense-btn")) {
+      console.log("Edit-Button für Ausgabe geklickt, ID:", expenseId);
+      startEditExpenseMode(expenseId); // Ruft die neue Edit-Funktion auf
+      return;
+    }
+
+    // Prüfen, ob auf Delete-Button geklickt wurde
+    if (event.target.closest(".delete-expense-btn")) {
+      console.log("Delete-Button für Ausgabe geklickt, ID:", expenseId);
+      deleteExpense(expenseId); // Ruft die neue Löschfunktion auf
       return;
     }
   }
 
-  /**
-   * Handler für Klicks innerhalb der Fahrzeugliste (delegiert an Buttons).
-   * (Angepasst: Verhindert Löschen, wenn Fahrzeug noch genutzt wird)
-   * @param {Event} event - Das Klick-Event.
-   */
-  function handleCarListClick(event) {
-    const deleteButton = event.target.closest(".delete-car-btn");
-    if (deleteButton) {
-      const carIdToDelete = deleteButton.dataset.carId;
-      console.log(
-        "Prüfe, ob Fahrzeug gelöscht werden kann, ID:",
-        carIdToDelete
-      );
 
-      // Prüfen, ob Fahrten dieses Auto noch nutzen
-      const fahrten = ladeFahrtenAusLocalStorage();
-      const isCarUsed = fahrten.some((fahrt) => fahrt.carId === carIdToDelete);
-
-      // *** NEUE LOGIK HIER ***
-      if (isCarUsed) {
-        // Löschen verhindern und Fehlermeldung anzeigen
-        console.warn("Löschen verhindert: Fahrzeug wird noch verwendet.");
-        showNotification(
-          "Fahrzeug kann nicht gelöscht werden, da es noch in Fahrten verwendet wird.",
-          "error",
-          5000
-        );
-      } else {
-        // Fahrzeug wird nicht verwendet -> Bestätigungs-Modal anzeigen
-        console.log("Fahrzeug wird nicht verwendet, zeige Bestätigungs-Modal.");
-        const deleteCarAction = () => {
-          console.log("Bestätigung erhalten, lösche Fahrzeug:", carIdToDelete);
-          const index = cars.findIndex(
-            (car) => car.id.toString() === carIdToDelete.toString()
-          );
-          if (index !== -1) {
-            if (
-              editCarId &&
-              editCarId.toString() === carIdToDelete.toString()
-            ) {
-              editCarId = null;
-              closeAddCarModal();
-            }
-            cars.splice(index, 1);
-            saveCars(); // Kann Fehler werfen -> Notification dort
-            displayCarList();
-            populateCarDropdown();
-            populateFilterCarDropdown();
-            console.log("Fahrzeug erfolgreich gelöscht und UI aktualisiert.");
-            showNotification("Fahrzeug erfolgreich gelöscht.", "success");
-          } else {
-            console.warn(
-              "Zu löschendes Fahrzeug nicht im Array gefunden:",
-              carIdToDelete
-            );
-            showNotification(
-              "Fehler: Zu löschendes Fahrzeug nicht gefunden!",
-              "error"
-            );
-          }
-        };
-        // Standard-Nachricht ohne zusätzliche Warnung
-        openConfirmModal(
-          "Soll dieses Fahrzeug wirklich endgültig gelöscht werden?",
-          deleteCarAction
-        );
-      }
-      return; // Wichtig: Funktion hier beenden nach Klick auf Delete-Button
-    } // Ende if (deleteButton)
-
-    const editButton = event.target.closest(".edit-car-btn");
-    if (editButton) {
-      const carIdToEdit = editButton.dataset.carId;
-      console.log("Edit-Button für Fahrzeug geklickt, ID:", carIdToEdit);
-      openEditCarModal(carIdToEdit);
-      return;
-    }
-  } // Ende handleCarListClick
-
-  /**
-   * Handler für Klick auf "Filter anwenden".
-   */
   function handleApplyFilter() {
     console.log("Button 'Filter anwenden' geklickt.");
     const selectedCarId = filterCarSelect.value;
     const selectedPurpose = filterPurposeSelect.value;
     const startDate = filterDateStartInput.value;
     const endDate = filterDateEndInput.value;
-    console.log("Filter Kriterien:", {
-      selectedCarId,
-      selectedPurpose,
-      startDate,
-      endDate,
-    });
+    console.log("Filter Kriterien:", { selectedCarId, selectedPurpose, startDate, endDate });
 
     const alleFahrten = ladeFahrtenAusLocalStorage();
     let gefilterteFahrten = alleFahrten;
-    currentPage = 1;
-    displayTrips(gefilterteFahrten);
-    updateZusammenfassung(gefilterteFahrten);
 
-    if (selectedCarId) {
-      gefilterteFahrten = gefilterteFahrten.filter(
-        (fahrt) => fahrt.carId === selectedCarId
-      );
-    }
-    if (selectedPurpose) {
-      gefilterteFahrten = gefilterteFahrten.filter(
-        (fahrt) => fahrt.zweck === selectedPurpose
-      );
-    }
-    if (startDate) {
-      gefilterteFahrten = gefilterteFahrten.filter(
-        (fahrt) => fahrt.datum >= startDate
-      );
-    }
-    if (endDate) {
-      gefilterteFahrten = gefilterteFahrten.filter(
-        (fahrt) => fahrt.datum <= endDate
-      );
-    }
+    if (selectedCarId) gefilterteFahrten = gefilterteFahrten.filter((fahrt) => fahrt.carId === selectedCarId);
+    if (selectedPurpose) gefilterteFahrten = gefilterteFahrten.filter((fahrt) => fahrt.zweck === selectedPurpose);
+    if (startDate) gefilterteFahrten = gefilterteFahrten.filter((fahrt) => fahrt.datum >= startDate);
+    if (endDate) gefilterteFahrten = gefilterteFahrten.filter((fahrt) => fahrt.datum <= endDate);
 
-    displayTrips(gefilterteFahrten);
-    updateZusammenfassung(gefilterteFahrten);
-  }
-
-  /**
-   * Handler für Klick auf "Filter zurücksetzen".
-   */
+    currentPage = 1; // Filterung setzt Paginierung zurück
+    showMiddleColumnView('fahrten'); // Sicherstellen, dass Fahrtenliste sichtbar ist
+    displayTrips(gefilterteFahrten); // Zeigt die gefilterte Liste an
+    updateZusammenfassung(gefilterteFahrten); // Aktualisiert Zusammenfassung für gefilterte Liste
+   }
   function handleResetFilter() {
     console.log("Button 'Filter zurücksetzen' geklickt.");
-    filterCarSelect.value = "";
-    filterPurposeSelect.value = "";
-    filterDateStartInput.value = "";
-    filterDateEndInput.value = "";
+    filterCarSelect.value = ""; filterPurposeSelect.value = "";
+    filterDateStartInput.value = ""; filterDateEndInput.value = "";
     console.log("Filterfelder zurückgesetzt.");
 
-    currentPage = 1;
+    currentPage = 1; // Paginierung zurücksetzen
     const alleFahrten = ladeFahrtenAusLocalStorage();
-    displayTrips(alleFahrten);
-    updateZusammenfassung(alleFahrten);
-  }
-  /**
-   * Handler für Klick auf "Zurück"-Button der Paginierung.
-   */
+    showMiddleColumnView('fahrten'); // Sicherstellen, dass Fahrtenliste sichtbar ist
+    displayTrips(alleFahrten); // Zeigt alle Fahrten an
+    updateZusammenfassung(alleFahrten); // Aktualisiert Zusammenfassung für alle Fahrten
+   }
+  function handleToggleFilterBox() {
+    if (!filterControlsDiv) return;
+    const isVisible = filterControlsDiv.classList.toggle("filter-visible");
+    const icon = toggleFilterButton?.querySelector("i.fa-solid");
+    if (isVisible) {
+      console.log("Filter-Box wird angezeigt.");
+      toggleFilterButton?.setAttribute("title", "Filter ausblenden");
+      if (icon) icon.classList.replace("fa-filter", "fa-filter-circle-xmark");
+    } else {
+      console.log("Filter-Box wird versteckt.");
+      toggleFilterButton?.setAttribute("title", "Filter einblenden");
+      if (icon) icon.classList.replace("fa-filter-circle-xmark", "fa-filter");
+    }
+   }
   function handlePrevPage() {
     if (currentPage > 1) {
       currentPage--;
       displayTrips(fullTripListForPagination); // Zeige vorherige Seite der zuletzt angezeigten Liste
     }
-  }
-
-  /**
-   * Handler für Klick auf "Weiter"-Button der Paginierung.
-   */
+   }
   function handleNextPage() {
-    const totalPages = Math.ceil(
-      fullTripListForPagination.length / itemsPerPage
-    );
+    const totalPages = Math.ceil(fullTripListForPagination.length / itemsPerPage);
     if (currentPage < totalPages) {
       currentPage++;
       displayTrips(fullTripListForPagination); // Zeige nächste Seite der zuletzt angezeigten Liste
     }
-  }
-  /**
-   * Handler für Klick auf den Filter-Toggle-Button.
-   * Klappt die Filter-Box ein oder aus.
-   */
-  function handleToggleFilterBox() {
-    if (!filterControlsDiv) return;
+   }
+  function handleShowExpenses() {
+      console.log("Button 'Ausgaben anzeigen' geklickt.");
+      // Blende andere Ansichten aus und zeige die Ausgabenliste
+      // Die Funktion displayExpenses() wird innerhalb von showMiddleColumnView aufgerufen
+      showMiddleColumnView('ausgaben');
+   }
 
-    const isVisible = filterControlsDiv.classList.toggle("filter-visible");
-    const icon = toggleFilterButton?.querySelector("i.fa-solid");
 
-    if (isVisible) {
-      console.log("Filter-Box wird angezeigt.");
-      toggleFilterButton?.setAttribute("title", "Filter ausblenden");
-      // Optional: Icon ändern, z.B. auf Chevron Up oder Filter mit X
-      if (icon) icon.classList.replace("fa-filter", "fa-filter-circle-xmark"); // Beispiel
-    } else {
-      console.log("Filter-Box wird versteckt.");
-      toggleFilterButton?.setAttribute("title", "Filter einblenden");
-      // Optional: Icon zurück ändern
-      if (icon) icon.classList.replace("fa-filter-circle-xmark", "fa-filter"); // Beispiel
-    }
-  }
   // ========================================================================
-  // === 15. Initialisierung der App ===
+  // === 19. Initialisierung der App ===
   // ========================================================================
-  /**
-   * Startet die gesamte Anwendung nach Laden des HTML.
-   */
   function initialisiereApp() {
-    console.log("Initialisiere App...");
-    const requiredElementIds = [
-      "fahrt-formular",
-      "trip-entry-form",
-      "speichern-btn",
-      "cancel-edit-btn",
-      "fahrten-liste",
-      "datum",
-      "start-zeit",
-      "end-zeit",
-      "start-ort",
-      "ziel-ort",
-      "km-start",
-      "km-ende",
-      "distanz",
-      "car-select",
-      "zweck",
-      "export-csv-btn",
-      "zusammenfassung",
-      "export-json-btn",
-      "import-json-btn",
-      "import-json-file",
-      "add-new-btn",
-      "theme-toggle-btn",
-      "sidebar-toggle-internal",
-      "car-list",
-      "add-car-btn-menu",
-      "add-car-modal",
-      "modal-close-btn",
-      "modal-cancel-car-btn",
-      "modal-save-car-btn",
-      "modal-car-form",
-      "modal-car-name",
-      "modal-car-plate",
-      "modal-car-error",
-      "filter-controls",
-      "filter-car",
-      "filter-purpose",
-      "filter-date-start",
-      "filter-date-end",
-      "apply-filter-btn",
-      "reset-filter-btn",
-      "confirm-delete-modal",
-      "modal-confirm-message",
-      "modal-confirm-confirm-btn",
-      "modal-confirm-cancel-btn",
-      "modal-confirm-close-btn",
-      "form-error-message",
-      "notification-container",
-      "settings-menu-btn",
-      "settings-modal",
-      "settings-modal-close-btn",
-      "settings-modal-cancel-btn",
-      "settings-modal-save-btn",
-      "settings-form",
-      "setting-default-car",
-      "setting-default-purpose",
-      "setting-delete-all-btn",
-    ];
-    let missingElements = [];
-    requiredElementIds.forEach((id) => {
-      if (!document.getElementById(id)) {
-        missingElements.push(id);
-      }
-    });
-
-    if (missingElements.length > 0) {
-      console.error(
-        "FEHLER: Init - Folgende HTML-Elemente fehlen oder haben falsche IDs:",
-        missingElements
-      );
-      alert(
-        `Initialisierungsfehler! ${missingElements.length} wichtige Elemente fehlen. Details in der Konsole (F12).`
-      );
-      return;
-    }
-    console.log("Alle benötigten HTML-Elemente gefunden.");
-
-    try {
-      datumInput.value = getDatumString();
-    } catch (e) {
-      console.error("Fehler beim Setzen des Datums:", e);
-    }
-    loadCars();
-
-    const alleFahrten = ladeFahrtenAusLocalStorage();
-    if (!Array.isArray(alleFahrten)) {
-      console.error(
-        "FEHLER: ladeFahrtenAusLocalStorage hat beim Initialisieren kein Array zurückgegeben!",
-        alleFahrten
-      );
-      displayTrips([]);
-      updateZusammenfassung([]);
-    } else {
+      console.log("Initialisiere App...");
+      // Prüfung auf Elemente ist optional, aber hilfreich
+      // ...
+      loadCars();
+      loadExpenses(); // Ausgaben laden
+      const alleFahrten = ladeFahrtenAusLocalStorage();
+      displayCarList();
+      populateCarDropdown();
+      populateFilterCarDropdown();
+      loadAndSetInitialTheme();
+      loadAndSetInitialSidebarState();
+      setupEventListeners();
+      showMiddleColumnView('fahrten'); // Standardansicht: Fahrten
+      currentPage = 1;
       displayTrips(alleFahrten);
       updateZusammenfassung(alleFahrten);
-    }
-
-    displayCarList();
-    populateCarDropdown();
-    populateFilterCarDropdown();
-    loadAndSetInitialTheme();
-    loadAndSetInitialSidebarState();
-    felderFuerNeueFahrtVorbereiten();
-    setupEventListeners();
-
-    console.log("App initialisiert und bereit.");
+      felderFuerNeueFahrtVorbereiten();
+      console.log("App initialisiert und bereit.");
   }
 
   // ========================================================================
-  // === 16. App starten ===
+  // === 20. App starten ===
   // ========================================================================
   initialisiereApp();
+
 }); // Ende DOMContentLoaded Listener

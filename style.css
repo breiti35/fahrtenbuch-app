@@ -1,5 +1,5 @@
 /* === style.css === */
-/* Stand: 2025-04-13, Refaktorisierung: Inline-Styles entfernt */
+/* Stand: 2025-04-14, Mit Ausgaben-Styling */
 
 /* === 1. CSS Variablen Definitionen === */
 /* =================================== */
@@ -146,7 +146,7 @@ body.dark-mode {
   --primary-gradient: var(--primary-gradient-dm);
   --success-color: var(--success-color-dm);
   --success-bg-light: var(--success-bg-light-dm);
-  --success-text-dark: var(--success-text-light-dm);
+  --success-text-dark: var(--success-text-dark-dm); /* Korrigiert von light */
 }
 
 /* === 2. Basis-Styling === */
@@ -245,7 +245,7 @@ body.sidebar-collapsed .main-grid {
   vertical-align: middle;
 }
 body.dark-mode #theme-toggle-btn {
-  color: var(--text-primary);
+  color: var(--text-primary); /* War vorher text-on-dark, ggf. anpassen */
 }
 body.dark-mode #theme-toggle-btn:hover {
   background-color: rgba(255, 255, 255, 0.05);
@@ -266,11 +266,9 @@ body.dark-mode #theme-toggle-btn:hover {
   margin-bottom: 0; /* Letzte Box in einer Spalte hat keinen Abstand */
 }
 .grid-column-right .content-box {
-  /* Boxen in rechter Spalte brauchen ggf. oberen Abstand */
-  margin-top: 0; /* Standard */
+  margin-top: 0;
 }
 .grid-column-right .content-box + .content-box {
-  /* Abstand zwischen Boxen rechts */
   margin-top: var(--grid-gap);
 }
 
@@ -351,7 +349,6 @@ h3 {
   transition: opacity 0.2s ease-in-out;
 }
 .grid-column-left.sidebar .content-box {
-  /* Content-Box IN der Sidebar */
   padding: 15px;
   box-shadow: none;
   border-radius: 0;
@@ -360,7 +357,7 @@ h3 {
   overflow-y: auto;
   background-color: transparent;
   transition: padding 0.3s ease-in-out;
-  margin-bottom: 0; /* Kein Margin für innere Box */
+  margin-bottom: 0;
 }
 .sidebar-section {
   margin-bottom: 1.5rem;
@@ -369,7 +366,6 @@ h3 {
   margin-bottom: 0;
 }
 .sidebar-section-title {
-  /* H3 in Sidebar */
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -389,7 +385,7 @@ h3 {
   margin: 0;
   padding: 0;
   list-style: none;
-} /* Sicherstellen, dass Menü keine Listenpunkte hat */
+}
 .menu-button {
   background: none !important;
   border: none !important;
@@ -490,8 +486,6 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
 /* === 8. Hauptformular (Fahrten) === */
 /* ================================= */
 #fahrt-formular {
-  /* Container für das Formular */
-  /* Erbt von .content-box */
   max-height: 0;
   overflow: hidden;
   padding-top: 0;
@@ -506,7 +500,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   opacity: 0;
 }
 #fahrt-formular.form-visible {
-  max-height: 1500px;
+  max-height: 1500px; /* Ausreichend hoch */
   padding: 25px;
   margin-bottom: var(--grid-gap);
   background-color: var(--bg-card);
@@ -522,8 +516,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   align-items: start;
 }
 #trip-entry-form > div {
-  /* Direkte Kinder (Label+Input Container) */
-  margin-bottom: 0; /* Grid Gap übernimmt Abstand */
+  margin-bottom: 0;
 }
 /* Labels im Hauptformular */
 #trip-entry-form label {
@@ -572,7 +565,6 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
     grid-template-columns: 1fr; /* Eine Spalte */
     gap: 15px;
   }
-  /* .form-button-container bleibt volle Breite */
 }
 
 /* Fehleranzeige im Hauptformular */
@@ -596,14 +588,11 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   margin-bottom: 1.5rem; /* Abstand zur Filterbox/Liste */
 }
 .list-header-controls .list-heading {
-  /* Klasse für H2 */
-  /* Erbt H2-Stile */
   margin-bottom: 0;
   border-bottom: none;
   padding-bottom: 0;
 }
 .toggle-filter-button {
-  /* Klasse für Button */
   background: none;
   border: 1px solid var(--border-color-medium);
   color: var(--text-secondary);
@@ -625,8 +614,6 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
 
 /* Filter-Box */
 .filter-box {
-  /* ID #filter-controls wird für JS verwendet */
-  /* Erbt von .content-box */
   max-height: 0;
   overflow: hidden;
   padding-top: 0;
@@ -640,7 +627,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
     opacity 0.3s ease-out;
 }
 .filter-box.filter-visible {
-  max-height: 500px;
+  max-height: 500px; /* Ausreichend hoch */
   padding-top: 20px;
   padding-bottom: 20px;
   margin-bottom: 20px;
@@ -648,7 +635,6 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   opacity: 1;
 }
 .filter-box-heading {
-  /* Klasse für H3 */
   margin-top: 0;
   margin-bottom: 15px;
   font-size: 1.1rem;
@@ -696,7 +682,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
 /* Die Liste selbst */
 #fahrten-liste {
   margin-top: 0;
-} /* Container für die .fahrt-item Elemente */
+}
 .fahrt-item {
   background-color: var(--bg-card);
   padding: 20px;
@@ -721,7 +707,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   border-bottom: 1px solid var(--border-color-subtle);
   margin-bottom: 15px;
   transition: border-color 0.3s ease;
-  gap: 10px; /* Gap hinzugefügt */
+  gap: 10px;
 }
 .list-item-date-time {
   display: flex;
@@ -737,6 +723,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   color: var(--text-secondary);
 }
 .list-icon {
+  /* Gemeinsame Klasse für Icons in Listen */
   margin-right: 6px;
   width: 1em;
   text-align: center;
@@ -753,7 +740,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   margin-top: 0;
   overflow: hidden;
   opacity: 1;
-  max-height: 500px;
+  max-height: 500px; /* Ausreichend hoch */
   transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out,
     margin-top 0.4s ease-in-out;
 }
@@ -782,10 +769,9 @@ span.list-label {
 #fahrten-liste .buttons-container {
   display: flex;
   gap: 8px;
-  flex-shrink: 0; /* margin-left: 15px; entfernt, da Gap im Header */
+  flex-shrink: 0;
 }
 #fahrten-liste .list-action-button {
-  /* Generische Klasse für Edit/Delete in Liste */
   padding: 3px 6px;
   font-size: 0.8rem;
   border-radius: 6px;
@@ -842,7 +828,6 @@ span.list-label {
   display: none; /* Standardmäßig versteckt, JS zeigt es an */
 }
 .pagination-button {
-  /* Klasse für Prev/Next Buttons */
   padding: 6px 12px;
   font-size: 0.9rem;
   border: 1px solid var(--border-color-medium);
@@ -862,17 +847,15 @@ span.list-label {
   background-color: var(--bg-hover-menu);
 }
 .page-info {
-  /* Klasse für "Seite X von Y" */
   margin: 0 15px;
   font-size: 0.9rem;
   color: var(--text-secondary);
-  vertical-align: middle; /* Bessere Ausrichtung mit Buttons */
+  vertical-align: middle;
 }
 
 /* === 11. Rechte Spalte (Zusammenfassung & Fahrzeuge) === */
 /* ===================================================== */
 #zusammenfassung {
-  /* Nutzt .content-box */
 }
 #zusammenfassung ul {
   list-style: none;
@@ -889,17 +872,13 @@ span.list-label {
 }
 
 #fahrzeug-verwaltung {
-  /* Nutzt .content-box */
 }
 #fahrzeug-verwaltung #car-list-container {
 }
 #fahrzeug-verwaltung #car-list-container h3 {
-  /* Überschrift IN der Box */
-  /* Erbt H3 Stile */
-  margin-top: 0; /* Sicherstellen */
+  margin-top: 0;
 }
 #car-list {
-  /* UL für Fahrzeuge */
   list-style: none;
   padding-left: 0;
   margin-top: 1rem;
@@ -907,45 +886,38 @@ span.list-label {
   padding-top: 0;
 }
 .car-list-item {
-  /* Klasse für LI Elemente (wird von JS hinzugefügt) */
   padding: 8px 5px;
   border-bottom: 1px dashed var(--border-color-light);
   font-size: 0.95rem;
   transition: border-color 0.3s ease;
-  display: flex; /* Flexbox für Ausrichtung */
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px; /* Abstand zwischen Info und Aktionen */
+  gap: 10px;
 }
 .car-list-item:last-child {
   border-bottom: none;
 }
 .car-list-info {
-  /* Span für Icon, Name, Kennzeichen */
   display: flex;
   align-items: center;
-  gap: 8px; /* Abstand zw. Icon und Text */
-  flex-grow: 1; /* Nimmt verfügbaren Platz ein */
-  min-width: 0; /* Wichtig für Flexbox-Umbruch */
+  gap: 8px;
+  flex-grow: 1;
+  min-width: 0;
 }
 .car-list-info .car-name {
-  /* Span für den Namen */
-  /* Ggf. Stile für Umbruch etc. */
 }
 .car-list-info .car-plate {
-  /* Strong für das Kennzeichen */
   font-weight: 600;
   color: var(--text-secondary);
-  white-space: nowrap; /* Verhindert Umbruch des Kennzeichens */
+  white-space: nowrap;
 }
 .car-list-actions {
-  /* Span für Buttons */
-  flex-shrink: 0; /* Buttons nicht schrumpfen */
+  flex-shrink: 0;
   display: flex;
-  gap: 4px; /* Kleiner Abstand zwischen Buttons */
+  gap: 4px;
 }
 .car-list-button {
-  /* Klasse für Edit/Delete Buttons in Fahrzeugliste */
   background: none;
   border: none;
   cursor: pointer;
@@ -971,7 +943,6 @@ span.list-label {
 
 /* === 12. Allgemeine Button-Styles === */
 /* =================================== */
-/* Basis-Button (wird von spezifischeren Buttons geerbt/überschrieben) */
 button {
   cursor: pointer;
   font-family: inherit;
@@ -1026,7 +997,6 @@ button {
   background-color: var(--secondary-color);
   border-color: var(--secondary-color);
   color: var(--text-on-primary);
-  /* margin-left: 10px; -> wird jetzt durch gap im Container gesteuert */
 }
 #cancel-edit-btn:hover {
   background-color: var(--secondary-color-hover-bg);
@@ -1039,12 +1009,8 @@ button {
   font-size: 0.9rem !important;
 }
 .button-small.button-primary {
-  /* Kombination für primären kleinen Button */
-  /* Erbt von #speichern-btn oder button-primary im Modal */
 }
 .button-small.button-secondary {
-  /* Kombination für sekundären kleinen Button */
-  /* Erbt von #cancel-edit-btn oder button-secondary im Modal */
 }
 
 /* === 13. Modal-Dialog Styling === */
@@ -1069,7 +1035,6 @@ button {
   visibility: visible;
   opacity: 1;
 }
-/* Spezifischer z-index für Bestätigungs-Modal */
 #confirm-delete-modal.modal-overlay {
   z-index: 1010;
 }
@@ -1086,16 +1051,16 @@ button {
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  z-index: 1001; /* Inhalt über Overlay */
+  z-index: 1001;
 }
 #confirm-delete-modal .modal-content {
   z-index: 1011;
-} /* Inhalt des Bestätigungs-Modals noch höher */
+}
 
 /* Breiten für verschiedene Modals */
 .modal-content {
   max-width: 500px;
-} /* Standard (z.B. Fahrzeug) */
+} /* Standard (z.B. Fahrzeug, Ausgabe) */
 .modal-content-narrow {
   max-width: 400px;
 } /* Für Bestätigung */
@@ -1116,7 +1081,6 @@ button {
   flex-shrink: 0;
 }
 .modal-header h2 {
-  /* H2 im Modal-Header */
   margin: 0;
   font-size: 1.4rem;
   color: var(--text-headings);
@@ -1124,7 +1088,6 @@ button {
   padding-bottom: 0;
 }
 .modal-close-button {
-  /* Klasse für alle X-Buttons */
   background: none;
   border: none;
   font-size: 2rem;
@@ -1175,7 +1138,6 @@ button {
 }
 /* Spezifische Button-Typen im Modal Footer */
 .modal-footer .button-secondary {
-  /* Abbrechen etc. */
   font-weight: 500;
   background-color: var(--secondary-color);
   border-color: var(--secondary-color);
@@ -1186,7 +1148,6 @@ button {
   border-color: var(--secondary-color-dark);
 }
 .modal-footer .button-primary {
-  /* Speichern etc. */
   font-weight: 600;
   background-color: var(--primary-color);
   background-image: var(--primary-gradient);
@@ -1201,7 +1162,6 @@ button {
   border-color: var(--primary-color-dark);
 }
 .modal-footer .button-danger {
-  /* Löschen Bestätigen etc. */
   font-weight: 600;
   background-color: var(--danger-color);
   border-color: var(--danger-color);
@@ -1219,15 +1179,14 @@ button {
   box-shadow: 0 0 0 0.2rem var(--danger-color-hover-bg);
 }
 
-/* Formular-Elemente IN Modals (Fahrzeug & Einstellungen) */
+/* Formular-Elemente IN Modals (Fahrzeug, Ausgabe & Einstellungen) */
 .modal-body .form-group {
   margin-bottom: 18px;
 }
 .modal-body .form-group:last-child {
   margin-bottom: 0;
-} /* Kein Abstand für letztes Element im Body */
+}
 .modal-body .form-group label {
-  /* Gilt für Labels in Modals */
   display: block;
   margin-bottom: 6px;
   font-weight: 500;
@@ -1235,8 +1194,9 @@ button {
   font-size: 0.9rem;
 }
 .modal-body .form-group input[type="text"],
+.modal-body .form-group input[type="number"], /* Gilt jetzt auch für number */
+.modal-body .form-group input[type="date"],   /* Gilt jetzt auch für date */
 .modal-body .form-group select {
-  /* Gilt für Text-Inputs & Selects in Modals */
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--border-color-medium);
@@ -1248,6 +1208,8 @@ button {
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 .modal-body .form-group input[type="text"]:focus,
+.modal-body .form-group input[type="number"]:focus,
+.modal-body .form-group input[type="date"]:focus,
 .modal-body .form-group select:focus {
   border-color: var(--primary-color);
   outline: 0;
@@ -1263,6 +1225,7 @@ button {
   font-size: 0.9rem;
   margin-top: 10px;
   text-align: left;
+  white-space: pre-line; /* Erlaubt Zeilenumbrüche mit \n */
 }
 
 /* Spezifische Stile für Einstellungen-Modal */
@@ -1293,7 +1256,6 @@ button {
   margin-bottom: 5px;
 }
 .settings-label {
-  /* Klasse für Labels in Einstellungen */
   font-size: 0.9rem;
   margin-bottom: 5px;
   display: block;
@@ -1301,7 +1263,6 @@ button {
   font-weight: 500;
 }
 .settings-select {
-  /* Klasse für Selects in Einstellungen */
   width: 100%;
   padding: 10px 12px;
   font-size: 0.95rem;
@@ -1332,7 +1293,7 @@ button {
 }
 .settings-radio-label input[type="radio"] {
   margin-right: 0;
-} /* Entferne Standard-Margin */
+}
 .settings-action-row {
   display: flex;
   justify-content: space-between;
@@ -1353,7 +1314,6 @@ button {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  /* Verhindert, dass Klicks durch den Container gehen */
   pointer-events: none;
 }
 
@@ -1367,24 +1327,19 @@ button {
   min-width: 200px;
   max-width: 350px;
   font-size: 0.95rem;
-  border-left: 5px solid var(--info-color); /* Standard: Info */
-  pointer-events: auto; /* Erlaube Klicks auf die Notification selbst */
-
-  /* Geänderte Styles für Transition: */
-  opacity: 0; /* Startet unsichtbar */
-  transform: translateX(30px); /* Startet leicht rechts verschoben */
-  transition: opacity 0.4s ease-out, transform 0.4s ease-out; /* Übergang definieren */
-  /* Alte Animation entfernt: */
-  /* animation: fadeInOut 3s ease-in-out forwards; */
+  border-left: 5px solid var(--info-color);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
 }
 
-/* Klasse zum Einblenden (wird von JS hinzugefügt/entfernt) */
 .notification.notification-visible {
   opacity: 1;
-  transform: translateX(0); /* Endposition */
+  transform: translateX(0);
 }
 
-/* Typ-spezifische Stile (unverändert) */
+/* Typ-spezifische Stile */
 .notification.notification-success {
   background-color: var(--success-bg-light);
   color: var(--success-text-dark);
@@ -1406,7 +1361,7 @@ body.dark-mode .notification.notification-info {
   border-left-color: var(--info-color-dm);
 }
 
-/* Fortschrittsbalken (unverändert) */
+/* Fortschrittsbalken */
 .notification .notification-progress-bar {
   height: 4px;
   width: 100%;
@@ -1435,6 +1390,7 @@ body.dark-mode .notification .notification-progress-bar {
 .notification .progress-bar-info {
   background-color: var(--info-color);
 }
+
 @keyframes progressBarShrink {
   from {
     width: 100%;
@@ -1442,6 +1398,134 @@ body.dark-mode .notification .notification-progress-bar {
   to {
     width: 0%;
   }
+}
+
+/* === Styling für Ausgabenliste (Angepasst) === */
+/* =========================================== */
+
+#ausgaben-liste-container {
+  margin-top: var(--grid-gap);
+}
+
+#ausgaben-liste {
+  margin-top: 0;
+}
+#ausgaben-liste p {
+    color: var(--text-secondary);
+    padding: 15px 0;
+    text-align: center;
+}
+
+.expense-item {
+  background-color: var(--bg-card);
+  padding: 18px 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px var(--shadow-color);
+  margin-bottom: 12px;
+  transition: box-shadow 0.2s ease-in-out, background-color 0.3s ease;
+  position: relative; /* Wichtig für absolute Positionierung der Buttons */
+  text-align: left;
+}
+.expense-item:last-child { margin-bottom: 0; }
+.expense-item:hover { box-shadow: 0 4px 10px var(--shadow-color-hover); }
+
+.expense-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color-subtle);
+  margin-bottom: 12px;
+  transition: border-color 0.3s ease;
+  gap: 10px;
+  /* KORREKTUR: Platz für Buttons schaffen */
+  padding-right: 65px; /* Ausreichend Platz für 2 Buttons + Gap */
+}
+
+.expense-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.expense-item-info {
+  display: inline-flex;
+  align-items: baseline;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.expense-item-info .list-icon { width: 1.1em; }
+.expense-item-info.car-info {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.expense-item-amount {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-headings);
+  text-align: right;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.expense-item-details {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 5px;
+    /* KORREKTUR: Platz für Buttons schaffen */
+    padding-right: 65px; /* Ausreichend Platz für 2 Buttons + Gap */
+}
+.expense-item-details .description {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+.expense-item-details .odometer-reading {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: block;
+}
+.expense-item-details .odometer-reading .list-icon { width: 1em; }
+
+.expense-item-actions {
+  position: absolute;
+  top: 10px; /* Abstand vom oberen Rand des expense-item */
+  right: 15px; /* Abstand vom rechten Rand des expense-item */
+  display: flex;
+  gap: 6px;
+}
+
+/* Buttons in Ausgabenliste (angepasst an Fahrtenliste) */
+.expense-item .list-action-button {
+   padding: 3px 6px;
+   font-size: 0.8rem;
+   border-radius: 6px;
+   line-height: 1;
+   background: none;
+   border: 1px solid transparent;
+   color: var(--text-secondary);
+   transition: color 0.2s, background-color 0.2s;
+   cursor: pointer;
+}
+.expense-item .list-action-button i.fa-solid {
+    margin-right: 0;
+}
+
+/* Hover-Effekte für Ausgaben-Buttons (identisch zu Fahrtenliste) */
+.expense-item .edit-expense-btn:hover {
+    background-color: var(--warning-color-hover-bg);
+    color: var(--warning-color-dark);
+    border-color: transparent;
+}
+.expense-item .delete-expense-btn:hover {
+    background-color: var(--danger-color-hover-bg);
+    color: var(--danger-color-dark);
+    border-color: transparent;
 }
 
 /* === ENDE === */
