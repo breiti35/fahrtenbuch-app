@@ -1411,9 +1411,9 @@ body.dark-mode .notification .notification-progress-bar {
   margin-top: 0;
 }
 #ausgaben-liste p {
-    color: var(--text-secondary);
-    padding: 15px 0;
-    text-align: center;
+  color: var(--text-secondary);
+  padding: 15px 0;
+  text-align: center;
 }
 
 .expense-item {
@@ -1426,8 +1426,12 @@ body.dark-mode .notification .notification-progress-bar {
   position: relative; /* Wichtig für absolute Positionierung der Buttons */
   text-align: left;
 }
-.expense-item:last-child { margin-bottom: 0; }
-.expense-item:hover { box-shadow: 0 4px 10px var(--shadow-color-hover); }
+.expense-item:last-child {
+  margin-bottom: 0;
+}
+.expense-item:hover {
+  box-shadow: 0 4px 10px var(--shadow-color-hover);
+}
 
 .expense-item-header {
   display: flex;
@@ -1456,11 +1460,13 @@ body.dark-mode .notification .notification-progress-bar {
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
-.expense-item-info .list-icon { width: 1.1em; }
+.expense-item-info .list-icon {
+  width: 1.1em;
+}
 .expense-item-info.car-info {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .expense-item-amount {
@@ -1473,24 +1479,26 @@ body.dark-mode .notification .notification-progress-bar {
 }
 
 .expense-item-details {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin-bottom: 5px;
-    /* KORREKTUR: Platz für Buttons schaffen */
-    padding-right: 65px; /* Ausreichend Platz für 2 Buttons + Gap */
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 5px;
+  /* KORREKTUR: Platz für Buttons schaffen */
+  padding-right: 65px; /* Ausreichend Platz für 2 Buttons + Gap */
 }
 .expense-item-details .description {
-    display: block;
-    margin-bottom: 4px;
-    color: var(--text-primary);
-    word-break: break-word;
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+  word-break: break-word;
 }
 .expense-item-details .odometer-reading {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    display: block;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: block;
 }
-.expense-item-details .odometer-reading .list-icon { width: 1em; }
+.expense-item-details .odometer-reading .list-icon {
+  width: 1em;
+}
 
 .expense-item-actions {
   position: absolute;
@@ -1502,30 +1510,246 @@ body.dark-mode .notification .notification-progress-bar {
 
 /* Buttons in Ausgabenliste (angepasst an Fahrtenliste) */
 .expense-item .list-action-button {
-   padding: 3px 6px;
-   font-size: 0.8rem;
-   border-radius: 6px;
-   line-height: 1;
-   background: none;
-   border: 1px solid transparent;
-   color: var(--text-secondary);
-   transition: color 0.2s, background-color 0.2s;
-   cursor: pointer;
+  padding: 3px 6px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  line-height: 1;
+  background: none;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  transition: color 0.2s, background-color 0.2s;
+  cursor: pointer;
 }
 .expense-item .list-action-button i.fa-solid {
-    margin-right: 0;
+  margin-right: 0;
 }
 
 /* Hover-Effekte für Ausgaben-Buttons (identisch zu Fahrtenliste) */
 .expense-item .edit-expense-btn:hover {
-    background-color: var(--warning-color-hover-bg);
-    color: var(--warning-color-dark);
-    border-color: transparent;
+  background-color: var(--warning-color-hover-bg);
+  color: var(--warning-color-dark);
+  border-color: transparent;
 }
 .expense-item .delete-expense-btn:hover {
-    background-color: var(--danger-color-hover-bg);
-    color: var(--danger-color-dark);
-    border-color: transparent;
+  background-color: var(--danger-color-hover-bg);
+  color: var(--danger-color-dark);
+  border-color: transparent;
+}
+/* === NEU: Styling für Berichte/Statistiken === */
+/* ============================================ */
+
+#berichte-container {
+  margin-top: var(--grid-gap);
 }
 
+#berichte-container .list-header-controls {
+  /* Erbt Stile von .list-header-controls */
+}
+
+#berichte-inhalt {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--grid-gap); /* Angepasst auf Haupt-Grid-Gap */
+}
+
+#berichte-inhalt > p {
+  color: var(--text-secondary);
+  padding: 20px 0;
+  text-align: center;
+  grid-column: 1 / -1;
+  font-style: italic;
+}
+
+.report-card {
+  background-color: var(--bg-card);
+  padding: 20px 25px;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px var(--shadow-color);
+  transition: box-shadow 0.2s ease-in-out, background-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+.report-card:hover {
+  box-shadow: 0 5px 15px var(--shadow-color-hover);
+}
+
+.report-card-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-headings);
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color-light);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.report-card-title i.fa-solid {
+  color: var(--text-secondary);
+  font-size: 1.1em;
+}
+
+.report-card-body {
+  display: flex; /* Geändert zu flex für bessere Kontrolle */
+  flex-direction: column;
+  gap: 15px; /* Abstand zwischen Jahres-Abschnitten */
+}
+
+/* NEU: Styling für Jahres-Abschnitte */
+.year-section {
+  margin-top: 10px;
+  border: 1px solid var(--border-color-light); /* Leichter Rahmen um Jahresabschnitt */
+  border-radius: 6px;
+  padding: 15px;
+  background-color: var(--bg-hover-light); /* Leichter Hintergrund für Jahr? */
+}
+body.dark-mode .year-section {
+  background-color: var(--bg-hover-light-dm);
+}
+
+.year-section h4 {
+  /* Jahresüberschrift */
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--border-color-medium);
+}
+
+.year-summary {
+  /* Container für Jahressummen */
+  margin-bottom: 15px;
+  display: grid;
+  gap: 8px;
+}
+
+.stat-item {
+  /* Beibehalten für Jahressummen */
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  padding: 4px 0;
+  border-bottom: 1px dotted var(--border-color-subtle);
+}
+.stat-item:last-child {
+  border-bottom: none;
+}
+.stat-item .label {
+  color: var(--text-secondary);
+  margin-right: 15px;
+}
+.stat-item .value {
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: right;
+}
+.stat-item .value.cost-per-km {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+body.dark-mode .stat-item .value.cost-per-km {
+  color: var(--primary-color-dm);
+}
+.stat-item .value.na {
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* NEU: Styling für Monatstabelle */
+.monthly-stats-table {
+  width: 100%;
+  border-collapse: collapse; /* Rahmen zusammenführen */
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+.monthly-stats-table th,
+.monthly-stats-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color-subtle);
+}
+.monthly-stats-table th {
+  font-weight: 600;
+  color: var(--text-secondary);
+  background-color: var(--bg-hover-menu); /* Leichter Hintergrund für Header */
+}
+body.dark-mode .monthly-stats-table th {
+  background-color: var(--bg-hover-menu-dm);
+}
+
+.monthly-stats-table td:nth-child(2), /* Spalte Distanz */
+.monthly-stats-table td:nth-child(3) {
+  /* Spalte Kosten */
+  text-align: right;
+  font-family: monospace; /* Monospace für Zahlen? Optional */
+  font-size: 0.85rem;
+}
+.monthly-stats-table tbody tr:last-child td {
+  border-bottom: none; /* Keine Linie unter letzter Zeile */
+}
+.monthly-stats-table tbody tr:hover {
+  background-color: var(--bg-hover-light); /* Hover-Effekt für Zeilen */
+}
+body.dark-mode .monthly-stats-table tbody tr:hover {
+  background-color: var(--bg-hover-light-dm);
+}
+.average-hint {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: -5px; /* Etwas näher an die Tabelle rücken */
+  margin-bottom: 10px; /* Abstand zur Tabelle */
+  font-style: italic;
+  text-align: right; /* Rechtsbündig unter der Tabelle */
+}
+.no-monthly-activity-hint {
+  /* NEU: Styling für Hinweis bei fehlender Aktivität */
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  text-align: center;
+  padding: 10px 0;
+  margin-top: 10px;
+}
+
+/* NEU: Styling für <details> und <summary> */
+.monthly-details {
+  margin-top: 15px; /* Abstand nach oben */
+  border-top: 1px dashed var(--border-color-medium); /* Leichte Trennlinie oben */
+  padding-top: 10px;
+}
+
+.monthly-details-summary {
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 5px 0;
+  list-style-position: inside; /* Pfeil innen */
+  transition: color 0.2s ease;
+  outline: none; /* Standard-Outline entfernen */
+}
+
+.monthly-details-summary:hover,
+.monthly-details[open] > .monthly-details-summary {
+  /* Stil bei Hover und wenn geöffnet */
+  color: var(--primary-color);
+}
+body.dark-mode .monthly-details-summary:hover,
+body.dark-mode .monthly-details[open] > .monthly-details-summary {
+  color: var(--primary-color-dm);
+}
+
+/* Standard-Pfeil etwas anpassen (optional, browserabhängig) */
+.monthly-details-summary::marker {
+  /* Hier könnten spezifische Stile für den Pfeil hin,
+       ist aber oft schwierig browserübergreifend zu gestalten.
+       Alternative: Eigenes Icon per ::before einfügen und Standard-Marker ausblenden */
+}
+.monthly-details-summary::-webkit-details-marker {
+  /* Chrome/Safari */
+  /* Ggf. Anpassungen */
+}
+
+.monthly-details[open] > .monthly-stats-table {
+  margin-top: 10px; /* Abstand zwischen Summary und Tabelle */
+}
 /* === ENDE === */

@@ -2,7 +2,7 @@
 
 Eine mit HTML, CSS und JavaScript erstellte Webanwendung zur Verwaltung von Fahrtenbüchern. Speichert Daten lokal im Browser (`localStorage`). Bietet eine moderne Oberfläche mit Dark Mode und verschiedenen Komfortfunktionen.
 
-**Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)] 
+**Demo:** [[Link zu deiner GitHub Pages Seite](https://breiti35.github.io/fahrtenbuch-app/fahrtenbuch.html)]
 
 ---
 
@@ -24,19 +24,26 @@ Dieses Projekt wurde mit Unterstützung von Gemini, einer KI von Google, entwick
     -   Hinzufügen, Bearbeiten, Löschen über Modal-Dialog.
     -   Verhindert doppelte Kennzeichen und Löschen bei Nutzung (in Fahrten/Ausgaben).
     -   Übersichtliche Liste mit Aktionen.
--   **Ausgabenverwaltung (NEU):**
+-   **Ausgabenverwaltung:**
     -   Erfassen, Bearbeiten, Löschen von Ausgaben (Tanken, Reparatur, Versicherung etc.) über Modal-Dialog.
     -   Anzeige der Ausgaben in einer eigenen, sortierten Liste.
+-   **Berichte & Statistiken (NEU/Erweitert):**
+    -   Eigener "Berichte"-Bereich zur Anzeige von Fahrzeugstatistiken.
+    -   Berechnung und Anzeige von Gesamtdistanz, Gesamtkosten, Kosten/km pro Fahrzeug.
+    -   **Aufschlüsselung nach Jahr und Monat** für Distanz und Kosten (NEU).
+    -   Berechnung und Anzeige von **durchschnittlicher Distanz/Kosten pro Monat** (bezogen auf aktive Monate) pro Jahr (NEU).
+    -   Monatsdetails in Jahresübersicht **einklappbar** für bessere Übersicht (NEU).
 -   **Ansicht & Bedienung:**
     -   Responsives 3-Spalten-Layout.
     -   Einklappbare Sidebar und Filterbox.
-    -   Umschaltbare Hauptansicht (Fahrten, Ausgaben, Formular) (NEU).
+    -   Umschaltbare Hauptansicht (Fahrten, Ausgaben, Berichte).
     * Dark Mode (automatisch/manuell).
     * Dynamische Kilometer-Zusammenfassung (basiert auf Filter).
     * Verbesserte Nutzerführung:
         * Inline-Validierungsfehler im Formular.
         * Benutzerdefinierter Dialog für Löschbestätigungen.
         * Nicht-blockierende Benachrichtigungen (Erfolg/Fehler) mit Fortschrittsbalken.
+    * Verbesserte Darstellung der Statistik-Karten (NEU).
 -   **Daten:**
     * Lokale Speicherung (`localStorage`).
     * Export als CSV (Trennzeichen wählbar) und JSON (Backup, inkl. Ausgaben).
@@ -49,7 +56,7 @@ Dieses Projekt wurde mit Unterstützung von Gemini, einer KI von Google, entwick
     * Prüfung von Pflichtfeldern, Zeiten, KM-Ständen (Fahrten & Ausgaben).
     * KM-Kontinuitätsprüfung pro Fahrzeug bei neuen Fahrten.
     * Prüfung auf doppelte Kennzeichen.
--   **PWA (Progressive Web App) (NEU):**
+-   **PWA (Progressive Web App):**
     * Installierbar auf Desktop (und Mobile).
     * Grundlegende Offline-Fähigkeit (App-Shell Caching).
 

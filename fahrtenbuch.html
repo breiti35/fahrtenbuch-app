@@ -67,6 +67,11 @@
                                 <i class="fa-solid fa-receipt fa-fw"></i>
                                 <span>Ausgaben anzeigen</span>
                             </button>
+                            <button type="button" id="show-reports-btn-menu" class="menu-button"
+                                title="Berichte und Statistiken anzeigen">
+                                <i class="fa-solid fa-chart-pie fa-fw"></i>
+                                <span>Berichte</span>
+                            </button>
                         </div>
                     </div>
                     <div class="sidebar-section">
@@ -213,6 +218,11 @@
                     </div>
                     <div id="ausgaben-liste">
                         <p>Noch keine Ausgaben erfasst oder angezeigt.</p>
+                    </div>
+                </div>
+                <div id="berichte-container" style="display: none;">
+                    <div id="berichte-inhalt">
+                        <p>Statistiken werden berechnet...</p>
                     </div>
                 </div>
             </div>
@@ -419,16 +429,10 @@
     <script>
         // Prüfen, ob Service Worker vom Browser unterstützt werden
         if ('serviceWorker' in navigator) {
-            // Warte bis die Seite vollständig geladen ist
             window.addEventListener('load', () => {
-                // Registriere die sw.js Datei
-                navigator.serviceWorker.register('/sw.js') // Pfad zur sw.js
-                    .then(registration => {
-                        console.log('Service Worker erfolgreich registriert, Scope:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.error('Service Worker Registrierung fehlgeschlagen:', error);
-                    });
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => { console.log('Service Worker registriert:', registration.scope); })
+                    .catch(error => { console.error('Service Worker Registrierung fehlgeschlagen:', error); });
             });
         } else {
             console.log('Service Worker werden von diesem Browser nicht unterstützt.');
