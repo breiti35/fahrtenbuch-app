@@ -24,11 +24,16 @@
   /* Textfarben */
   --text-primary: #333d49;
   --text-secondary: #5a6a7d;
-  --text-headings: #1c4b82; /* Haupt-Überschriftenfarbe */
-  --text-h1: #2a2f45; /* Farbe für H1 im Header (falls abweichend) */
-  --text-on-primary: #ffffff; /* Text auf primären Buttons/Flächen */
-  --text-on-dark: #ffffff; /* Text auf dunklen Hintergründen (Header) */
-  --text-label: var(--text-secondary); /* Farbe für Labels */
+  --text-headings: #1c4b82;
+  /* Haupt-Überschriftenfarbe */
+  --text-h1: #2a2f45;
+  /* Farbe für H1 im Header (falls abweichend) */
+  --text-on-primary: #ffffff;
+  /* Text auf primären Buttons/Flächen */
+  --text-on-dark: #ffffff;
+  /* Text auf dunklen Hintergründen (Header) */
+  --text-label: var(--text-secondary);
+  /* Farbe für Labels */
 
   /* Rahmenfarben */
   --border-color-light: #e1e5eb;
@@ -54,11 +59,13 @@
   --warning-color: #ffca2c;
   --warning-color-dark: #e0a800;
   --warning-color-hover-bg: #ffc1071a;
-  --warning-text-dark: #333; /* Text auf Warning-Hintergrund */
+  --warning-text-dark: #333;
+  /* Text auf Warning-Hintergrund */
   --danger-color: #e63946;
   --danger-color-dark: #c82333;
   --danger-color-hover-bg: #e639461a;
-  --danger-text-dark: #a94442; /* Text auf Danger-Hintergrund (Error-Msg) */
+  --danger-text-dark: #a94442;
+  /* Text auf Danger-Hintergrund (Error-Msg) */
   --primary-gradient: linear-gradient(180deg, #2e89ff 0%, #0d6efd 100%);
 
   /* Success Farben */
@@ -100,7 +107,8 @@
   --danger-color-dm: #ff6b78;
   --danger-color-dark-dm: #e63946;
   --danger-color-hover-bg-dm: #e639462a;
-  --danger-text-dark-dm: #f4a3a3; /* Hellerer Text für dunklen Hintergrund */
+  --danger-text-dark-dm: #f4a3a3;
+  /* Hellerer Text für dunklen Hintergrund */
   --primary-gradient-dm: linear-gradient(180deg, #5a9eff 0%, #4b8eff 100%);
   --success-color-dm: #6fbf73;
   --success-bg-light-dm: #2a3b2a;
@@ -146,7 +154,8 @@ body.dark-mode {
   --primary-gradient: var(--primary-gradient-dm);
   --success-color: var(--success-color-dm);
   --success-bg-light: var(--success-bg-light-dm);
-  --success-text-dark: var(--success-text-dark-dm); /* Korrigiert von light */
+  --success-text-dark: var(--success-text-dark-dm);
+  /* Korrigiert von light */
 }
 
 /* === 2. Basis-Styling === */
@@ -156,6 +165,7 @@ body.dark-mode {
   margin: 0;
   padding: 0;
 }
+
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;
@@ -174,28 +184,35 @@ body {
   margin: 25px auto;
   padding: 0 20px;
 }
+
 .main-grid {
   display: grid;
   grid-template-columns: var(--sidebar-width-expanded) 1fr auto;
   gap: var(--grid-gap);
   transition: grid-template-columns 0.3s ease-in-out;
 }
+
 body.sidebar-collapsed .main-grid {
   grid-template-columns: var(--sidebar-width-collapsed) 1fr auto;
 }
+
 @media (max-width: 991.98px) {
+
   .main-grid,
   body.sidebar-collapsed .main-grid {
     grid-template-columns: 1fr;
     gap: var(--grid-gap-sm);
   }
+
   h1 {
     font-size: 1.5rem;
   }
+
   h2 {
     font-size: 1.2rem;
   }
 }
+
 .grid-column-left,
 .grid-column-middle,
 .grid-column-right {
@@ -216,6 +233,7 @@ body.sidebar-collapsed .main-grid {
   align-items: center;
   transition: background-color 0.3s ease;
 }
+
 .app-header h1 {
   font-size: 1.4rem;
   color: inherit;
@@ -226,6 +244,7 @@ body.sidebar-collapsed .main-grid {
   flex-grow: 1;
   text-align: center;
 }
+
 #theme-toggle-btn {
   background: none;
   border: none;
@@ -237,16 +256,21 @@ body.sidebar-collapsed .main-grid {
   transition: background-color 0.2s, color 0.2s;
   line-height: 1;
 }
+
 #theme-toggle-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
 #theme-toggle-btn i.fa-solid {
   margin-right: 0;
   vertical-align: middle;
 }
+
 body.dark-mode #theme-toggle-btn {
-  color: var(--text-primary); /* War vorher text-on-dark, ggf. anpassen */
+  color: var(--text-primary);
+  /* War vorher text-on-dark, ggf. anpassen */
 }
+
 body.dark-mode #theme-toggle-btn:hover {
   background-color: rgba(255, 255, 255, 0.05);
 }
@@ -260,20 +284,25 @@ body.dark-mode #theme-toggle-btn:hover {
   box-shadow: 0 3px 8px var(--shadow-color);
   height: fit-content;
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  margin-bottom: var(--grid-gap); /* Standard-Abstand nach unten */
+  margin-bottom: var(--grid-gap);
+  /* Standard-Abstand nach unten */
 }
+
 .content-box:last-child {
-  margin-bottom: 0; /* Letzte Box in einer Spalte hat keinen Abstand */
+  margin-bottom: 0;
+  /* Letzte Box in einer Spalte hat keinen Abstand */
 }
+
 .grid-column-right .content-box {
   margin-top: 0;
 }
-.grid-column-right .content-box + .content-box {
+
+.grid-column-right .content-box+.content-box {
   margin-top: var(--grid-gap);
 }
 
-.content-box > h2:first-child,
-.content-box > h3:first-child {
+.content-box>h2:first-child,
+.content-box>h3:first-child {
   margin-top: 0;
 }
 
@@ -289,6 +318,7 @@ h2 {
   font-weight: 600;
   transition: color 0.3s ease, border-color 0.3s ease;
 }
+
 h3 {
   font-size: 1rem;
   font-weight: 600;
@@ -309,10 +339,12 @@ h3 {
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  margin-bottom: 0; /* Kein unterer Abstand für Sidebar */
+  margin-bottom: 0;
+  /* Kein unterer Abstand für Sidebar */
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   align-self: start;
 }
+
 .sidebar-header {
   display: flex;
   align-items: center;
@@ -322,6 +354,7 @@ h3 {
   flex-shrink: 0;
   transition: border-color 0.3s ease;
 }
+
 #sidebar-toggle-internal {
   background: none;
   border: none;
@@ -334,10 +367,12 @@ h3 {
   transition: background-color 0.2s, color 0.2s;
   line-height: 1;
 }
+
 #sidebar-toggle-internal:hover {
   background-color: var(--bg-hover-menu);
   color: var(--text-headings);
 }
+
 .sidebar-app-title {
   flex-grow: 1;
   font-weight: 600;
@@ -348,6 +383,7 @@ h3 {
   opacity: 1;
   transition: opacity 0.2s ease-in-out;
 }
+
 .grid-column-left.sidebar .content-box {
   padding: 15px;
   box-shadow: none;
@@ -359,12 +395,15 @@ h3 {
   transition: padding 0.3s ease-in-out;
   margin-bottom: 0;
 }
+
 .sidebar-section {
   margin-bottom: 1.5rem;
 }
+
 .sidebar-section:last-child {
   margin-bottom: 0;
 }
+
 .sidebar-section-title {
   font-size: 0.75rem;
   font-weight: 600;
@@ -381,11 +420,13 @@ h3 {
     padding 0.3s ease-in-out, margin 0.3s ease-in-out,
     border-color 0.3s ease-in-out;
 }
+
 .action-menu {
   margin: 0;
   padding: 0;
   list-style: none;
 }
+
 .menu-button {
   background: none !important;
   border: none !important;
@@ -406,6 +447,7 @@ h3 {
   overflow: hidden;
   white-space: nowrap;
 }
+
 .menu-button i.fa-solid {
   margin-right: 15px;
   color: var(--text-secondary);
@@ -415,32 +457,40 @@ h3 {
   transition: color 0.15s ease-in-out, margin 0.3s ease-in-out;
   flex-shrink: 0;
 }
+
 .menu-button span {
   opacity: 1;
   transition: opacity 0.2s 0.05s ease-in-out;
 }
+
 .menu-button:hover {
   background-color: var(--bg-hover-menu) !important;
   color: var(--text-headings);
 }
+
 .menu-button:hover i.fa-solid {
   color: var(--text-headings);
 }
+
 /* Spezielle Menu-Buttons */
 button#add-new-btn.menu-button {
   color: var(--primary-color);
   font-weight: 600;
 }
+
 button#add-new-btn.menu-button i.fa-solid {
   color: var(--primary-color);
 }
+
 button#add-new-btn.menu-button:hover {
   background-color: var(--primary-color-focus-shadow) !important;
   color: var(--primary-color-dark);
 }
+
 button#add-new-btn.menu-button:hover i.fa-solid {
   color: var(--primary-color-dark);
 }
+
 /* Eingeklappte Sidebar */
 body.sidebar-collapsed .sidebar-header {
   padding: 0;
@@ -448,20 +498,24 @@ body.sidebar-collapsed .sidebar-header {
   height: 55px;
   border-bottom-color: transparent;
 }
+
 body.sidebar-collapsed #sidebar-toggle-internal {
   margin-right: 0;
   width: 100%;
   display: flex;
   justify-content: center;
 }
+
 body.sidebar-collapsed .sidebar-app-title {
   opacity: 0;
   width: 0;
 }
+
 body.sidebar-collapsed .sidebar .content-box {
   padding: 10px 0;
   overflow-y: hidden;
 }
+
 body.sidebar-collapsed .sidebar-section-title {
   opacity: 0;
   height: 0;
@@ -469,14 +523,17 @@ body.sidebar-collapsed .sidebar-section-title {
   margin: 0;
   border: none;
 }
+
 body.sidebar-collapsed .sidebar .menu-button {
   justify-content: center;
   padding: 12px 0 !important;
 }
+
 body.sidebar-collapsed .sidebar .menu-button span {
   opacity: 0;
   width: 0;
 }
+
 body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   margin-right: 0;
   width: auto;
@@ -499,8 +556,10 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
     box-shadow 0.3s ease-out, background-color 0.3s ease, opacity 0.3s ease-out;
   opacity: 0;
 }
+
 #fahrt-formular.form-visible {
-  max-height: 1500px; /* Ausreichend hoch */
+  max-height: 1500px;
+  /* Ausreichend hoch */
   padding: 25px;
   margin-bottom: var(--grid-gap);
   background-color: var(--bg-card);
@@ -508,16 +567,21 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   border: 1px solid var(--border-color-light);
   opacity: 1;
 }
+
 /* Grid-Layout für Formularfelder */
 #trip-entry-form {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Zwei Spalten */
-  gap: 15px 20px; /* Abstand Vertikal Horizontal */
+  grid-template-columns: 1fr 1fr;
+  /* Zwei Spalten */
+  gap: 15px 20px;
+  /* Abstand Vertikal Horizontal */
   align-items: start;
 }
-#trip-entry-form > div {
+
+#trip-entry-form>div {
   margin-bottom: 0;
 }
+
 /* Labels im Hauptformular */
 #trip-entry-form label {
   display: block;
@@ -526,6 +590,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   color: var(--text-label);
   font-size: 0.95rem;
 }
+
 /* Inputs/Selects im Hauptformular */
 #trip-entry-form input[type="text"],
 #trip-entry-form input[type="date"],
@@ -543,6 +608,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   background-color: var(--bg-input);
   color: var(--text-primary);
 }
+
 #trip-entry-form input:focus,
 #trip-entry-form select:focus {
   border-color: var(--primary-color);
@@ -550,19 +616,23 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   box-shadow: 0 0 0 0.25rem var(--primary-color-focus-shadow);
   background-color: var(--bg-card);
 }
+
 /* Button-Container im Hauptformular */
 .form-button-container {
-  grid-column: 1 / -1; /* Volle Breite */
+  grid-column: 1 / -1;
+  /* Volle Breite */
   margin-top: 10px;
   text-align: right;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
+
 /* Responsive Formular-Layout */
 @media (max-width: 599.98px) {
   #trip-entry-form {
-    grid-template-columns: 1fr; /* Eine Spalte */
+    grid-template-columns: 1fr;
+    /* Eine Spalte */
     gap: 15px;
   }
 }
@@ -572,26 +642,31 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   /* Erbt von .error-message */
   margin-top: 0;
   margin-bottom: 15px;
-  display: none; /* Standardmäßig versteckt */
+  display: none;
+  /* Standardmäßig versteckt */
 }
 
 /* === 9. Fahrtenliste & Filter === */
 /* =============================== */
-#fahrten-liste-container {
-} /* Container für Liste + Filter + Paginierung */
+#fahrten-liste-container {}
+
+/* Container für Liste + Filter + Paginierung */
 
 /* Header der Liste mit Überschrift & Toggle */
 .list-header-controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem; /* Abstand zur Filterbox/Liste */
+  margin-bottom: 1.5rem;
+  /* Abstand zur Filterbox/Liste */
 }
+
 .list-header-controls .list-heading {
   margin-bottom: 0;
   border-bottom: none;
   padding-bottom: 0;
 }
+
 .toggle-filter-button {
   background: none;
   border: 1px solid var(--border-color-medium);
@@ -603,11 +678,13 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   line-height: 1;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
+
 .toggle-filter-button:hover {
   background-color: var(--bg-hover-light);
   border-color: var(--border-color-medium);
   color: var(--text-primary);
 }
+
 .toggle-filter-button i.fa-solid {
   margin-right: 5px;
 }
@@ -626,14 +703,17 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
     margin-bottom 0.4s ease-out, border-color 0.3s ease-out,
     opacity 0.3s ease-out;
 }
+
 .filter-box.filter-visible {
-  max-height: 500px; /* Ausreichend hoch */
+  max-height: 500px;
+  /* Ausreichend hoch */
   padding-top: 20px;
   padding-bottom: 20px;
   margin-bottom: 20px;
   border-color: var(--border-color-light);
   opacity: 1;
 }
+
 .filter-box-heading {
   margin-top: 0;
   margin-bottom: 15px;
@@ -642,11 +722,13 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   border-bottom: none;
   padding-bottom: 0;
 }
+
 .filter-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 15px;
 }
+
 .filter-label {
   font-size: 0.9rem;
   margin-bottom: 5px;
@@ -654,6 +736,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   color: var(--text-label);
   font-weight: 500;
 }
+
 .filter-select,
 .filter-input {
   width: 100%;
@@ -665,12 +748,14 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   color: var(--text-primary);
   font-family: inherit;
 }
+
 .filter-select:focus,
 .filter-input:focus {
   border-color: var(--primary-color);
   outline: 0;
   box-shadow: 0 0 0 0.2rem var(--primary-color-focus-shadow);
 }
+
 .filter-button-container {
   margin-top: 20px;
   text-align: right;
@@ -683,6 +768,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
 #fahrten-liste {
   margin-top: 0;
 }
+
 .fahrt-item {
   background-color: var(--bg-card);
   padding: 20px;
@@ -693,12 +779,15 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   position: relative;
   text-align: left;
 }
+
 .fahrt-item:last-child {
   margin-bottom: 0;
 }
+
 .fahrt-item:hover {
   box-shadow: 0 5px 15px var(--shadow-color-hover);
 }
+
 .list-item-header {
   display: flex;
   justify-content: space-between;
@@ -709,6 +798,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   transition: border-color 0.3s ease;
   gap: 10px;
 }
+
 .list-item-date-time {
   display: flex;
   align-items: baseline;
@@ -716,12 +806,14 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   gap: 5px 15px;
   flex-grow: 1;
 }
+
 .list-item-info {
   display: inline-flex;
   align-items: baseline;
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
+
 .list-icon {
   /* Gemeinsame Klasse für Icons in Listen */
   margin-right: 6px;
@@ -729,6 +821,7 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   text-align: center;
   flex-shrink: 0;
 }
+
 .list-item-info.car-info span {
   max-width: 100px;
   white-space: nowrap;
@@ -736,26 +829,32 @@ body.sidebar-collapsed .sidebar .menu-button i.fa-solid {
   text-overflow: ellipsis;
   vertical-align: bottom;
 }
+
 .list-item-details {
   margin-top: 0;
   overflow: hidden;
   opacity: 1;
-  max-height: 500px; /* Ausreichend hoch */
+  max-height: 500px;
+  /* Ausreichend hoch */
   transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out,
     margin-top 0.4s ease-in-out;
 }
+
 .fahrt-item.details-collapsed .list-item-details {
   max-height: 0;
   opacity: 0;
   margin-top: 0;
 }
+
 .list-item-details div {
   margin-bottom: 8px;
   line-height: 1.5;
 }
+
 .list-item-details div:last-child {
   margin-bottom: 0;
 }
+
 span.list-label {
   display: inline-block;
   width: 110px;
@@ -765,12 +864,14 @@ span.list-label {
   vertical-align: baseline;
   font-size: 0.9rem;
 }
+
 /* Buttons in der Fahrtenliste */
 #fahrten-liste .buttons-container {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
 }
+
 #fahrten-liste .list-action-button {
   padding: 3px 6px;
   font-size: 0.8rem;
@@ -782,17 +883,21 @@ span.list-label {
   transition: color 0.2s, background-color 0.2s;
   cursor: pointer;
 }
+
 #fahrten-liste .list-action-button i.fa-solid {
   margin-right: 0;
 }
+
 #fahrten-liste .edit-btn:hover {
   background-color: var(--warning-color-hover-bg);
   color: var(--warning-color-dark);
 }
+
 #fahrten-liste .delete-btn:hover {
   background-color: var(--danger-color-hover-bg);
   color: var(--danger-color-dark);
 }
+
 /* Toggle Details Button */
 .toggle-details-btn {
   position: absolute;
@@ -809,11 +914,13 @@ span.list-label {
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
+
 .toggle-details-btn:hover {
   background-color: var(--primary-color);
   color: var(--text-on-primary);
   border-color: var(--primary-color);
 }
+
 .toggle-details-btn i.fa-solid {
   margin-right: 0;
 }
@@ -825,8 +932,10 @@ span.list-label {
   padding: 10px 0;
   text-align: center;
   border-top: 1px solid var(--border-color-light);
-  display: none; /* Standardmäßig versteckt, JS zeigt es an */
+  display: none;
+  /* Standardmäßig versteckt, JS zeigt es an */
 }
+
 .pagination-button {
   padding: 6px 12px;
   font-size: 0.9rem;
@@ -837,15 +946,18 @@ span.list-label {
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
+
 .pagination-button:hover:not(:disabled) {
   background-color: var(--bg-hover-light);
   border-color: var(--border-color-medium);
 }
+
 .pagination-button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
   background-color: var(--bg-hover-menu);
 }
+
 .page-info {
   margin: 0 15px;
   font-size: 0.9rem;
@@ -855,29 +967,32 @@ span.list-label {
 
 /* === 11. Rechte Spalte (Zusammenfassung & Fahrzeuge) === */
 /* ===================================================== */
-#zusammenfassung {
-}
+#zusammenfassung {}
+
 #zusammenfassung ul {
   list-style: none;
   padding-left: 0;
   margin-top: 0.5rem;
 }
+
 #zusammenfassung li {
   margin-bottom: 0.4rem;
   color: var(--text-secondary);
 }
+
 #zusammenfassung li strong {
   font-weight: 600;
   color: var(--text-headings);
 }
 
-#fahrzeug-verwaltung {
-}
-#fahrzeug-verwaltung #car-list-container {
-}
+#fahrzeug-verwaltung {}
+
+#fahrzeug-verwaltung #car-list-container {}
+
 #fahrzeug-verwaltung #car-list-container h3 {
   margin-top: 0;
 }
+
 #car-list {
   list-style: none;
   padding-left: 0;
@@ -885,6 +1000,7 @@ span.list-label {
   border-top: none;
   padding-top: 0;
 }
+
 .car-list-item {
   padding: 8px 5px;
   border-bottom: 1px dashed var(--border-color-light);
@@ -895,9 +1011,11 @@ span.list-label {
   align-items: center;
   gap: 10px;
 }
+
 .car-list-item:last-child {
   border-bottom: none;
 }
+
 .car-list-info {
   display: flex;
   align-items: center;
@@ -905,18 +1023,21 @@ span.list-label {
   flex-grow: 1;
   min-width: 0;
 }
-.car-list-info .car-name {
-}
+
+.car-list-info .car-name {}
+
 .car-list-info .car-plate {
   font-weight: 600;
   color: var(--text-secondary);
   white-space: nowrap;
 }
+
 .car-list-actions {
   flex-shrink: 0;
   display: flex;
   gap: 4px;
 }
+
 .car-list-button {
   background: none;
   border: none;
@@ -929,13 +1050,16 @@ span.list-label {
   vertical-align: middle;
   line-height: 1;
 }
+
 .car-list-button i.fa-solid {
   margin-right: 0;
 }
+
 .car-list-button.edit-car-btn:hover {
   background-color: var(--warning-color-hover-bg);
   color: var(--warning-color-dark);
 }
+
 .car-list-button.delete-car-btn:hover {
   background-color: var(--danger-color-hover-bg);
   color: var(--danger-color-dark);
@@ -947,6 +1071,7 @@ button {
   cursor: pointer;
   font-family: inherit;
 }
+
 /* Haupt-Aktionsbuttons (Speichern im Formular) */
 #speichern-btn,
 #cancel-edit-btn {
@@ -964,15 +1089,18 @@ button {
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
     transform 0.1s ease;
 }
+
 #speichern-btn:active,
 #cancel-edit-btn:active {
   transform: scale(0.97);
 }
+
 #speichern-btn:focus-visible,
 #cancel-edit-btn:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
 }
+
 #speichern-btn i.fa-solid,
 #cancel-edit-btn i.fa-solid {
   margin-right: 8px;
@@ -987,17 +1115,20 @@ button {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15),
     0 1px 1px rgba(0, 0, 0, 0.075);
 }
+
 #speichern-btn:hover {
   background-color: var(--primary-color-hover-bg);
   background-image: none;
   border-color: var(--primary-color-dark);
 }
+
 /* Sekundär-Button Stil (Abbrechen) */
 #cancel-edit-btn {
   background-color: var(--secondary-color);
   border-color: var(--secondary-color);
   color: var(--text-on-primary);
 }
+
 #cancel-edit-btn:hover {
   background-color: var(--secondary-color-hover-bg);
   border-color: var(--secondary-color-dark);
@@ -1008,10 +1139,10 @@ button {
   padding: 8px 12px !important;
   font-size: 0.9rem !important;
 }
-.button-small.button-primary {
-}
-.button-small.button-secondary {
-}
+
+.button-small.button-primary {}
+
+.button-small.button-secondary {}
 
 /* === 13. Modal-Dialog Styling === */
 /* ============================== */
@@ -1031,10 +1162,12 @@ button {
   transition: opacity 0.3s ease, visibility 0.3s ease;
   backdrop-filter: blur(3px);
 }
+
 .modal-overlay.modal-visible {
   visibility: visible;
   opacity: 1;
 }
+
 #confirm-delete-modal.modal-overlay {
   z-index: 1010;
 }
@@ -1053,6 +1186,7 @@ button {
   flex-direction: column;
   z-index: 1001;
 }
+
 #confirm-delete-modal .modal-content {
   z-index: 1011;
 }
@@ -1060,17 +1194,24 @@ button {
 /* Breiten für verschiedene Modals */
 .modal-content {
   max-width: 500px;
-} /* Standard (z.B. Fahrzeug, Ausgabe) */
+}
+
+/* Standard (z.B. Fahrzeug, Ausgabe) */
 .modal-content-narrow {
   max-width: 400px;
-} /* Für Bestätigung */
+}
+
+/* Für Bestätigung */
 .modal-content-medium {
   max-width: 550px;
-} /* Für Einstellungen */
+}
+
+/* Für Einstellungen */
 
 .modal-overlay.modal-visible .modal-content {
   transform: scale(1);
 }
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -1080,6 +1221,7 @@ button {
   margin-bottom: 20px;
   flex-shrink: 0;
 }
+
 .modal-header h2 {
   margin: 0;
   font-size: 1.4rem;
@@ -1087,6 +1229,7 @@ button {
   border-bottom: none;
   padding-bottom: 0;
 }
+
 .modal-close-button {
   background: none;
   border: none;
@@ -1099,14 +1242,17 @@ button {
   opacity: 0.7;
   transition: opacity 0.2s ease, color 0.2s ease;
 }
+
 .modal-close-button:hover {
   opacity: 1;
   color: var(--danger-color);
 }
+
 .modal-body {
   overflow-y: auto;
   margin-bottom: 20px;
 }
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -1116,6 +1262,7 @@ button {
   margin-top: auto;
   flex-shrink: 0;
 }
+
 /* Allgemeine Stile für Buttons im Modal Footer */
 .modal-footer button {
   padding: 10px 15px;
@@ -1129,13 +1276,16 @@ button {
     border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
     transform 0.1s ease;
 }
+
 .modal-footer button:active {
   transform: scale(0.97);
 }
+
 .modal-footer button:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
 }
+
 /* Spezifische Button-Typen im Modal Footer */
 .modal-footer .button-secondary {
   font-weight: 500;
@@ -1143,10 +1293,12 @@ button {
   border-color: var(--secondary-color);
   color: var(--text-on-primary);
 }
+
 .modal-footer .button-secondary:hover {
   background-color: var(--secondary-color-hover-bg);
   border-color: var(--secondary-color-dark);
 }
+
 .modal-footer .button-primary {
   font-weight: 600;
   background-color: var(--primary-color);
@@ -1156,11 +1308,13 @@ button {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15),
     0 1px 1px rgba(0, 0, 0, 0.075);
 }
+
 .modal-footer .button-primary:hover {
   background-color: var(--primary-color-hover-bg);
   background-image: none;
   border-color: var(--primary-color-dark);
 }
+
 .modal-footer .button-danger {
   font-weight: 600;
   background-color: var(--danger-color);
@@ -1169,10 +1323,12 @@ button {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15),
     0 1px 1px rgba(0, 0, 0, 0.075);
 }
+
 .modal-footer .button-danger:hover {
   background-color: var(--danger-color-dark);
   border-color: var(--danger-color-dark);
 }
+
 .modal-footer .button-danger:focus-visible {
   outline: 2px solid var(--danger-color);
   outline-offset: 2px;
@@ -1183,9 +1339,11 @@ button {
 .modal-body .form-group {
   margin-bottom: 18px;
 }
+
 .modal-body .form-group:last-child {
   margin-bottom: 0;
 }
+
 .modal-body .form-group label {
   display: block;
   margin-bottom: 6px;
@@ -1193,9 +1351,12 @@ button {
   color: var(--text-label);
   font-size: 0.9rem;
 }
+
 .modal-body .form-group input[type="text"],
-.modal-body .form-group input[type="number"], /* Gilt jetzt auch für number */
-.modal-body .form-group input[type="date"],   /* Gilt jetzt auch für date */
+.modal-body .form-group input[type="number"],
+/* Gilt jetzt auch für number */
+.modal-body .form-group input[type="date"],
+/* Gilt jetzt auch für date */
 .modal-body .form-group select {
   width: 100%;
   padding: 10px 12px;
@@ -1207,6 +1368,7 @@ button {
   color: var(--text-primary);
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
+
 .modal-body .form-group input[type="text"]:focus,
 .modal-body .form-group input[type="number"]:focus,
 .modal-body .form-group input[type="date"]:focus,
@@ -1215,6 +1377,7 @@ button {
   outline: 0;
   box-shadow: 0 0 0 0.2rem var(--primary-color-focus-shadow);
 }
+
 /* Fehlermeldung im Modal */
 .modal-body .error-message {
   color: var(--danger-text-dark);
@@ -1225,7 +1388,8 @@ button {
   font-size: 0.9rem;
   margin-top: 10px;
   text-align: left;
-  white-space: pre-line; /* Erlaubt Zeilenumbrüche mit \n */
+  white-space: pre-line;
+  /* Erlaubt Zeilenumbrüche mit \n */
 }
 
 /* Spezifische Stile für Einstellungen-Modal */
@@ -1235,9 +1399,11 @@ button {
   border-radius: 6px;
   margin-bottom: 20px;
 }
+
 .settings-fieldset-danger {
   border-color: var(--danger-color);
 }
+
 .settings-legend {
   font-weight: 600;
   padding: 0 10px;
@@ -1245,16 +1411,20 @@ button {
   color: var(--text-secondary);
   font-size: 0.95rem;
 }
+
 .settings-legend-danger {
   color: var(--danger-color);
 }
+
 .settings-fieldset .form-group {
   margin-top: 10px;
   margin-bottom: 15px;
 }
+
 .settings-fieldset .form-group:last-child {
   margin-bottom: 5px;
 }
+
 .settings-label {
   font-size: 0.9rem;
   margin-bottom: 5px;
@@ -1262,6 +1432,7 @@ button {
   color: var(--text-label);
   font-weight: 500;
 }
+
 .settings-select {
   width: 100%;
   padding: 10px 12px;
@@ -1272,16 +1443,19 @@ button {
   color: var(--text-primary);
   font-family: inherit;
 }
+
 .settings-select:focus {
   border-color: var(--primary-color);
   outline: 0;
   box-shadow: 0 0 0 0.2rem var(--primary-color-focus-shadow);
 }
+
 .settings-radio-group {
   display: flex;
   gap: 20px;
   margin-top: 5px;
 }
+
 .settings-radio-label {
   font-weight: normal;
   font-size: 0.95rem;
@@ -1291,14 +1465,17 @@ button {
   align-items: center;
   gap: 6px;
 }
+
 .settings-radio-label input[type="radio"] {
   margin-right: 0;
 }
+
 .settings-action-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .settings-action-label {
   font-size: 0.9rem;
   color: var(--text-secondary);
@@ -1345,16 +1522,19 @@ button {
   color: var(--success-text-dark);
   border-left-color: var(--success-color);
 }
+
 .notification.notification-error {
   background-color: var(--danger-color-hover-bg);
   color: var(--danger-text-dark);
   border-left-color: var(--danger-color);
 }
+
 .notification.notification-info {
   background-color: #d9edf7;
   color: #31708f;
   border-left-color: var(--info-color);
 }
+
 body.dark-mode .notification.notification-info {
   background-color: #2a3b45;
   color: #a1d9f7;
@@ -1370,9 +1550,11 @@ body.dark-mode .notification.notification-info {
   margin-top: 8px;
   overflow: hidden;
 }
+
 body.dark-mode .notification .notification-progress-bar {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
 .notification .notification-progress-bar-inner {
   height: 100%;
   width: 100%;
@@ -1381,12 +1563,15 @@ body.dark-mode .notification .notification-progress-bar {
   transform-origin: left;
   animation: progressBarShrink linear forwards;
 }
+
 .notification .progress-bar-success {
   background-color: var(--success-color);
 }
+
 .notification .progress-bar-error {
   background-color: var(--danger-color);
 }
+
 .notification .progress-bar-info {
   background-color: var(--info-color);
 }
@@ -1395,6 +1580,7 @@ body.dark-mode .notification .notification-progress-bar {
   from {
     width: 100%;
   }
+
   to {
     width: 0%;
   }
@@ -1410,6 +1596,7 @@ body.dark-mode .notification .notification-progress-bar {
 #ausgaben-liste {
   margin-top: 0;
 }
+
 #ausgaben-liste p {
   color: var(--text-secondary);
   padding: 15px 0;
@@ -1423,12 +1610,15 @@ body.dark-mode .notification .notification-progress-bar {
   box-shadow: 0 2px 5px var(--shadow-color);
   margin-bottom: 12px;
   transition: box-shadow 0.2s ease-in-out, background-color 0.3s ease;
-  position: relative; /* Wichtig für absolute Positionierung der Buttons */
+  position: relative;
+  /* Wichtig für absolute Positionierung der Buttons */
   text-align: left;
 }
+
 .expense-item:last-child {
   margin-bottom: 0;
 }
+
 .expense-item:hover {
   box-shadow: 0 4px 10px var(--shadow-color-hover);
 }
@@ -1443,7 +1633,8 @@ body.dark-mode .notification .notification-progress-bar {
   transition: border-color 0.3s ease;
   gap: 10px;
   /* KORREKTUR: Platz für Buttons schaffen */
-  padding-right: 65px; /* Ausreichend Platz für 2 Buttons + Gap */
+  padding-right: 65px;
+  /* Ausreichend Platz für 2 Buttons + Gap */
 }
 
 .expense-item-meta {
@@ -1460,9 +1651,11 @@ body.dark-mode .notification .notification-progress-bar {
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
+
 .expense-item-info .list-icon {
   width: 1.1em;
 }
+
 .expense-item-info.car-info {
   white-space: nowrap;
   overflow: hidden;
@@ -1483,27 +1676,33 @@ body.dark-mode .notification .notification-progress-bar {
   line-height: 1.5;
   margin-bottom: 5px;
   /* KORREKTUR: Platz für Buttons schaffen */
-  padding-right: 65px; /* Ausreichend Platz für 2 Buttons + Gap */
+  padding-right: 65px;
+  /* Ausreichend Platz für 2 Buttons + Gap */
 }
+
 .expense-item-details .description {
   display: block;
   margin-bottom: 4px;
   color: var(--text-primary);
   word-break: break-word;
 }
+
 .expense-item-details .odometer-reading {
   font-size: 0.85rem;
   color: var(--text-secondary);
   display: block;
 }
+
 .expense-item-details .odometer-reading .list-icon {
   width: 1em;
 }
 
 .expense-item-actions {
   position: absolute;
-  top: 10px; /* Abstand vom oberen Rand des expense-item */
-  right: 15px; /* Abstand vom rechten Rand des expense-item */
+  top: 10px;
+  /* Abstand vom oberen Rand des expense-item */
+  right: 15px;
+  /* Abstand vom rechten Rand des expense-item */
   display: flex;
   gap: 6px;
 }
@@ -1520,6 +1719,7 @@ body.dark-mode .notification .notification-progress-bar {
   transition: color 0.2s, background-color 0.2s;
   cursor: pointer;
 }
+
 .expense-item .list-action-button i.fa-solid {
   margin-right: 0;
 }
@@ -1530,11 +1730,13 @@ body.dark-mode .notification .notification-progress-bar {
   color: var(--warning-color-dark);
   border-color: transparent;
 }
+
 .expense-item .delete-expense-btn:hover {
   background-color: var(--danger-color-hover-bg);
   color: var(--danger-color-dark);
   border-color: transparent;
 }
+
 /* === NEU: Styling für Berichte/Statistiken === */
 /* ============================================ */
 
@@ -1549,10 +1751,11 @@ body.dark-mode .notification .notification-progress-bar {
 #berichte-inhalt {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--grid-gap); /* Angepasst auf Haupt-Grid-Gap */
+  gap: var(--grid-gap);
+  /* Angepasst auf Haupt-Grid-Gap */
 }
 
-#berichte-inhalt > p {
+#berichte-inhalt>p {
   color: var(--text-secondary);
   padding: 20px 0;
   text-align: center;
@@ -1569,6 +1772,7 @@ body.dark-mode .notification .notification-progress-bar {
   display: flex;
   flex-direction: column;
 }
+
 .report-card:hover {
   box-shadow: 0 5px 15px var(--shadow-color-hover);
 }
@@ -1584,25 +1788,31 @@ body.dark-mode .notification .notification-progress-bar {
   align-items: center;
   gap: 10px;
 }
+
 .report-card-title i.fa-solid {
   color: var(--text-secondary);
   font-size: 1.1em;
 }
 
 .report-card-body {
-  display: flex; /* Geändert zu flex für bessere Kontrolle */
+  display: flex;
+  /* Geändert zu flex für bessere Kontrolle */
   flex-direction: column;
-  gap: 15px; /* Abstand zwischen Jahres-Abschnitten */
+  gap: 15px;
+  /* Abstand zwischen Jahres-Abschnitten */
 }
 
 /* NEU: Styling für Jahres-Abschnitte */
 .year-section {
   margin-top: 10px;
-  border: 1px solid var(--border-color-light); /* Leichter Rahmen um Jahresabschnitt */
+  border: 1px solid var(--border-color-light);
+  /* Leichter Rahmen um Jahresabschnitt */
   border-radius: 6px;
   padding: 15px;
-  background-color: var(--bg-hover-light); /* Leichter Hintergrund für Jahr? */
+  background-color: var(--bg-hover-light);
+  /* Leichter Hintergrund für Jahr? */
 }
+
 body.dark-mode .year-section {
   background-color: var(--bg-hover-light-dm);
 }
@@ -1631,25 +1841,31 @@ body.dark-mode .year-section {
   padding: 4px 0;
   border-bottom: 1px dotted var(--border-color-subtle);
 }
+
 .stat-item:last-child {
   border-bottom: none;
 }
+
 .stat-item .label {
   color: var(--text-secondary);
   margin-right: 15px;
 }
+
 .stat-item .value {
   font-weight: 500;
   color: var(--text-primary);
   text-align: right;
 }
+
 .stat-item .value.cost-per-km {
   font-weight: 600;
   color: var(--primary-color);
 }
+
 body.dark-mode .stat-item .value.cost-per-km {
   color: var(--primary-color-dm);
 }
+
 .stat-item .value.na {
   font-style: italic;
   color: var(--text-secondary);
@@ -1658,49 +1874,66 @@ body.dark-mode .stat-item .value.cost-per-km {
 /* NEU: Styling für Monatstabelle */
 .monthly-stats-table {
   width: 100%;
-  border-collapse: collapse; /* Rahmen zusammenführen */
+  border-collapse: collapse;
+  /* Rahmen zusammenführen */
   margin-top: 5px;
   font-size: 0.9rem;
 }
+
 .monthly-stats-table th,
 .monthly-stats-table td {
   padding: 6px 8px;
   text-align: left;
   border-bottom: 1px solid var(--border-color-subtle);
 }
+
 .monthly-stats-table th {
   font-weight: 600;
   color: var(--text-secondary);
-  background-color: var(--bg-hover-menu); /* Leichter Hintergrund für Header */
+  background-color: var(--bg-hover-menu);
+  /* Leichter Hintergrund für Header */
 }
+
 body.dark-mode .monthly-stats-table th {
   background-color: var(--bg-hover-menu-dm);
 }
 
-.monthly-stats-table td:nth-child(2), /* Spalte Distanz */
+.monthly-stats-table td:nth-child(2),
+/* Spalte Distanz */
 .monthly-stats-table td:nth-child(3) {
   /* Spalte Kosten */
   text-align: right;
-  font-family: monospace; /* Monospace für Zahlen? Optional */
+  font-family: monospace;
+  /* Monospace für Zahlen? Optional */
   font-size: 0.85rem;
 }
+
 .monthly-stats-table tbody tr:last-child td {
-  border-bottom: none; /* Keine Linie unter letzter Zeile */
+  border-bottom: none;
+  /* Keine Linie unter letzter Zeile */
 }
+
 .monthly-stats-table tbody tr:hover {
-  background-color: var(--bg-hover-light); /* Hover-Effekt für Zeilen */
+  background-color: var(--bg-hover-light);
+  /* Hover-Effekt für Zeilen */
 }
+
 body.dark-mode .monthly-stats-table tbody tr:hover {
   background-color: var(--bg-hover-light-dm);
 }
+
 .average-hint {
   font-size: 0.8rem;
   color: var(--text-secondary);
-  margin-top: -5px; /* Etwas näher an die Tabelle rücken */
-  margin-bottom: 10px; /* Abstand zur Tabelle */
+  margin-top: -5px;
+  /* Etwas näher an die Tabelle rücken */
+  margin-bottom: 10px;
+  /* Abstand zur Tabelle */
   font-style: italic;
-  text-align: right; /* Rechtsbündig unter der Tabelle */
+  text-align: right;
+  /* Rechtsbündig unter der Tabelle */
 }
+
 .no-monthly-activity-hint {
   /* NEU: Styling für Hinweis bei fehlender Aktivität */
   font-size: 0.9rem;
@@ -1713,8 +1946,10 @@ body.dark-mode .monthly-stats-table tbody tr:hover {
 
 /* NEU: Styling für <details> und <summary> */
 .monthly-details {
-  margin-top: 15px; /* Abstand nach oben */
-  border-top: 1px dashed var(--border-color-medium); /* Leichte Trennlinie oben */
+  margin-top: 15px;
+  /* Abstand nach oben */
+  border-top: 1px dashed var(--border-color-medium);
+  /* Leichte Trennlinie oben */
   padding-top: 10px;
 }
 
@@ -1723,18 +1958,21 @@ body.dark-mode .monthly-stats-table tbody tr:hover {
   font-weight: 500;
   color: var(--text-secondary);
   padding: 5px 0;
-  list-style-position: inside; /* Pfeil innen */
+  list-style-position: inside;
+  /* Pfeil innen */
   transition: color 0.2s ease;
-  outline: none; /* Standard-Outline entfernen */
+  outline: none;
+  /* Standard-Outline entfernen */
 }
 
 .monthly-details-summary:hover,
-.monthly-details[open] > .monthly-details-summary {
+.monthly-details[open]>.monthly-details-summary {
   /* Stil bei Hover und wenn geöffnet */
   color: var(--primary-color);
 }
+
 body.dark-mode .monthly-details-summary:hover,
-body.dark-mode .monthly-details[open] > .monthly-details-summary {
+body.dark-mode .monthly-details[open]>.monthly-details-summary {
   color: var(--primary-color-dm);
 }
 
@@ -1744,12 +1982,114 @@ body.dark-mode .monthly-details[open] > .monthly-details-summary {
        ist aber oft schwierig browserübergreifend zu gestalten.
        Alternative: Eigenes Icon per ::before einfügen und Standard-Marker ausblenden */
 }
+
 .monthly-details-summary::-webkit-details-marker {
   /* Chrome/Safari */
   /* Ggf. Anpassungen */
 }
 
-.monthly-details[open] > .monthly-stats-table {
-  margin-top: 10px; /* Abstand zwischen Summary und Tabelle */
+.monthly-details[open]>.monthly-stats-table {
+  margin-top: 10px;
+  /* Abstand zwischen Summary und Tabelle */
 }
+
+/* === NEU: Styling für Diagramm-Bereich === */
+/* ======================================== */
+
+#diagramme-container {
+  margin-top: var(--grid-gap);
+}
+
+#diagramme-container .list-header-controls {
+  /* Erbt Stile von .list-header-controls */
+}
+
+/* Styling für den optionalen Steuerungsbereich */
+#chart-controls {
+  /* Erbt Stile von .filter-box */
+  /* Ggf. Anpassungen hier */
+}
+
+#diagramme-inhalt {
+  display: grid;
+  /* Standardmäßig eine Spalte, wird unten für breitere Screens angepasst */
+  grid-template-columns: 1fr;
+  gap: var(--grid-gap);
+  /* Abstand zwischen den Diagramm-Wrappern */
+  margin-top: 20px;
+}
+
+/* Wrapper um jedes Canvas für Styling und Titel */
+.chart-wrapper {
+  /* Erbt Stile von .content-box für Rahmen, Schatten etc. */
+  padding: 20px;
+}
+
+.chart-wrapper h3 {
+  /* Titel über dem Diagramm */
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  border-bottom: none;
+  /* Keine Linie unter Diagramm-Titel */
+}
+
+/* Styling für das Canvas selbst */
+.chart-wrapper canvas {
+  max-width: 100%;
+  /* Stellt sicher, dass Canvas nicht überläuft */
+  height: auto;
+  /* Höhe automatisch anpassen */
+}
+
+/* Layout für breitere Bildschirme (z.B. zwei Diagramme nebeneinander) */
+@media (min-width: 768px) {
+  #diagramme-inhalt {
+    /* Zwei Spalten für die ersten beiden Diagramme */
+    /* grid-template-columns: 1fr 1fr; */
+    /* Oder wir lassen es bei einer Spalte, da Diagramme oft viel Platz brauchen */
+  }
+}
+
+/* Styling für den Steuerungsbereich */
+#chart-controls {
+  max-height: none;
+  opacity: 1;
+  overflow: visible;
+  margin-bottom: 20px;
+  border-color: var(--border-color-light);
+  padding: 20px;
+  /* NEU: Explizites Padding hinzugefügt */
+}
+
+/* Abstand zwischen den Grid-Items in der Diagramm-Steuerung */
+#chart-controls .filter-grid {
+  row-gap: 20px;
+  /* column-gap bleibt vom Standard .filter-grid (15px) */
+}
+
+
+/* Spezifisches Styling für Select-Felder in der Diagramm-Steuerung */
+#chart-controls .filter-select {
+  padding: 8px 12px;
+  font-size: 0.95rem;
+}
+
+/* NEU: Styling für Nachrichten innerhalb der Chart-Wrapper */
+.chart-wrapper .chart-message {
+  text-align: center;
+  padding: 30px 15px;
+  /* Etwas Abstand */
+  color: var(--text-secondary);
+  font-style: italic;
+  min-height: 100px;
+  /* Mindesthöhe, damit der Bereich nicht kollabiert */
+  display: flex;
+  /* Zentrierung */
+  align-items: center;
+  justify-content: center;
+}
+
 /* === ENDE === */

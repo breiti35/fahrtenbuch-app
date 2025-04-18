@@ -2,442 +2,483 @@
 <html lang="de">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mein Fahrtenbuch</title>
-    <meta name="theme-color" content="#1c4b82">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mein Fahrtenbuch</title>
+  <meta name="theme-color" content="#1c4b82" />
 
-    <link rel="manifest" href="manifest.json">
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js" A></script>
 </head>
 
 <body>
-    <div class="container">
-        <header class="app-header">
-            <h1>Fahrtenbuch App</h1>
-            <button type="button" id="theme-toggle-btn" title="Theme wechseln">
-                <i class="fa-solid fa-moon"></i> </button>
-        </header>
+  <div class="container">
+    <header class="app-header">
+      <h1>Fahrtenbuch App</h1>
+      <button type="button" id="theme-toggle-btn" title="Theme wechseln">
+        <i class="fa-solid fa-moon"></i>
+      </button>
+    </header>
 
-        <div class="main-grid">
-
-            <div class="grid-column-left sidebar">
-                <div class="sidebar-header">
-                    <button type="button" id="sidebar-toggle-internal" title="Menü umschalten">
-                        <i class="fa-solid fa-bars"></i> </button>
-                    <span class="sidebar-app-title">Menü</span>
-                </div>
-                <div class="content-box">
-                    <div class="sidebar-section">
-                        <h3 class="sidebar-section-title">Aktionen</h3>
-                        <div class="action-menu">
-                            <button type="button" id="add-new-btn" class="button-primary menu-button"
-                                title="Neue Fahrt hinzufügen">
-                                <i class="fa-solid fa-plus fa-fw"></i>
-                                <span>Neue Fahrt</span>
-                            </button>
-                            <button type="button" id="add-car-btn-menu" class="menu-button"
-                                title="Neues Fahrzeug hinzufügen">
-                                <i class="fa-solid fa-car-side fa-fw"></i>
-                                <span>Neues Fahrzeug</span>
-                            </button>
-                            <button type="button" id="add-expense-btn-menu" class="menu-button"
-                                title="Neue Ausgabe erfassen">
-                                <i class="fa-solid fa-euro-sign fa-fw"></i>
-                                <span>Neue Ausgabe</span>
-                            </button>
-                            <button type="button" id="settings-menu-btn" class="menu-button"
-                                title="Einstellungen öffnen">
-                                <i class="fa-solid fa-gear fa-fw"></i>
-                                <span>Einstellungen</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="sidebar-section">
-                        <h3 class="sidebar-section-title">Ansichten</h3>
-                        <div class="action-menu">
-                            <button type="button" id="show-expenses-btn-menu" class="menu-button"
-                                title="Gespeicherte Ausgaben anzeigen">
-                                <i class="fa-solid fa-receipt fa-fw"></i>
-                                <span>Ausgaben anzeigen</span>
-                            </button>
-                            <button type="button" id="show-reports-btn-menu" class="menu-button"
-                                title="Berichte und Statistiken anzeigen">
-                                <i class="fa-solid fa-chart-pie fa-fw"></i>
-                                <span>Berichte</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="sidebar-section">
-                        <h3 class="sidebar-section-title">Daten</h3>
-                        <div class="action-menu">
-                            <button type="button" id="export-csv-btn" class="menu-button" title="CSV Export">
-                                <i class="fa-solid fa-file-csv fa-fw"></i>
-                                <span>CSV Export</span>
-                            </button>
-                            <button type="button" id="export-json-btn" class="menu-button" title="Backup erstellen">
-                                <i class="fa-solid fa-floppy-disk fa-fw"></i>
-                                <span>Backup</span>
-                            </button>
-                            <button type="button" id="import-json-btn" class="menu-button"
-                                title="Backup wiederherstellen">
-                                <i class="fa-solid fa-upload fa-fw"></i>
-                                <span>Restore</span>
-                            </button>
-                            <input type="file" id="import-json-file" accept=".json" style="display: none" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="grid-column-middle">
-
-                <div id="fahrt-formular" class="content-box">
-                    <h2>Neuen Eintrag hinzufügen / Bearbeiten</h2>
-                    <div id="form-error-message" class="error-message form-error-box"></div>
-                    <form id="trip-entry-form">
-                        <div>
-                            <label for="datum">Datum:</label><input type="date" id="datum" name="datum" required />
-                        </div>
-                        <div>
-                            <label for="start-zeit">Startzeit:</label><input type="time" id="start-zeit"
-                                name="start-zeit" required />
-                        </div>
-                        <div>
-                            <label for="end-zeit">Endzeit:</label><input type="time" id="end-zeit" name="end-zeit"
-                                required />
-                        </div>
-                        <div>
-                            <label for="start-ort">Start-Ort:</label><input type="text" id="start-ort" name="start-ort"
-                                required />
-                        </div>
-                        <div>
-                            <label for="ziel-ort">Ziel-Ort:</label><input type="text" id="ziel-ort" name="ziel-ort"
-                                required />
-                        </div>
-                        <div>
-                            <label for="km-start">Kilometerstand Start:</label><input type="number" id="km-start"
-                                name="km-start" required step="any" />
-                        </div>
-                        <div>
-                            <label for="km-ende">Kilometerstand Ende:</label><input type="number" id="km-ende"
-                                name="km-ende" required step="any" />
-                        </div>
-                        <div>
-                            <label for="distanz">Distanz (km):</label><input type="number" id="distanz" name="distanz"
-                                step="0.1" readonly />
-                        </div>
-                        <div>
-                            <label for="car-select">Fahrzeug:</label><select id="car-select" name="car-select" required>
-                                <option value="">-- Bitte wählen --</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="zweck">Zweck der Fahrt:</label><select id="zweck" name="zweck">
-                                <option value="geschaeftlich">Geschäftlich</option>
-                                <option value="privat">Privat</option>
-                                <option value="arbeitsweg">Arbeitsweg</option>
-                            </select>
-                        </div>
-                        <div class="form-button-container">
-                            <button type="button" id="speichern-btn">
-                                Fahrt speichern
-                            </button>
-                            <button type="button" id="cancel-edit-btn" style="display: none"> Abbrechen
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                <div id="fahrten-liste-container">
-                    <div id="trip-list-header" class="list-header-controls">
-                        <h2 class="list-heading">Fahrten</h2>
-                        <button type="button" id="toggle-filter-btn" class="toggle-filter-button"
-                            title="Filter ein/ausblenden">
-                            <i class="fa-solid fa-filter"></i> Filter
-                        </button>
-                    </div>
-                    <div id="filter-controls" class="content-box filter-box">
-                        <h3 class="filter-box-heading">Fahrten filtern nach:</h3>
-                        <div class="filter-grid">
-                            <div>
-                                <label for="filter-car" class="filter-label">Fahrzeug:</label>
-                                <select id="filter-car" name="filter-car" class="filter-select">
-                                    <option value="">Alle Fahrzeuge</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="filter-purpose" class="filter-label">Zweck:</label>
-                                <select id="filter-purpose" name="filter-purpose" class="filter-select">
-                                    <option value="">Alle Zwecke</option>
-                                    <option value="geschaeftlich">Geschäftlich</option>
-                                    <option value="privat">Privat</option>
-                                    <option value="arbeitsweg">Arbeitsweg</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="filter-date-start" class="filter-label">Datum von:</label>
-                                <input type="date" id="filter-date-start" name="filter-date-start"
-                                    class="filter-input" />
-                            </div>
-                            <div>
-                                <label for="filter-date-end" class="filter-label">Datum bis:</label>
-                                <input type="date" id="filter-date-end" name="filter-date-end" class="filter-input" />
-                            </div>
-                        </div>
-                        <div class="filter-button-container">
-                            <button type="button" id="reset-filter-btn" class="button-secondary button-small">
-                                Filter zurücksetzen
-                            </button>
-                            <button type="button" id="apply-filter-btn" class="button-primary button-small">
-                                Filter anwenden
-                            </button>
-                        </div>
-                    </div>
-                    <div id="fahrten-liste">
-                        <p>Noch keine Fahrten gespeichert.</p>
-                    </div>
-
-                    <div id="pagination-controls" class="pagination-controls">
-                        <button type="button" id="prev-page-btn" class="pagination-button" disabled>
-                            &laquo; Zurück
-                        </button>
-                        <span id="page-info-span" class="page-info">Seite 1 von 1</span>
-                        <button type="button" id="next-page-btn" class="pagination-button" disabled>
-                            Weiter &raquo;
-                        </button>
-                    </div>
-                </div>
-                <div id="ausgaben-liste-container" style="display: none;">
-                    <div id="expense-list-header" class="list-header-controls">
-                        <h2 class="list-heading">Ausgaben</h2>
-                    </div>
-                    <div id="ausgaben-liste">
-                        <p>Noch keine Ausgaben erfasst oder angezeigt.</p>
-                    </div>
-                </div>
-                <div id="berichte-container" style="display: none;">
-                    <div id="berichte-inhalt">
-                        <p>Statistiken werden berechnet...</p>
-                    </div>
-                </div>
-            </div>
-            <div class="grid-column-right">
-                <div id="zusammenfassung" class="content-box">
-                    <h2>Zusammenfassung</h2>
-                    <p>Wird berechnet...</p>
-                </div>
-                <div id="fahrzeug-verwaltung" class="content-box">
-                    <h2>Fahrzeuge verwalten</h2>
-                    <div id="car-list-container">
-                        <ul id="car-list">
-                            <li>Keine Fahrzeuge angelegt.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+    <div class="main-grid">
+      <div class="grid-column-left sidebar">
+        <div class="sidebar-header">
+          <button type="button" id="sidebar-toggle-internal" title="Menü umschalten">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <span class="sidebar-app-title">Menü</span>
         </div>
-    </div>
-    <div id="add-car-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Neues Fahrzeug hinzufügen</h2> <button type="button" id="modal-close-btn" class="modal-close-button"
-                    title="Schließen">
-                    &times;
-                </button>
+        <div class="content-box">
+          <div class="sidebar-section">
+            <h3 class="sidebar-section-title">Aktionen</h3>
+            <div class="action-menu">
+              <button type="button" id="add-new-btn" class="button-primary menu-button" title="Neue Fahrt hinzufügen">
+                <i class="fa-solid fa-plus fa-fw"></i>
+                <span>Neue Fahrt</span>
+              </button>
+              <button type="button" id="add-car-btn-menu" class="menu-button" title="Neues Fahrzeug hinzufügen">
+                <i class="fa-solid fa-car-side fa-fw"></i>
+                <span>Neues Fahrzeug</span>
+              </button>
+              <button type="button" id="add-expense-btn-menu" class="menu-button" title="Neue Ausgabe erfassen">
+                <i class="fa-solid fa-euro-sign fa-fw"></i>
+                <span>Neue Ausgabe</span>
+              </button>
+              <button type="button" id="settings-menu-btn" class="menu-button" title="Einstellungen öffnen">
+                <i class="fa-solid fa-gear fa-fw"></i>
+                <span>Einstellungen</span>
+              </button>
             </div>
-            <div class="modal-body">
-                <form id="modal-car-form">
-                    <div class="form-group">
-                        <label for="modal-car-name">Name/Modell:</label>
-                        <input type="text" id="modal-car-name" placeholder="z.B. VW Golf VII" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="modal-car-plate">Kennzeichen:</label>
-                        <input type="text" id="modal-car-plate" placeholder="z.B. AB-CD-123" required />
-                    </div>
-                    <div id="modal-car-error" class="error-message" style="display: none;"></div>
-                </form>
+          </div>
+          <div class="sidebar-section">
+            <h3 class="sidebar-section-title">Ansichten</h3>
+            <div class="action-menu">
+              <button type="button" id="show-expenses-btn-menu" class="menu-button"
+                title="Gespeicherte Ausgaben anzeigen">
+                <i class="fa-solid fa-receipt fa-fw"></i>
+                <span>Ausgaben anzeigen</span>
+              </button>
+              <button type="button" id="show-reports-btn-menu" class="menu-button"
+                title="Berichte und Statistiken anzeigen">
+                <i class="fa-solid fa-chart-pie fa-fw"></i>
+                <span>Berichte</span>
+              </button>
+              <button type="button" id="show-charts-btn-menu" class="menu-button" title="Diagramme anzeigen">
+                <i class="fa-solid fa-chart-line fa-fw"></i>
+                <span>Diagramme</span>
+              </button>
             </div>
-            <div class="modal-footer">
-                <button type="button" id="modal-cancel-car-btn" class="button-secondary">
-                    Abbrechen
-                </button>
-                <button type="button" id="modal-save-car-btn" class="button-primary">
-                    Fahrzeug speichern </button>
+          </div>
+          <div class="sidebar-section">
+            <h3 class="sidebar-section-title">Daten</h3>
+            <div class="action-menu">
+              <button type="button" id="export-csv-btn" class="menu-button" title="CSV Export">
+                <i class="fa-solid fa-file-csv fa-fw"></i>
+                <span>CSV Export</span>
+              </button>
+              <button type="button" id="export-json-btn" class="menu-button" title="Backup erstellen">
+                <i class="fa-solid fa-floppy-disk fa-fw"></i>
+                <span>Backup</span>
+              </button>
+              <button type="button" id="import-json-btn" class="menu-button" title="Backup wiederherstellen">
+                <i class="fa-solid fa-upload fa-fw"></i>
+                <span>Restore</span>
+              </button>
+              <input type="file" id="import-json-file" accept=".json" style="display: none" />
             </div>
+          </div>
         </div>
-    </div>
-
-    <div id="add-expense-modal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Neue Ausgabe erfassen</h2> <button type="button" id="modal-expense-close-btn"
-                    class="modal-close-button" title="Schließen">
-                    &times;
-                </button>
+      </div>
+      <div class="grid-column-middle">
+        <div id="fahrt-formular" class="content-box">
+          <h2>Neuen Eintrag hinzufügen / Bearbeiten</h2>
+          <div id="form-error-message" class="error-message form-error-box"></div>
+          <form id="trip-entry-form">
+            <div>
+              <label for="datum">Datum:</label><input type="date" id="datum" name="datum" required />
             </div>
-            <div class="modal-body">
-                <form id="modal-expense-form">
-                    <div class="form-group">
-                        <label for="modal-expense-date">Datum:</label>
-                        <input type="date" id="modal-expense-date" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="modal-expense-vehicle">Fahrzeug:</label>
-                        <select id="modal-expense-vehicle" required>
-                            <option value="">-- Bitte Fahrzeug wählen --</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="modal-expense-type">Art der Ausgabe:</label>
-                        <select id="modal-expense-type" required>
-                            <option value="">-- Bitte Art wählen --</option>
-                            <option value="tanken">Tanken</option>
-                            <option value="reparatur">Reparatur</option>
-                            <option value="wartung">Wartung/Inspektion</option>
-                            <option value="versicherung">Versicherung</option>
-                            <option value="steuer">Steuer</option>
-                            <option value="pflege">Pflege/Wäsche</option>
-                            <option value="sonstiges">Sonstiges</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="modal-expense-description">Beschreibung:</label>
-                        <input type="text" id="modal-expense-description"
-                            placeholder="z.B. Shell V-Power, Jahresbeitrag Haftpflicht" />
-                    </div>
-                    <div class="form-group">
-                        <label for="modal-expense-amount">Betrag (€):</label>
-                        <input type="number" id="modal-expense-amount" required step="0.01" placeholder="z.B. 75.50" />
-                    </div>
-                    <div class="form-group">
-                        <label for="modal-expense-odometer">Kilometerstand (optional):</label>
-                        <input type="number" id="modal-expense-odometer" placeholder="z.B. 123456" step="1" />
-                    </div>
-                    <div id="modal-expense-error" class="error-message" style="display: none;"></div>
-                </form>
+            <div>
+              <label for="start-zeit">Startzeit:</label><input type="time" id="start-zeit" name="start-zeit" required />
             </div>
-            <div class="modal-footer">
-                <button type="button" id="modal-cancel-expense-btn" class="button-secondary">
-                    Abbrechen
-                </button>
-                <button type="button" id="modal-save-expense-btn" class="button-primary">
-                    Ausgabe speichern </button>
+            <div>
+              <label for="end-zeit">Endzeit:</label><input type="time" id="end-zeit" name="end-zeit" required />
             </div>
+            <div>
+              <label for="start-ort">Start-Ort:</label><input type="text" id="start-ort" name="start-ort" required />
+            </div>
+            <div>
+              <label for="ziel-ort">Ziel-Ort:</label><input type="text" id="ziel-ort" name="ziel-ort" required />
+            </div>
+            <div>
+              <label for="km-start">Kilometerstand Start:</label><input type="number" id="km-start" name="km-start"
+                required step="any" />
+            </div>
+            <div>
+              <label for="km-ende">Kilometerstand Ende:</label><input type="number" id="km-ende" name="km-ende" required
+                step="any" />
+            </div>
+            <div>
+              <label for="distanz">Distanz (km):</label><input type="number" id="distanz" name="distanz" step="0.1"
+                readonly />
+            </div>
+            <div>
+              <label for="car-select">Fahrzeug:</label><select id="car-select" name="car-select" required>
+                <option value="">-- Bitte wählen --</option>
+              </select>
+            </div>
+            <div>
+              <label for="zweck">Zweck der Fahrt:</label><select id="zweck" name="zweck">
+                <option value="geschaeftlich">Geschäftlich</option>
+                <option value="privat">Privat</option>
+                <option value="arbeitsweg">Arbeitsweg</option>
+              </select>
+            </div>
+            <div class="form-button-container">
+              <button type="button" id="speichern-btn">
+                Fahrt speichern
+              </button>
+              <button type="button" id="cancel-edit-btn" style="display: none">
+                Abbrechen
+              </button>
+            </div>
+          </form>
         </div>
-    </div>
+        <div id="fahrten-liste-container">
+          <div id="trip-list-header" class="list-header-controls">
+            <h2 class="list-heading">Fahrten</h2>
+            <button type="button" id="toggle-filter-btn" class="toggle-filter-button" title="Filter ein/ausblenden">
+              <i class="fa-solid fa-filter"></i> Filter
+            </button>
+          </div>
+          <div id="filter-controls" class="content-box filter-box">
+            <h3 class="filter-box-heading">Fahrten filtern nach:</h3>
+            <div class="filter-grid">
+              <div>
+                <label for="filter-car" class="filter-label">Fahrzeug:</label>
+                <select id="filter-car" name="filter-car" class="filter-select">
+                  <option value="">Alle Fahrzeuge</option>
+                </select>
+              </div>
+              <div>
+                <label for="filter-purpose" class="filter-label">Zweck:</label>
+                <select id="filter-purpose" name="filter-purpose" class="filter-select">
+                  <option value="">Alle Zwecke</option>
+                  <option value="geschaeftlich">Geschäftlich</option>
+                  <option value="privat">Privat</option>
+                  <option value="arbeitsweg">Arbeitsweg</option>
+                </select>
+              </div>
+              <div>
+                <label for="filter-date-start" class="filter-label">Datum von:</label>
+                <input type="date" id="filter-date-start" name="filter-date-start" class="filter-input" />
+              </div>
+              <div>
+                <label for="filter-date-end" class="filter-label">Datum bis:</label>
+                <input type="date" id="filter-date-end" name="filter-date-end" class="filter-input" />
+              </div>
+            </div>
+            <div class="filter-button-container">
+              <button type="button" id="reset-filter-btn" class="button-secondary button-small">
+                Filter zurücksetzen
+              </button>
+              <button type="button" id="apply-filter-btn" class="button-primary button-small">
+                Filter anwenden
+              </button>
+            </div>
+          </div>
+          <div id="fahrten-liste">
+            <p>Noch keine Fahrten gespeichert.</p>
+          </div>
 
-    <div id="confirm-delete-modal" class="modal-overlay">
-        <div class="modal-content modal-content-narrow">
-            <div class="modal-header">
-                <h2 id="modal-confirm-title">Bestätigung</h2>
-                <button type="button" id="modal-confirm-close-btn" class="modal-close-button" title="Schließen">
-                    &times;
-                </button>
-            </div>
-            <div class="modal-body">
-                <p id="modal-confirm-message">
-                    Soll die Aktion wirklich durchgeführt werden? </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="modal-confirm-cancel-btn" class="button-secondary">
-                    Abbrechen
-                </button>
-                <button type="button" id="modal-confirm-confirm-btn" class="button-danger"> Bestätigen
-                </button>
-            </div>
+          <div id="pagination-controls" class="pagination-controls">
+            <button type="button" id="prev-page-btn" class="pagination-button" disabled>
+              &laquo; Zurück
+            </button>
+            <span id="page-info-span" class="page-info">Seite 1 von 1</span>
+            <button type="button" id="next-page-btn" class="pagination-button" disabled>
+              Weiter &raquo;
+            </button>
+          </div>
         </div>
-    </div>
-
-    <div id="settings-modal" class="modal-overlay">
-        <div class="modal-content modal-content-medium">
-            <div class="modal-header">
-                <h2>Einstellungen</h2>
-                <button type="button" id="settings-modal-close-btn" class="modal-close-button" title="Schließen">
-                    &times;
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="settings-form">
-                    <fieldset class="settings-fieldset">
-                        <legend class="settings-legend">
-                            Standardwerte für neue Fahrten
-                        </legend>
-                        <div class="form-group">
-                            <label for="setting-default-car" class="settings-label">Standard-Fahrzeug:</label>
-                            <select id="setting-default-car" name="setting-default-car" class="settings-select">
-                                <option value="">-- Kein Standard --</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="setting-default-purpose" class="settings-label">Standard-Zweck:</label>
-                            <select id="setting-default-purpose" name="setting-default-purpose" class="settings-select">
-                                <option value="">-- Kein Standard --</option>
-                                <option value="geschaeftlich">Geschäftlich</option>
-                                <option value="privat">Privat</option>
-                                <option value="arbeitsweg">Arbeitsweg</option>
-                            </select>
-                        </div>
-                    </fieldset>
-                    <fieldset class="settings-fieldset">
-                        <legend class="settings-legend">CSV-Export</legend>
-                        <div class="form-group">
-                            <label class="settings-label">Trennzeichen:</label>
-                            <div class="settings-radio-group">
-                                <label class="settings-radio-label">
-                                    <input type="radio" name="setting-csv-delimiter" value=";" checked />
-                                    Semikolon (;)
-                                </label>
-                                <label class="settings-radio-label">
-                                    <input type="radio" name="setting-csv-delimiter" value="," />
-                                    Komma (,)
-                                </label>
-                            </div>
-                        </div>
-                    </fieldset>
-                    <fieldset class="settings-fieldset settings-fieldset-danger">
-                        <legend class="settings-legend settings-legend-danger">
-                            Datenverwaltung (Achtung!)
-                        </legend>
-                        <div class="form-group settings-action-row">
-                            <span class="settings-action-label">Alle Fahrten, Fahrzeuge und Ausgaben löschen:</span>
-                            <button type="button" id="setting-delete-all-btn" class="button-danger button-small">
-                                Alle Daten löschen
-                            </button>
-                        </div>
-                    </fieldset>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" id="settings-modal-cancel-btn" class="button-secondary">
-                    Abbrechen
-                </button>
-                <button type="button" id="settings-modal-save-btn" class="button-primary">
-                    Einstellungen speichern
-                </button>
-            </div>
+        <div id="ausgaben-liste-container" style="display: none">
+          <div id="expense-list-header" class="list-header-controls">
+            <h2 class="list-heading">Ausgaben</h2>
+          </div>
+          <div id="ausgaben-liste">
+            <p>Noch keine Ausgaben erfasst oder angezeigt.</p>
+          </div>
         </div>
+        <div id="berichte-container" style="display: none">
+          <div id="berichte-inhalt">
+            <p>Statistiken werden berechnet...</p>
+          </div>
+        </div>
+        <div id="diagramme-container" style="display: none;">
+          <div id="charts-header" class="list-header-controls">
+            <h2 class="list-heading">Diagramme</h2>
+          </div>
+          <div id="chart-controls" class="content-box filter-box" style="display: block; margin-bottom: 20px;">
+            <h3 class="filter-box-heading">Diagrammoptionen:</h3>
+            <div class="filter-grid">
+              <div>
+                <label for="chart-vehicle-select" class="filter-label">Fahrzeug:</label>
+                <select id="chart-vehicle-select" name="chart-vehicle-select" class="filter-select">
+                  <option value="">-- Fahrzeug wählen --</option>
+                </select>
+              </div>
+              <div>
+                <label for="chart-year-select" class="filter-label">Jahr:</label>
+                <select id="chart-year-select" name="chart-year-select" class="filter-select">
+                  <option value="">-- Jahr wählen --</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="diagramme-inhalt">
+            <div class="chart-wrapper content-box">
+              <h3>Kilometer pro Monat</h3>
+              <canvas id="kmChartCanvas"></canvas>
+            </div>
+            <div class="chart-wrapper content-box">
+              <h3>Kosten pro Monat</h3>
+              <canvas id="costChartCanvas"></canvas>
+            </div>
+            <div class="chart-wrapper content-box" style="max-width: 400px; margin: 20px auto;">
+              <h3>Kosten nach Typ (Beispiel)</h3>
+              <canvas id="costTypeChartCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-column-right">
+        <div id="zusammenfassung" class="content-box">
+          <h2>Zusammenfassung</h2>
+          <p>Wird berechnet...</p>
+        </div>
+        <div id="fahrzeug-verwaltung" class="content-box">
+          <h2>Fahrzeuge verwalten</h2>
+          <div id="car-list-container">
+            <ul id="car-list">
+              <li>Keine Fahrzeuge angelegt.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <div id="notification-container"></div>
-    <script src="script.js" defer></script>
-    <script>
-        // Prüfen, ob Service Worker vom Browser unterstützt werden
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(registration => { console.log('Service Worker registriert:', registration.scope); })
-                    .catch(error => { console.error('Service Worker Registrierung fehlgeschlagen:', error); });
-            });
-        } else {
-            console.log('Service Worker werden von diesem Browser nicht unterstützt.');
-        }
-    </script>
+  </div>
+  <div id="add-car-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Neues Fahrzeug hinzufügen</h2>
+        <button type="button" id="modal-close-btn" class="modal-close-button" title="Schließen">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="modal-car-form">
+          <div class="form-group">
+            <label for="modal-car-name">Name/Modell:</label>
+            <input type="text" id="modal-car-name" placeholder="z.B. VW Golf VII" required />
+          </div>
+          <div class="form-group">
+            <label for="modal-car-plate">Kennzeichen:</label>
+            <input type="text" id="modal-car-plate" placeholder="z.B. AB-CD-123" required />
+          </div>
+          <div id="modal-car-error" class="error-message" style="display: none"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="modal-cancel-car-btn" class="button-secondary">
+          Abbrechen
+        </button>
+        <button type="button" id="modal-save-car-btn" class="button-primary">
+          Fahrzeug speichern
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="add-expense-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Neue Ausgabe erfassen</h2>
+        <button type="button" id="modal-expense-close-btn" class="modal-close-button" title="Schließen">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="modal-expense-form">
+          <div class="form-group">
+            <label for="modal-expense-date">Datum:</label>
+            <input type="date" id="modal-expense-date" required />
+          </div>
+          <div class="form-group">
+            <label for="modal-expense-vehicle">Fahrzeug:</label>
+            <select id="modal-expense-vehicle" required>
+              <option value="">-- Bitte Fahrzeug wählen --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="modal-expense-type">Art der Ausgabe:</label>
+            <select id="modal-expense-type" required>
+              <option value="">-- Bitte Art wählen --</option>
+              <option value="tanken">Tanken</option>
+              <option value="reparatur">Reparatur</option>
+              <option value="wartung">Wartung/Inspektion</option>
+              <option value="versicherung">Versicherung</option>
+              <option value="steuer">Steuer</option>
+              <option value="pflege">Pflege/Wäsche</option>
+              <option value="sonstiges">Sonstiges</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="modal-expense-description">Beschreibung:</label>
+            <input type="text" id="modal-expense-description"
+              placeholder="z.B. Shell V-Power, Jahresbeitrag Haftpflicht" />
+          </div>
+          <div class="form-group">
+            <label for="modal-expense-amount">Betrag (€):</label>
+            <input type="number" id="modal-expense-amount" required step="0.01" placeholder="z.B. 75.50" />
+          </div>
+          <div class="form-group">
+            <label for="modal-expense-odometer">Kilometerstand (optional):</label>
+            <input type="number" id="modal-expense-odometer" placeholder="z.B. 123456" step="1" />
+          </div>
+          <div id="modal-expense-error" class="error-message" style="display: none"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="modal-cancel-expense-btn" class="button-secondary">
+          Abbrechen
+        </button>
+        <button type="button" id="modal-save-expense-btn" class="button-primary">
+          Ausgabe speichern
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="confirm-delete-modal" class="modal-overlay">
+    <div class="modal-content modal-content-narrow">
+      <div class="modal-header">
+        <h2 id="modal-confirm-title">Bestätigung</h2>
+        <button type="button" id="modal-confirm-close-btn" class="modal-close-button" title="Schließen">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="modal-confirm-message">
+          Soll die Aktion wirklich durchgeführt werden?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="modal-confirm-cancel-btn" class="button-secondary">
+          Abbrechen
+        </button>
+        <button type="button" id="modal-confirm-confirm-btn" class="button-danger">
+          Bestätigen
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="settings-modal" class="modal-overlay">
+    <div class="modal-content modal-content-medium">
+      <div class="modal-header">
+        <h2>Einstellungen</h2>
+        <button type="button" id="settings-modal-close-btn" class="modal-close-button" title="Schließen">
+          &times;
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="settings-form">
+          <fieldset class="settings-fieldset">
+            <legend class="settings-legend">
+              Standardwerte für neue Fahrten
+            </legend>
+            <div class="form-group">
+              <label for="setting-default-car" class="settings-label">Standard-Fahrzeug:</label>
+              <select id="setting-default-car" name="setting-default-car" class="settings-select">
+                <option value="">-- Kein Standard --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="setting-default-purpose" class="settings-label">Standard-Zweck:</label>
+              <select id="setting-default-purpose" name="setting-default-purpose" class="settings-select">
+                <option value="">-- Kein Standard --</option>
+                <option value="geschaeftlich">Geschäftlich</option>
+                <option value="privat">Privat</option>
+                <option value="arbeitsweg">Arbeitsweg</option>
+              </select>
+            </div>
+          </fieldset>
+          <fieldset class="settings-fieldset">
+            <legend class="settings-legend">CSV-Export</legend>
+            <div class="form-group">
+              <label class="settings-label">Trennzeichen:</label>
+              <div class="settings-radio-group">
+                <label class="settings-radio-label">
+                  <input type="radio" name="setting-csv-delimiter" value=";" checked />
+                  Semikolon (;)
+                </label>
+                <label class="settings-radio-label">
+                  <input type="radio" name="setting-csv-delimiter" value="," />
+                  Komma (,)
+                </label>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset class="settings-fieldset settings-fieldset-danger">
+            <legend class="settings-legend settings-legend-danger">
+              Datenverwaltung (Achtung!)
+            </legend>
+            <div class="form-group settings-action-row">
+              <span class="settings-action-label">Alle Fahrten, Fahrzeuge und Ausgaben löschen:</span>
+              <button type="button" id="setting-delete-all-btn" class="button-danger button-small">
+                Alle Daten löschen
+              </button>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="settings-modal-cancel-btn" class="button-secondary">
+          Abbrechen
+        </button>
+        <button type="button" id="settings-modal-save-btn" class="button-primary">
+          Einstellungen speichern
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="notification-container"></div>
+  <script src="script.js" defer></script>
+  <script>
+    // Prüfen, ob Service Worker vom Browser unterstützt werden
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("/sw.js")
+          .then((registration) => {
+            console.log("Service Worker registriert:", registration.scope);
+          })
+          .catch((error) => {
+            console.error(
+              "Service Worker Registrierung fehlgeschlagen:",
+              error
+            );
+          });
+      });
+    } else {
+      console.log(
+        "Service Worker werden von diesem Browser nicht unterstützt."
+      );
+    }
+  </script>
 </body>
 
 </html>

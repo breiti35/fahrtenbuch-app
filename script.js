@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
     "ausgaben-liste-container"
   );
   const berichteContainer = document.getElementById("berichte-container"); // NEU
+  const diagrammeContainer = document.getElementById("diagramme-container"); // NEU
 
   // --- Inhaltsbereiche der Listen ---
   const fahrtenListeDiv = document.getElementById("fahrten-liste");
@@ -26,6 +27,14 @@ document.addEventListener("DOMContentLoaded", function () {
     ausgabenListeContainer,
     berichteContainer,
   });
+  const diagrammeInhaltDiv = document.getElementById("diagramme-inhalt"); // NEU
+  // --- Diagramm-spezifisch ---
+  const chartControlsDiv = document.getElementById("chart-controls"); // NEU
+  const chartVehicleSelect = document.getElementById("chart-vehicle-select"); // NEU
+  const chartYearSelect = document.getElementById("chart-year-select"); // NEU
+  const kmChartCanvas = document.getElementById("kmChartCanvas"); // NEU
+  const costChartCanvas = document.getElementById("costChartCanvas"); // NEU
+  const costTypeChartCanvas = document.getElementById("costTypeChartCanvas"); // NEU (für später)
 
   // --- Formular (Fahrten) ---
   const tripEntryForm = document.getElementById("trip-entry-form");
@@ -49,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const addExpenseMenuButton = document.getElementById("add-expense-btn-menu");
   const showExpensesButton = document.getElementById("show-expenses-btn-menu");
   const showReportsButton = document.getElementById("show-reports-btn-menu"); // NEU
+  const showChartsButton = document.getElementById("show-charts-btn-menu"); // NEU
   const settingsMenuButton = document.getElementById("settings-menu-btn");
   const exportButton = document.getElementById("export-csv-btn");
   const exportJsonButton = document.getElementById("export-json-btn");
@@ -169,6 +179,10 @@ document.addEventListener("DOMContentLoaded", function () {
   let currentPage = 1; // Aktuelle Seite für Fahrten-Paginierung
   const itemsPerPage = 10; // Einträge pro Seite (Fahrten)
   let fullTripListForPagination = []; // Komplette (gefilterte) Fahrtenliste
+  // NEU: Chart-Instanzen
+  let kmChartInstance = null;
+  let costChartInstance = null;
+  let costTypeChartInstance = null; // für später
 
   // ========================================================================
   // === 3. Hilfsfunktionen ===
@@ -250,20 +264,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /**
    * Steuert die Sichtbarkeit der Haupt-Container in der mittleren Spalte.
-   * Blendet alle aus und zeigt nur den gewünschten an.
-   * @param {'formular' | 'fahrten' | 'ausgaben' | 'berichte'} viewToShow - Die anzuzeigende Ansicht.
+   * @param {'formular' | 'fahrten' | 'ausgaben' | 'berichte' | 'diagramme'} viewToShow - Die anzuzeigende Ansicht.
    */
   function showMiddleColumnView(viewToShow) {
-    // Die detaillierten Logs wurden entfernt. Nur das initiale Log bleibt.
     console.log("Zeige mittlere Spaltenansicht:", viewToShow);
-
-    // 1. Alle potentiellen Haupt-Container ausblenden
+    // Alle potentiellen Haupt-Container ausblenden
     if (formularDiv) formularDiv.classList.remove("form-visible");
     if (fahrtenListeContainer) fahrtenListeContainer.style.display = "none";
     if (ausgabenListeContainer) ausgabenListeContainer.style.display = "none";
     if (berichteContainer) berichteContainer.style.display = "none";
+    if (diagrammeContainer) diagrammeContainer.style.display = "none"; // NEU
 
-    // 2. Gewünschten Container einblenden und passende Funktion aufrufen
+    // Gewünschten Container einblenden und passende Funktion aufrufen
     switch (viewToShow) {
       case "formular":
         if (formularDiv) formularDiv.classList.add("form-visible");
@@ -281,8 +293,19 @@ document.addEventListener("DOMContentLoaded", function () {
         if (berichteContainer) berichteContainer.style.display = "block";
         displayStatistics();
         break;
+      case "diagramme":
+        if (diagrammeContainer) {
+          // Nur sichtbar machen!
+          diagrammeContainer.style.display = "block";
+          console.log("Diagram container set to display: block");
+        } else {
+          console.error(
+            "FEHLER: diagrammeContainer nicht gefunden in showMiddleColumnView!"
+          );
+        }
+        break; // Ende case 'diagramme';
       default:
-        console.warn("Unbekannte Ansicht angefordert:", viewToShow); // Warnung bleibt
+        console.warn("Unbekannte Ansicht angefordert:", viewToShow);
         if (fahrtenListeContainer)
           fahrtenListeContainer.style.display = "block"; // Fallback
     }
@@ -1138,7 +1161,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return statsByVehicle; // Gib das Objekt zurück (Schlüssel = vehicleId)
   }
 
-
   // ========================================================================
   // === Ende Statistik-Berechnungsfunktionen ===
   // ========================================================================
@@ -1372,6 +1394,470 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ========================================================================
+  // === NEU: 11 Funktionen für Diagramme ===
+  // ========================================================================
+
+  /**
+   * Initialisiert die Auswahl-Dropdowns für Fahrzeug und Jahr im Diagramm-Bereich.
+   */
+  function initializeChartControls() {
+    if (!chartVehicleSelect || !chartYearSelect) return;
+
+    // --- Fahrzeug-Dropdown füllen ---
+    const currentVehicle = chartVehicleSelect.value;
+    while (chartVehicleSelect.options.length > 1) chartVehicleSelect.remove(1); // Alte Optionen entfernen
+    const sortedCars = [...cars].sort((a, b) =>
+      (a.name || "").localeCompare(b.name || "")
+    );
+    sortedCars.forEach((car) => {
+      const option = document.createElement("option");
+      option.value = car.id;
+      option.textContent = `${car.name || "Unbenannt"}${
+        car.plate ? ` (${car.plate})` : ""
+      }`;
+      chartVehicleSelect.appendChild(option);
+    });
+    // Alten Wert wieder auswählen oder ersten als Standard nehmen
+    if (currentVehicle && cars.some((c) => c.id === currentVehicle)) {
+      chartVehicleSelect.value = currentVehicle;
+    } else if (sortedCars.length > 0) {
+      chartVehicleSelect.value = sortedCars[0].id; // Ersten als Standard
+    }
+
+    // --- Jahr-Dropdown füllen (basierend auf verfügbaren Daten) ---
+    const currentYear = chartYearSelect.value;
+    while (chartYearSelect.options.length > 1) chartYearSelect.remove(1); // Alte Optionen entfernen
+
+    const statsData = calculateMonthlyYearlyStats(); // Daten holen
+    const availableYears = new Set(); // Set, um doppelte Jahre zu vermeiden
+    Object.values(statsData).forEach((vehicleStats) => {
+      Object.keys(vehicleStats.statsByYear).forEach((year) =>
+        availableYears.add(year)
+      );
+    });
+
+    const sortedYears = Array.from(availableYears).sort((a, b) => b - a); // Neueste zuerst
+    sortedYears.forEach((year) => {
+      const option = document.createElement("option");
+      option.value = year;
+      option.textContent = year;
+      chartYearSelect.appendChild(option);
+    });
+    // Alten Wert wieder auswählen oder neuestes Jahr als Standard nehmen
+    if (currentYear && sortedYears.includes(currentYear)) {
+      chartYearSelect.value = currentYear;
+    } else if (sortedYears.length > 0) {
+      chartYearSelect.value = sortedYears[0]; // Neuestes Jahr als Standard
+    }
+
+    console.log("Diagramm-Steuerelemente initialisiert.");
+  }
+
+  /**
+   * Zerstört eine bestehende Chart-Instanz, falls vorhanden.
+   * @param {Chart|null} chartInstance - Die zu zerstörende Chart-Instanz.
+   * @returns {null} Immer null, um die Variable zurückzusetzen.
+   */
+  function destroyChart(chartInstance) {
+    if (chartInstance) {
+      chartInstance.destroy();
+      console.log("Altes Diagramm zerstört.");
+    }
+    return null;
+  }
+
+  /**
+   * Zeigt die Diagramme (KM/Monat, Kosten/Monat, Kosten nach Typ) an.
+   * Holt jetzt ALLE benötigten Elemente (Canvas UND Selects) bei jedem Aufruf frisch per getElementById.
+   */
+  function displayCharts() {
+    console.log(
+      "--- Entering displayCharts (fetching ALL elements locally) ---"
+    );
+
+    // --- FIX: Hole ALLE benötigten Elemente JEDES MAL frisch ---
+    const currentKmCanvas = document.getElementById("kmChartCanvas");
+    const currentCostCanvas = document.getElementById("costChartCanvas");
+    // costTypeChartCanvas wird in displayCostTypeChart geholt
+    const chartVehicleSelect = document.getElementById("chart-vehicle-select"); // NEU: Select hier holen
+    const chartYearSelect = document.getElementById("chart-year-select"); // NEU: Select hier holen
+
+    // Prüfe, ob ALLE Elemente gefunden wurden und Chart.js geladen ist
+    if (
+      !currentKmCanvas ||
+      !currentCostCanvas ||
+      !chartVehicleSelect || // NEU: Prüfung hinzugefügt
+      !chartYearSelect || // NEU: Prüfung hinzugefügt
+      typeof Chart === "undefined"
+    ) {
+      console.error(
+        "FEHLER: Notwendige Canvas- oder Select-Elemente oder Chart.js nicht gefunden!"
+      );
+      const diagrammeInhaltDiv = document.getElementById("diagramme-inhalt");
+      if (diagrammeInhaltDiv)
+        diagrammeInhaltDiv.innerHTML =
+          '<p class="chart-message error-message">Fehler beim Initialisieren der Diagramm-Komponenten.</p>';
+      else
+        console.error("FEHLER: Container 'diagramme-inhalt' nicht gefunden!");
+      return;
+    }
+
+    // Hole Wrapper basierend auf den AKTUELL gefundenen Canvas-Elementen
+    const kmWrapper = currentKmCanvas.closest(".chart-wrapper");
+    const costWrapper = currentCostCanvas.closest(".chart-wrapper");
+
+    // Prüfen, ob Wrapper gefunden wurden (wichtig!)
+    if (!kmWrapper || !costWrapper) {
+      console.error("FEHLER: Konnte nicht alle Chart-Wrapper finden!");
+      const diagrammeInhaltDiv = document.getElementById("diagramme-inhalt");
+      if (diagrammeInhaltDiv)
+        diagrammeInhaltDiv.innerHTML =
+          '<p class="chart-message error-message">Layout-Fehler bei Diagrammen.</p>';
+      return;
+    }
+
+    // Hole Werte aus den (jetzt lokal geholten) Select-Elementen
+    const selectedVehicleId = chartVehicleSelect.value;
+    const selectedYear = parseInt(chartYearSelect.value, 10);
+
+    // Prüfen, ob gültige Auswahl getroffen wurde
+    if (!selectedVehicleId || !selectedYear || isNaN(selectedYear)) {
+      console.log("Kein Fahrzeug oder Jahr für Diagramme ausgewählt.");
+      kmChartInstance = destroyChart(kmChartInstance);
+      costChartInstance = destroyChart(costChartInstance);
+      costTypeChartInstance = destroyChart(costTypeChartInstance);
+
+      const message =
+        "Bitte Fahrzeug und Jahr auswählen, um Diagramme anzuzeigen.";
+      kmWrapper.innerHTML = `<h3>Kilometer pro Monat</h3><p class="chart-message">${message}</p>`;
+      costWrapper.innerHTML = `<h3>Kosten pro Monat</h3><p class="chart-message">${message}</p>`;
+      const costTypeWrapperDirect = document
+        .getElementById("costTypeChartCanvas")
+        ?.closest(".chart-wrapper");
+      if (costTypeWrapperDirect)
+        costTypeWrapperDirect.innerHTML = `<h3>Kosten nach Typ</h3><p class="chart-message">${message}</p>`;
+      return;
+    }
+
+    console.log(
+      `Zeige Diagramme für Fahrzeug ${selectedVehicleId} und Jahr ${selectedYear}`
+    );
+
+    const allStats = calculateMonthlyYearlyStats();
+    const vehicleStats = allStats[selectedVehicleId];
+
+    // Prüfen, ob Daten für die Auswahl vorhanden sind
+    if (
+      !vehicleStats ||
+      !vehicleStats.statsByYear ||
+      !vehicleStats.statsByYear[selectedYear]
+    ) {
+      console.log(
+        `Keine Daten für Fahrzeug ${selectedVehicleId} im Jahr ${selectedYear} gefunden.`
+      );
+      kmChartInstance = destroyChart(kmChartInstance);
+      costChartInstance = destroyChart(costChartInstance);
+      costTypeChartInstance = destroyChart(costTypeChartInstance);
+
+      const message = `Keine Fahrten- oder Kostendaten für ${selectedYear} gefunden.`;
+      kmWrapper.innerHTML = `<h3>Kilometer pro Monat</h3><p class="chart-message">${message}</p>`;
+      costWrapper.innerHTML = `<h3>Kosten pro Monat</h3><p class="chart-message">${message}</p>`;
+      displayCostTypeChart(selectedVehicleId, selectedYear);
+      return;
+    }
+
+    // --- Daten für Balkendiagramme ---
+    const yearData = vehicleStats.statsByYear[selectedYear];
+    const monthlyLabels = monthNamesDE;
+    const monthlyKmData = [];
+    const monthlyCostData = [];
+    for (let month = 1; month <= 12; month++) {
+      monthlyKmData.push(yearData.byMonth?.[month]?.distance?.toFixed(1) || 0);
+      monthlyCostData.push(yearData.byMonth?.[month]?.costs?.toFixed(2) || 0);
+    }
+
+    // --- Diagramme erstellen/aktualisieren ---
+
+    kmChartInstance = destroyChart(kmChartInstance);
+    costChartInstance = destroyChart(costChartInstance);
+
+    // KM-Diagramm
+    let canvasElementForKmChart = kmWrapper.querySelector("#kmChartCanvas");
+    if (!canvasElementForKmChart) {
+      console.log("KM-Canvas nicht im Wrapper gefunden, erstelle neu.");
+      kmWrapper.innerHTML =
+        '<h3>Kilometer pro Monat</h3><canvas id="kmChartCanvas"></canvas>';
+      canvasElementForKmChart = kmWrapper.querySelector("#kmChartCanvas");
+    }
+    if (canvasElementForKmChart) {
+      try {
+        const kmCtx = canvasElementForKmChart.getContext("2d");
+        kmChartInstance = new Chart(kmCtx, {
+          /* ... config ... */ type: "bar",
+          data: {
+            labels: monthlyLabels,
+            datasets: [
+              {
+                label: `Kilometer ${selectedYear}`,
+                data: monthlyKmData,
+                backgroundColor: "rgba(54, 162, 235, 0.6)",
+                borderColor: "rgba(54, 162, 235, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: { display: true, text: "Kilometer (km)" },
+              },
+              x: { title: { display: true, text: "Monat" } },
+            },
+            plugins: { legend: { display: false }, title: { display: false } },
+          },
+        });
+        console.log("KM-Diagramm erstellt/aktualisiert.");
+      } catch (e) {
+        console.error("Fehler beim Erstellen des KM-Diagramms:", e);
+        kmWrapper.innerHTML =
+          '<h3>Kilometer pro Monat</h3><p class="chart-message error-message">Fehler beim Laden des Diagramms.</p>';
+      }
+    } else {
+      console.error("FEHLER: Konnte KM-Canvas weder finden noch erstellen!");
+      kmWrapper.innerHTML =
+        '<h3>Kilometer pro Monat</h3><p class="chart-message error-message">Fehler beim Laden des Diagramms.</p>';
+    }
+
+    // Kosten-Diagramm
+    let canvasElementForCostChart =
+      costWrapper.querySelector("#costChartCanvas");
+    if (!canvasElementForCostChart) {
+      console.log("Kosten-Canvas nicht im Wrapper gefunden, erstelle neu.");
+      costWrapper.innerHTML =
+        '<h3>Kosten pro Monat</h3><canvas id="costChartCanvas"></canvas>';
+      canvasElementForCostChart = costWrapper.querySelector("#costChartCanvas");
+    }
+    if (canvasElementForCostChart) {
+      try {
+        const costCtx = canvasElementForCostChart.getContext("2d");
+        costChartInstance = new Chart(costCtx, {
+          /* ... config ... */ type: "bar",
+          data: {
+            labels: monthlyLabels,
+            datasets: [
+              {
+                label: `Kosten ${selectedYear}`,
+                data: monthlyCostData,
+                backgroundColor: "rgba(255, 99, 132, 0.6)",
+                borderColor: "rgba(255, 99, 132, 1)",
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: { display: true, text: "Kosten (€)" },
+              },
+              x: { title: { display: true, text: "Monat" } },
+            },
+            plugins: { legend: { display: false }, title: { display: false } },
+          },
+        });
+        console.log("Kosten-Diagramm erstellt/aktualisiert.");
+      } catch (e) {
+        console.error("Fehler beim Erstellen des Kosten-Diagramms:", e);
+        costWrapper.innerHTML =
+          '<h3>Kosten pro Monat</h3><p class="chart-message error-message">Fehler beim Laden des Diagramms.</p>';
+      }
+    } else {
+      console.error(
+        "FEHLER: Konnte Kosten-Canvas weder finden noch erstellen!"
+      );
+      costWrapper.innerHTML =
+        '<h3>Kosten pro Monat</h3><p class="chart-message error-message">Fehler beim Laden des Diagramms.</p>';
+    }
+
+    // Kosten-nach-Typ-Diagramm aufrufen
+    displayCostTypeChart(selectedVehicleId, selectedYear);
+  } // Ende displayCharts Funktion
+
+  /**
+   * Zeigt das Kosten-nach-Typ Doughnut-Diagramm an.
+   * Holt Canvas-Element bei jedem Aufruf frisch per getElementById.
+   */
+  function displayCostTypeChart(vehicleId, year) {
+    // Hole das Canvas-Element JEDES MAL frisch
+    const currentCostTypeCanvas = document.getElementById(
+      "costTypeChartCanvas"
+    );
+
+    // Prüfe, ob das Element gefunden wurde und Chart.js geladen ist
+    if (!currentCostTypeCanvas || typeof Chart === "undefined") {
+      console.error("Canvas für Kosten-Typ oder Chart.js nicht gefunden!");
+      const wrapper = document
+        .getElementById("costTypeChartCanvas")
+        ?.closest(".chart-wrapper");
+      if (wrapper)
+        wrapper.innerHTML =
+          '<h3>Kosten nach Typ</h3><p class="chart-message error-message">Fehler: Diagramm-Komponente nicht initialisiert.</p>';
+      return;
+    }
+    // Hole den Wrapper basierend auf dem AKTUELL gefundenen Element
+    const costTypeWrapper = currentCostTypeCanvas.closest(".chart-wrapper");
+
+    // Prüfen, ob der Wrapper gefunden wurde
+    if (!costTypeWrapper) {
+      console.error("FEHLER: Wrapper für Kosten-Typ-Diagramm nicht gefunden!");
+      return;
+    }
+
+    console.log(
+      `Aggregiere Kosten nach Typ für Fahrzeug ${vehicleId} und Jahr ${year}`
+    );
+
+    // Daten aggregieren...
+    let costsByTypeYear = {};
+    let totalYearCosts = 0;
+    if (!Array.isArray(expenses)) {
+      console.error(
+        "FEHLER: 'expenses' ist kein Array in displayCostTypeChart."
+      );
+      expenses = [];
+    }
+    expenses
+      .filter(
+        (e) =>
+          e.vehicleId === vehicleId && e.date && e.date.startsWith(year + "-")
+      )
+      .forEach((expense) => {
+        const amount = parseFloat(expense.amount || 0);
+        if (!isNaN(amount)) {
+          const type = expense.type || "sonstiges";
+          costsByTypeYear[type] = (costsByTypeYear[type] || 0) + amount;
+          totalYearCosts += amount;
+        }
+      });
+
+    for (const type in costsByTypeYear) {
+      costsByTypeYear[type] = parseFloat(costsByTypeYear[type].toFixed(2));
+    }
+    const labels = Object.keys(costsByTypeYear);
+    const data = Object.values(costsByTypeYear);
+
+    // Bestehendes Diagramm zerstören
+    costTypeChartInstance = destroyChart(costTypeChartInstance);
+
+    // Prüfen, ob Daten vorhanden sind
+    if (labels.length === 0 || totalYearCosts <= 0) {
+      console.log(`Keine Kostendaten nach Typ für ${year} gefunden.`);
+      costTypeWrapper.innerHTML = `<h3>Kosten nach Typ (${year})</h3><p class="chart-message">Keine Kostendaten für dieses Jahr erfasst.</p>`;
+      return;
+    }
+
+    // Prüfen, ob Canvas im Wrapper existiert und ggf. neu erstellen
+    let canvasElementForChart = costTypeWrapper.querySelector(
+      "#costTypeChartCanvas"
+    );
+    if (!canvasElementForChart) {
+      console.log("Kosten-Typ-Canvas nicht im Wrapper gefunden, erstelle neu.");
+      costTypeWrapper.innerHTML = `<h3>Kosten nach Typ (${year})</h3><canvas id="costTypeChartCanvas"></canvas>`;
+      canvasElementForChart = costTypeWrapper.querySelector(
+        "#costTypeChartCanvas"
+      );
+    }
+
+    // Nur fortfahren, wenn Canvas jetzt sicher existiert
+    if (canvasElementForChart) {
+      try {
+        const ctx = canvasElementForChart.getContext("2d");
+        createCostTypeChart(ctx, labels, data, year); // Hilfsfunktion aufrufen
+      } catch (e) {
+        console.error("Fehler beim Erstellen des Kosten-Typ-Diagramms:", e);
+        costTypeWrapper.innerHTML = `<h3>Kosten nach Typ (${year})</h3><p class="chart-message error-message">Fehler beim Laden des Diagramms.</p>`;
+      }
+    } else {
+      console.error(
+        "FEHLER: Konnte Kosten-Typ-Canvas weder finden noch erstellen!"
+      );
+      costTypeWrapper.innerHTML = `<h3>Kosten nach Typ (${year})</h3><p class="chart-message error-message">Fehler beim Laden des Diagramms.</p>`;
+    }
+  }
+
+  /**
+   * Hilfsfunktion zum Erstellen des Doughnut-Diagramms (Kosten nach Typ).
+   * @param {CanvasRenderingContext2D} ctx - Der 2D-Kontext des Canvas.
+   * @param {string[]} labels - Die Labels (Ausgabentypen).
+   * @param {number[]} data - Die Daten (Beträge pro Typ).
+   * @param {number} year - Das Jahr für den Titel (wird hier nicht mehr direkt verwendet, aber im Tooltip).
+   */
+  function createCostTypeChart(ctx, labels, data, year) {
+    // Farbpalette
+    const backgroundColors = [
+      "rgba(255, 99, 132, 0.7)",
+      "rgba(54, 162, 235, 0.7)",
+      "rgba(255, 206, 86, 0.7)",
+      "rgba(75, 192, 192, 0.7)",
+      "rgba(153, 102, 255, 0.7)",
+      "rgba(255, 159, 64, 0.7)",
+      "rgba(101, 143, 75, 0.7)",
+      "rgba(210, 180, 140, 0.7)",
+      "rgba(119, 136, 153, 0.7)",
+      "rgba(255, 110, 180, 0.7)",
+    ];
+    const chartColors = labels.map(
+      (_, index) => backgroundColors[index % backgroundColors.length]
+    );
+
+    costTypeChartInstance = new Chart(ctx, {
+      type: "doughnut",
+      data: {
+        labels: labels.map((l) => l.charAt(0).toUpperCase() + l.slice(1)),
+        datasets: [
+          {
+            label: `Kosten nach Typ ${year}`,
+            data: data,
+            backgroundColor: chartColors,
+            hoverOffset: 4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: { position: "top" },
+          title: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                let label = context.label || "";
+                if (label) {
+                  label += ": ";
+                }
+                if (context.parsed !== null) {
+                  label += new Intl.NumberFormat("de-DE", {
+                    style: "currency",
+                    currency: "EUR",
+                  }).format(context.raw);
+                }
+                return label;
+              },
+            },
+          },
+        },
+      },
+    });
+    console.log("Kosten-nach-Typ-Diagramm erstellt/aktualisiert.");
+  }
+
+  // ========================================================================
   // === 9. Bestätigungs-Modal Funktionen ===
   // ========================================================================
   function openConfirmModal(message, onConfirm) {
@@ -1516,7 +2002,6 @@ document.addEventListener("DOMContentLoaded", function () {
       deleteAllAction
     );
   }
-
   // ========================================================================
   // === 11. Kernfunktionen (Fahrten: Speichern, Update, Edit-Modus) ===
   // ========================================================================
@@ -2344,6 +2829,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // --- Paginierung (Fahrten) ---
     prevPageBtn?.addEventListener("click", handlePrevPage);
     nextPageBtn?.addEventListener("click", handleNextPage);
+    // NEU: Listener für Änderungen in Diagramm-Steuerelementen
+    showChartsButton?.addEventListener("click", handleShowCharts); // NEU
+    chartVehicleSelect?.addEventListener("change", displayCharts);
+    chartYearSelect?.addEventListener("change", displayCharts);
 
     console.log("Event Listeners initialisiert.");
   }
@@ -2588,13 +3077,35 @@ document.addEventListener("DOMContentLoaded", function () {
     // Die Funktion displayStatistics() wird innerhalb von showMiddleColumnView aufgerufen
     showMiddleColumnView("berichte");
   }
+  /**
+   * NEU: Handler für Klick auf "Diagramme anzeigen" im Menü.
+   */
+  function handleShowCharts() {
+    // Oder wie auch immer deine Funktion heißt
+    console.log("Button 'Diagramme anzeigen' geklickt.");
+    showMiddleColumnView("diagramme"); // 1. Ansicht anzeigen
+    initializeChartControls(); // 2. Dropdowns füllen (und vorauswählen)
+    displayCharts(); // 3. Diagramme JETZT zeichnen (basierend auf Vorauswahl)
+  }
   // ========================================================================
   // === 19. Initialisierung der App ===
   // ========================================================================
   function initialisiereApp() {
     console.log("Initialisiere App...");
     // Prüfung auf Elemente ist optional, aber hilfreich
-    // ...
+    // Prüfung auf Elemente ist optional, aber hilfreich
+    const requiredElementIds = [
+      // ... (andere IDs) ...
+      "diagramme-container",
+      "berichte-inhalt",
+      "chart-controls",
+      "chart-vehicle-select",
+      "chart-year-select",
+      "kmChartCanvas",
+      "costChartCanvas",
+      "costTypeChartCanvas",
+      "show-charts-btn-menu",
+    ];
     loadCars();
     loadExpenses(); // Ausgaben laden
     const alleFahrten = ladeFahrtenAusLocalStorage();
